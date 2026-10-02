@@ -46,3 +46,18 @@ If the live API disagrees with `docs/api/` or with a model, that is the most
 valuable kind of issue. Include the endpoint, what the documentation says,
 what the API returned (redacted), and if possible a Golden File recorded
 through the Console.
+
+## Releasing (maintainers)
+
+Go releases are tagged `go/vX.Y.Z`, because the module lives in `go/`, and are
+made by pull request:
+
+1. Open a PR that sets `go/VERSION` to the new version (e.g. `0.3.0`),
+   titled with the ticket key and the version.
+2. Merge it. The `main` build publishes the code to GitHub, tags that commit
+   `go/v0.3.0`, and tags the matching GitHub commit. A version that is not
+   above the newest release fails the build.
+
+If a tag ever needs to be republished to GitHub, run the `release-tag`
+pipeline on `main` with `TAG=go/vX.Y.Z`; an existing GitHub tag is never
+moved.
