@@ -6,7 +6,7 @@ and verified against the same Golden Files.
 
 | Language | Directory | Status |
 |----------|-----------|--------|
-| Go       | [go/](go/README.md)   | v0.x, covers the whole API |
+| Go       | [go/](go/README.md)   | v0.x, covers the whole API, plus the Console |
 | PHP      | [php/](php/README.md) | planned |
 
 ## Shared by every SDK

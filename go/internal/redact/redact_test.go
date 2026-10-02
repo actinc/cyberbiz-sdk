@@ -163,7 +163,7 @@ func TestHeadersRewriteHosts(t *testing.T) {
 }
 
 func TestQueryTokensAreRedacted(t *testing.T) {
-	in := []byte(`{"account_activation_url":"http://acmeco.cyberbiz.co/account/customer/activate?confirmation_token=aB3dE5fG7hJ9kL1mN2pQ&x=1"}`)
+	in := []byte(`{"account_activation_url":"http://acmeco.cyberbiz.co/account/customer/activate?confirmation_token=xxxxxxxxxxxxxxxxxxxx&x=1"}`)
 	out, err := JSON(in)
 	if err != nil {
 		t.Fatal(err)

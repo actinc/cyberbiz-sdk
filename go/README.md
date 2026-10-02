@@ -1,6 +1,7 @@
 # CYBERBIZ Go SDK
 
-Go client for the [CYBERBIZ](https://www.cyberbiz.io) e-commerce platform API.
+Go client for the [CYBERBIZ](https://www.cyberbiz.io) e-commerce platform API,
+plus a local **Console** for exercising the API and inspecting webhooks.
 
 - Covers the whole API: every `/v1` resource, the `/v2` additions, and the app
   endpoints (`/shop`, `/settings`), all through one client.
@@ -154,6 +155,13 @@ To exercise your receiver without waiting for real traffic, import
 one request per event with the full sample payload, and a pre-request script
 that signs the body with your App Secret exactly the way CYBERBIZ does.
 
+## Console
+
+`console/` is a separate Go module (so the SDK stays dependency-free) with a
+single-binary web app: an API tester for every operation, a webhook receiver,
+searchable logs of everything sent and received, and one-click export of a
+real response as a redacted Golden File. See [console/README.md](console/README.md).
+
 ## Documentation
 
 - `docs/api/en/` (repo root, shared by every language SDK): OpenAPI 3.1
@@ -168,13 +176,15 @@ that signs the body with your App Secret exactly the way CYBERBIZ does.
 Run these from `go/`:
 
 ```sh
-make test          # unit tests
+make test          # unit tests, SDK and Console
 make lint          # gofmt + go vet
 make integration   # read-only calls against the live API (CYBERBIZ_API_TOKEN)
+make console       # run the Console
 ```
 
 Unit tests never touch the network; they decode the Golden Files and drive
-the client against `httptest` servers.
+the client against `httptest` servers. To hack on the SDK and the Console
+together, copy `go.work.example` to `go.work`.
 
 ## Status
 

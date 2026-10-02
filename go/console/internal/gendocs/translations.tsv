@@ -1,0 +1,1635 @@
+# zh-TW	English
+ID	ID
+id	ID
+建立時間	Created at.
+更新時間	Updated at.
+成立時間	Created at.
+是否公開	Whether it is published.
+備註	Note.
+名稱	Name.
+數量	Quantity.
+金額	Amount.
+標題	Title.
+欲搜尋的商品 ID	Product ID to look up.
+最小消費金額	Minimum order amount.
+部落格 ID	Blog ID.
+折扣內容	Discount details.
+是否與「任選折扣群組」或「全館活動」併用	Whether it can be combined with special collections or shop-wide campaigns.
+使用次數上限	Usage limit.
+地址	Address.
+「按價格排序: 最低-最高」: price.asc	price.asc: price, low to high
+「按價格排序: 最高-最低」: price.desc	price.desc: price, high to low
+「按創建日期: 最近-最遠」: created_at.desc	created_at.desc: newest first
+「按創建日期: 最遠-最近」: created_at.asc	created_at.asc: oldest first
+「按標題拼音升序: A-Z」: title.asc	title.asc: title A-Z
+「按標題拼音降序: Z-A」: title.desc	title.desc: title Z-A
+「暢銷商品排序」: sell_weight.desc	sell_weight.desc: best sellers first
+使用結束日期 (YYYY-MM-DD)	Usable until (YYYY-MM-DD).
+使用起始日期 (YYYY-MM-DD)	Usable from (YYYY-MM-DD).
+序號	Serial number.
+欲修改的訂單 ID	Order ID to update.
+群組介紹 html	Collection description (HTML).
+群組商品的排序方式	Ordering of the products in the collection.
+群組網址代碼 (/collections/xxxxxx)	Collection handle (/collections/<handle>).
+與其他行銷活動併用限制 類型	Restriction type for combining with other campaigns.
+庫存不足策略 (continue/deny)	Out-of-stock policy (continue / deny).
+折扣種類 (金額 or 百分比)	Discount kind (amount or percent).
+欲搜尋的訂單 ID	Order ID to look up.
+群組商品	Products in the collection.
+與其他行銷活動併用限制 活動 (vip_custom_price_discount: 會員專屬價格; variant_discount: 單品折扣; bundle_discount: 紅配綠多組合優惠; special_collection_discount: 任選折扣; category_campaign_discount: 分類優惠折扣; shop_discount: 全館折扣; vip_discount: VIP 折扣; referral_discount: 推薦碼折扣; add_buy_discount: 加價購)	Campaigns the restriction applies to (vip_custom_price_discount: VIP custom price; variant_discount: per-variant discount; bundle_discount: bundle discount; special_collection_discount: special collection discount; category_campaign_discount: category campaign discount; shop_discount: shop-wide discount; vip_discount: VIP discount; referral_discount: referral code discount; add_buy_discount: add-on purchase).
+電話	Phone.
+商品名稱	Product name.
+文章 ID	Article ID.
+產品 IDs (逗點區隔)	Product IDs, comma-separated.
+郵遞區號	Postal code.
+「手動排序」: manual	manual: manual ordering
+優惠券綁定商品標籤（ 留空則不綁定 ）	Product tags the coupon is bound to (empty: not bound).
+商品 IDs (逗點區隔)	Product IDs, comma-separated.
+商品來源廠商	Vendor.
+款式名稱	Variant name.
+縣市	County / city.
+群組結束日期 (YYYY-MM-DD hh:mm:ss)	Collection end date (YYYY-MM-DD hh:mm:ss).
+群組起始日期 (YYYY-MM-DD hh:mm:ss)	Collection start date (YYYY-MM-DD hh:mm:ss).
+與其他行銷活動併用限制 類型 (請和 concurrently_apply 擇一使用）([unrestricted] 所有行銷活動商品皆可使用此優惠券; [restrict] 除指定活動商品外，其他商品可使用此優惠券; [forbidden] 訂單包含指定活動商品時，不得使用此優惠券)	Restriction type for combining with other campaigns (use either this or concurrently_apply): unrestricted = usable on every campaign product; restrict = usable except on the listed campaigns' products; forbidden = not usable when the order contains a listed campaign's product.
+運費	Shipping fee.
+區域	District.
+商品最低金額	Lowest product price.
+商品標語	Product slogan.
+商品款式 IDs	Product variant IDs.
+商品類型	Product type.
+商品類型代碼	Product type code.
+快遞/物流名稱	Courier / carrier name.
+欲出貨的 line_item IDs (逗點區隔)	Line item IDs to ship, comma-separated.
+欲搜尋自訂欄位的顧客 ID	Customer ID whose custom fields to look up.
+消費金額	Spend amount.
+群組名稱	Collection name.
+Vip 計算優先順序	VIP calculation priority.
+作者名稱	Author name.
+來源	Source.
+倉庫庫存同步	Warehouse inventory sync.
+內容	Content.
+取得所有 Vip 設定	List all VIP settings.
+商品標題	Product title.
+商品通路	Product channel.
+單價	Unit price.
+成本	Cost.
+折扣固定金額	Fixed discount amount.
+文章標題	Article title.
+文章網址代碼	Article handle.
+欲搜尋其他通路有效訂單的顧客 ID	Customer ID whose other-channel valid orders to look up.
+欲搜尋的任選折扣群組 ID	Special collection ID to look up.
+每個單價固定金額	Fixed amount per unit.
+每個單價折扣趴數	Discount percentage per unit.
+發佈狀態	Publication status.
+發佈結束時間	Publication end time.
+發佈開始時間	Publication start time.
+置頂	Pinned.
+計算規則	Calculation rule.
+透過 POS 商店 ID 取得該 POS 商店的所有商品	List the products of a POS shop by ID.
+透過自訂群組 ID 更新該自訂群組	Update a custom collection by ID.
+通路名稱	Channel name.
+進倉單 ID	Stock receipt ID.
+部落格標題	Blog title.
+部落格網址代碼	Blog handle.
+限購數量	Purchase limit.
+頻率	Frequency.
+Google 產品類別 ID	Google product category ID.
+上架日期 (YYYY-MM-DD hh:mm:ss)，不填則不設定走期	Sell-from date (YYYY-MM-DD hh:mm:ss); omit for no sales window.
+下架日期 (YYYY-MM-DD hh:mm:ss)，不填則不設定走期	Sell-to date (YYYY-MM-DD hh:mm:ss); omit for no sales window.
+備註 (企業版專屬功能，如欲使用，請洽開店顧問)	Note (Enterprise plan only; contact your consultant).
+商品 ID	Product ID.
+商品介紹 html	Product description (HTML).
+商品廠商	Vendor.
+商品搜尋功能	Whether the product is searchable.
+商品標籤字串 (逗點區隔)	Product tags, comma-separated.
+商品簡述純文字	Product brief as plain text.
+商品英文標題	Product English title.
+商家備註	Merchant note.
+單品折扣群組 ID	Variant discount collection ID.
+廠商編號	Vendor item code.
+操作人	Operator.
+是否啟用	Enabled.
+欲搜尋個人優惠券的顧客 ID	Customer ID whose personal coupons to look up.
+欲搜尋的加價購群組 ID	Add-buy collection ID to look up.
+欲搜尋的自訂群組 ID	Custom collection ID to look up.
+欲搜尋門市人員設定的門市 ID	Branch store ID whose staff users to look up.
+欲搜尋門市運費設定的門市 ID	Branch store ID whose shipping rates to look up.
+營業時間	Opening hours.
+訂單金額	Order amount.
+託運單號	Consignment (tracking) number.
+隸屬哪些自訂群組 (逗點區隔)	Custom collections it belongs to, comma-separated.
+隸屬哪個任選折扣群組	Special collection it belongs to.
+類型名稱	Type name.
+顧客 ID	Customer ID.
+Email驗證時間	E-mail verified at.
+「不包含」: exc	exc: does not contain
+「以此結束」: end	end: ends with
+「以此開頭」: start	start: starts with
+「任選固定金額」: amount	amount: fixed price for the selection
+「任選折固定金額」: discount	discount: fixed amount off the selection
+「任選折數」: percentage	percentage: percentage off the selection
+「任選每件折固定金額」: per_discount	per_discount: fixed amount off each item
+「其他」: other	other: other
+「包含」: cont	cont: contains
+「商品價格」: variants_price	variants_price: product price
+「商品名稱」: title	title: product name
+「商品廠商」: vendor	vendor: vendor
+「商品類型」: product_type	product_type: product type
+「大於」: gt	gt: greater than
+「定價」: variants_compare_at_price	variants_compare_at_price: compare-at price
+「小於」: lt	lt: less than
+「庫存現貨」: variants_inventory_quantity	variants_inventory_quantity: inventory quantity
+「款式名稱」: variants_option1	variants_option1: variant option 1
+「等於」: eq	eq: equals
+付款方式	Payment method.
+付款方式名稱	Payment method name.
+任選折扣類型	Special collection discount type.
+使用次數	Times used.
+例如：	For example:
+促銷種類 (金額 or 百分比 or 個人優惠券)	Promotion kind (amount, percent or personal coupon).
+促銷結束日期 (YYYY-MM-DD hh:mm:ss)	Promotion end date (YYYY-MM-DD hh:mm:ss).
+促銷起始日期 (YYYY-MM-DD hh:mm:ss)	Promotion start date (YYYY-MM-DD hh:mm:ss).
+個人優惠券使用期限 (天數)	Personal coupon validity (days).
+個人優惠券是否與「任選折扣群組」或「全館活動」併用	Whether the personal coupon can be combined with special collections or shop-wide campaigns.
+優惠券綁定的商品	Products the coupon is bound to.
+其他通路累積金額	Accumulated spend from other channels.
+剩餘商品是否以折扣計	Whether remaining items are discounted.
+加購金額	Add-on purchase price.
+可使用加價購的最低訂單金額	Minimum order amount for add-on purchases.
+可使用的門市 ID	Usable POS shop IDs.
+售價	Selling price.
+商品介紹內容	Product description content.
+商品介紹類型	Product description type.
+商品標籤 (逗點區隔)	Product tags, comma-separated.
+商品款式	Product variants.
+商品照片網址	Product photo URLs.
+商品簡述	Product brief.
+單品折扣群組名稱	Variant discount collection name.
+城市	City.
+姓名	Name.
+安全庫存水位	Safety inventory level.
+定價	Compare-at price.
+已售數量	Quantity sold.
+庫存量 (>0)	Inventory quantity (> 0).
+庫存量 (如果使用 POS 系統，則會無視修改)	Inventory quantity (ignored when the shop uses the POS system).
+建立 VIP 層級 (至編輯中版本的 VIP 群組下）	Create a VIP level (under the draft VIP group).
+建立出倉單	Create a stock invoice.
+建立庫存調整紀錄	Create a stock adjustment.
+建立調倉單	Create a stock requisition.
+建立進倉單	Create a stock receipt.
+建立門市資訊	Create a branch store.
+建立顧客 (您已充分了解並同意，經由您匯入CYBERBIZ系統之會員資訊，為合法及有權蒐集，並已同意CYBERBIZ會員服務條款，謝謝！)	Create a customer. (By importing customer data into CYBERBIZ you confirm it was collected lawfully and with consent, and that the customer agreed to the CYBERBIZ member terms.)
+性別	Gender.
+成立時間 (YYYY-MM-DD)	Created on (YYYY-MM-DD).
+手機國碼	Mobile country calling code.
+手機號碼	Mobile number.
+手機驗證時間	Mobile verified at.
+折扣百分比 (折扣類型為「任選折數」時必填)	Discount percentage (required when the discount type is percentage).
+折扣金額 (折扣類型為「任選固定金額」、「任選折扣金額」、「任選每件折固定金額」時必填)	Discount amount (required for the amount, discount and per_discount types).
+排序後的產品 IDs (逗點區隔)	Product IDs in the desired order, comma-separated.
+換貨相關資訊	Exchange history.
+文章 HTML 內容（依 app 授權，未授權時會過濾 HTML；已授權則原樣保存，請自行確保內容安全）	Article HTML content (filtered unless the app is authorised for raw HTML; authorised apps must sanitise the content themselves).
+是否可累積紅利點數	Whether bonus points accumulate.
+是否無使用次數限制	Whether usage is unlimited.
+是否與「任選折扣群組」或「門市活動」併用	Whether it can be combined with special collections or POS campaigns.
+是否要限制「每個帳號可使用次數」	Whether the per-account usage limit is enabled.
+是否需要收貨地址	Whether shipping is required.
+更新 VIP 層級	Update a VIP level.
+更新特定商品的綁定物流	Update the shipping methods bound to a product.
+最低購買數量（此參數是企業版功能，如需使用請洽開店顧問）	Minimum purchase quantity (Enterprise plan only; contact your consultant).
+材積	Volume (dimensional size).
+核銷碼	Redemption code.
+格式須為國際標準ISO8601	Must be in ISO 8601 format.
+條碼	Barcode.
+標籤名稱	Tag name.
+欲搜尋的智慧群組 ID	Smart collection ID to look up.
+欲搜尋紅利的顧客 ID	Customer ID whose bonus points to look up.
+欲查詢的 POS 商店 ID	POS shop ID to look up.
+款式SKU	Variant SKU.
+款式廠商編號	Variant vendor item code.
+款式順序	Variant position.
+款式類型 (逗點區隔)	Option values, comma-separated.
+款式類型一	Option 1.
+款式類型三	Option 3.
+款式類型二	Option 2.
+每個帳號可使用次數	Usage limit per account.
+產品 ID	Product ID.
+發票編號	Invoice number.
+發票號碼	Invoice number.
+管理庫存	Inventory management.
+紅利名稱	Bonus title.
+紅利最高折抵	Maximum bonus redemption.
+紅利點數	Bonus points.
+續會條件: 單筆消費總額 (不需設定請帶 null)	Renewal condition: single-order spend (null when not set).
+群組結束日期 (YYYY-MM-DD HH:MM)	Collection end date (YYYY-MM-DD HH:MM).
+群組開始日期 (YYYY-MM-DD HH:MM)	Collection start date (YYYY-MM-DD HH:MM).
+訂單ID	Order ID.
+訂單備註	Order note.
+訂單折扣 (百分比)	Order discount (percent).
+訂單標籤	Order tags.
+計價規則	Pricing rule.
+評論設定 (no, moderate, yes)	Review setting (no, moderate, yes).
+購買數量	Purchase quantity.
+透過 JSON 格式更新或建立自訂欄位	Create or update custom fields from JSON.
+透過商品 ID 更新商品資料	Update a product by ID.
+透過多個訂單 ID 建立輸入訂單的自動出貨	Create automatic shipments for several orders by ID.
+透過訂單 ID 與配送資訊建立該訂單的超商部分出貨（限定萊爾富訂單使用，此為客製功能）	Create a partial convenience-store shipment for an order (Hi-Life orders only; custom feature).
+透過顧客 ID 更新該顧客資料	Update a customer by ID.
+逗號分隔的標籤名稱	Tag names, comma-separated.
+進倉盤點	Stock receipt check.
+過濾方式	Filter operator.
+過濾欄位	Filter column.
+過濾的參考值	Filter value.
+適用通路 (1: 全通路, 2: 線上 EC, 3: 線下 POS)	Applicable channel (1: all, 2: online EC, 3: offline POS).
+配送方式	Shipping method.
+重量 (公斤)	Weight (kg).
+門店店員信箱	Store staff e-mail.
+門店店員名稱	Store staff name.
+限購數量上限	Maximum purchase quantity.
+限購群組 ID	Limit collection ID.
+頁籤內容	Tab content.
+頁籤名稱	Tab name.
+顧客建立線下發票累積紅利	Grant bonus points for a customer's offline invoice.
+(已棄用) 是否優先使用可轉單之單號	(Deprecated) Prefer transferable tracking numbers.
+Pos 相關資訊	POS information.
+SEO 描述	SEO description.
+SEO 標題	SEO title.
+SEO 關鍵字	SEO keywords.
+「低溫」: cold	cold: cold chain
+「宅配通」: pelican	pelican: Pelican
+「已取消」: canceled	canceled: cancelled
+「常溫」: normal	normal: ambient
+「待確認」: pending	pending: pending
+「黑貓」: ezcat	ezcat: T-cat
+上傳圖片到商家的 CKeditor 圖庫中	Upload a picture to the shop's CKEditor library.
+上傳文章封面圖片	Upload an article cover image.
+以 ID 刪除文章	Delete an article by ID.
+以 ID 刪除部落格	Delete a blog by ID.
+以 ID 取得文章	Get an article by ID.
+以 ID 取得部落格	Get a blog by ID.
+以 ID 更新文章	Update an article by ID.
+以 ID 更新部落格	Update a blog by ID.
+來源 ID (Integer / null)	Source ID (integer or null).
+來源類型（BranchStore / PosShop)	Source type (BranchStore or PosShop).
+備貨天數 (1-90)	Preparation days (1-90).
+允許使用的付款方式 ID (逗點區隔)	Allowed payment method IDs, comma-separated.
+出倉單 ID	Stock invoice ID.
+出倉項目	Stock invoice items.
+刪除文章封面圖片	Delete the article cover image.
+取得商家 CKeditor 圖庫中的所有圖片	List the pictures in the shop's CKEditor library.
+取得商店會員紅利積點規則	Get the shop's bonus point rule.
+取得所有 POS 商店資訊	List all POS shops.
+取得所有任選折扣群組	List all special collections.
+取得所有全館優惠券	List all shop coupons.
+取得所有全館活動	List all shop-wide discounts.
+取得所有出倉單	List all stock invoices.
+取得所有加價購群組	List all add-buy collections.
+取得所有商品介紹支援的類型	List the supported product description types.
+取得所有商品資料	List all products.
+取得所有已成立訂單的子訂單資訊	List the established child orders of a periodic order.
+取得所有庫存同步群組	List all inventory sync groups.
+取得所有庫存調整紀錄	List all stock adjustments.
+取得所有智慧群組	List all smart collections.
+取得所有母訂單資訊	List all periodic (parent) orders.
+取得所有自訂欄位	List all custom fields.
+取得所有自訂欄位類型	List all custom field types.
+取得所有自訂群組	List all custom collections.
+取得所有訂單資料	List all orders.
+取得所有該商店的單品折扣群組	List all variant discount collections of the shop.
+取得所有調倉單	List all stock requisitions.
+取得所有進倉單	List all stock receipts.
+取得所有部落格	List all blogs.
+取得所有門市優惠券	List all POS shop coupons.
+取得所有門市資訊	List all branch stores.
+取得所有限購群組	List all limit collections.
+取得所有顧客標籤	List all customer tags.
+取得所有顧客群組	List all customer groups.
+取得所有顧客資料	List all customers.
+取得文章所有標籤	List the tags of an article.
+取得特定商品的所有綁定物流	List the shipping methods bound to a product.
+取得目前所有可綁定的物流	List the shipping methods that can be bound.
+取得群組內顧客資訊	Get the customers of a customer group.
+取得部落格 SEO 標籤	Get the SEO meta tags of a blog.
+取得部落格所有文章	List the articles of a blog.
+取得門市取貨可用付款方式	List the payment methods available for store pickup.
+取得預設顧客註冊欄位「性別」，除了男性與女性	List the default gender options of the registration form other than male and female.
+取得顧客帳戶啟用連結	Get a customer's account activation link.
+取消套用 VIP 編輯中版本	Discard the draft VIP settings.
+取消時間	Cancelled at.
+取消第三方出倉單	Cancel a third-party stock invoice.
+取消進倉	Cancel a stock receipt.
+可選擇的日期範圍（天數）	Selectable date range (days).
+同意調倉	Approve a stock requisition.
+同意進倉	Approve a stock receipt.
+商品圖片	Product photo.
+商品標籤	Product tags.
+商品簡述是否使用HTML	Whether the product brief uses HTML.
+商品網址代碼 (/products/xxxxxx)	Product handle (/products/<handle>).
+商品課稅類別，應稅為'inclusive_tax'、零稅率為'zero_tax'、免稅為'exclusive_tax'	Tax type: inclusive_tax (taxable), zero_tax (zero-rated), exclusive_tax (tax exempt).
+商品關聯群組	Related collections.
+啟用升等禮	Upgrade gift enabled.
+啟用店長密碼	Manager password enabled.
+啟用生日禮	Birthday gift enabled.
+啟用紅利倍數	Bonus multiplier enabled.
+啟用訂單免運	Free shipping enabled.
+啟用訂單折扣	Order discount enabled.
+國家	Country.
+在部落格中建立文章	Create an article in a blog.
+多付款方式資訊	Multiple payment information.
+套用 VIP 編輯中版本	Apply the draft VIP settings.
+尚未使用點數	Unused points.
+建立 Vip 設定	Create VIP settings.
+建立任選折扣群組	Create a special collection.
+建立任選折扣群組規則	Create a special collection rule.
+建立全館優惠券	Create a shop coupon.
+建立全館活動	Create a shop-wide discount.
+建立加價購群組	Create an add-buy collection.
+建立商品限購群組	Create a limit collection.
+建立單品折扣群組	Create a variant discount collection.
+建立庫存同步群組	Create an inventory sync group.
+建立智慧群組	Create a smart collection.
+建立智慧群組規則	Create a smart collection rule.
+建立編輯中版本的 VIP 群組	Create a draft VIP group.
+建立自訂欄位類型	Create a custom field type.
+建立自訂群組	Create a custom collection.
+建立部落格	Create a blog.
+建立門市優惠券	Create a POS shop coupon.
+從任選折扣群組中移除商品	Remove products from a special collection.
+從該庫存同步群組中移除款式	Remove variants from an inventory sync group.
+從該自訂群組中移除商品	Remove products from a custom collection.
+從該限購群組中移除商品	Remove products from a limit collection.
+截止建立日期 (YYYY-MM-DD)	Created before (YYYY-MM-DD).
+手機條碼	Mobile barcode carrier.
+折扣金額	Discount amount.
+拒絕調倉	Reject a stock requisition.
+拒絕進倉	Reject a stock receipt.
+指定狀態	Target status.
+指定配送時間	Requested delivery time.
+捐贈碼	Donation code.
+排序該加價購群組中的商品	Reorder the products of an add-buy collection.
+排序該自訂群組中的商品	Reorder the products of a custom collection.
+排序該限購群組中的商品	Reorder the products of a limit collection.
+搜尋票券訂單	Search e-ticket orders.
+新增商品	Create a product.
+新增商品款式進單品折扣群組	Add variants to a variant discount collection.
+新增商品進任選折扣群組	Add products to a special collection.
+新增商品進該加價購群組	Add products to an add-buy collection.
+新增商品進該自訂群組	Add products to a custom collection.
+新增商品進該限購群組	Add products to a limit collection.
+新增標籤到文章	Add tags to an article.
+新增款式進該庫存同步群組	Add variants to an inventory sync group.
+是否可在前台出現	Whether it is visible in the storefront.
+是否啟用配送日期	Whether delivery dates are enabled.
+是否顯示「冷藏」或「冷凍」	Whether to show refrigerated / frozen.
+是否顯示「易碎」	Whether to show fragile.
+更新單品折扣群組	Update a variant discount collection.
+更新單品折扣群組中的商品款式	Update the variants of a variant discount collection.
+更新所有顧客群組人數	Recount all customer groups.
+更新指定母訂單資訊 (需額外付費，若要使用請洽開店顧問或客服人員)	Update a periodic (parent) order (paid add-on; contact your consultant).
+更新該自訂群組中的商品	Update the products of a custom collection.
+更新該限購群組中的商品	Update the products of a limit collection.
+更新部落格 SEO 標籤	Update the SEO meta tags of a blog.
+查看庫存調整項目列表	List stock adjustment items.
+核銷票券訂單	Redeem an e-ticket order.
+欲使用的託運商	Carrier to use.
+欲出貨的尺寸 (cm)	Package size to ship (cm).
+欲出貨的溫層	Temperature zone to ship.
+欲搜尋的 Vip 設定 ID	VIP settings ID to look up.
+欲搜尋的庫存同步群組 ID	Inventory sync group ID to look up.
+欲收託運單的信箱	E-mail address to receive the consignment note.
+款式 ID	Variant ID.
+款式 IDs (逗點區隔)	Variant IDs, comma-separated.
+母訂單編號	Periodic (parent) order number.
+溫層（常溫, 冷藏, 冷凍)	Temperature zone (ambient, refrigerated, frozen).
+物流商	Carrier.
+生日禮: 名稱	Birthday gift: name.
+生日禮: 提前贈送天數	Birthday gift: days in advance.
+產生此紅利的消費金額	Spend that produced the bonus.
+用 ID 刪除 VIP 群組 (僅可刪除編輯中版本的 VIP 群組)	Delete a VIP group by ID (draft groups only).
+用 ID 刪除 VIP 階層 (僅可刪除編輯中版本的 VIP 階層)	Delete a VIP level by ID (draft levels only).
+用 ID 取得 VIP 設定	Get VIP settings by ID.
+發票抬頭	Invoice title.
+發票狀態	Invoice status.
+發票統編	Invoice tax ID.
+確認第三方出倉單	Confirm a third-party stock invoice.
+移除單品折扣群組中的商品款式	Remove variants from a variant discount collection.
+移除文章標籤	Remove tags from an article.
+第三方登入更新顧客註冊人推薦碼與是否接受行銷狀態	Update a customer's registration referral code and marketing consent after a social login.
+統一編號	Tax ID (business registration number).
+經度	Longitude.
+緯度	Latitude.
+自然人憑證	Citizen digital certificate carrier.
+自訂欄位名稱	Custom field name.
+與其他行銷活動併用限制 活動	Campaigns the restriction applies to.
+處理狀態	Processing status.
+訂單編號	Order number.
+設定會員註冊贈送優惠券	Set the coupon granted on customer registration.
+調倉單 ID	Stock requisition ID.
+調倉項目	Stock requisition items.
+調整項目	Adjustment items.
+貨物送達	Goods arrived.
+起始建立日期 (YYYY-MM-DD)	Created after (YYYY-MM-DD).
+起始日期 (YYYY-MM-DD)	Start date (YYYY-MM-DD).
+透過 ID 刪除單品折扣群組	Delete a variant discount collection by ID.
+透過 ID 取得單品折扣群組	Get a variant discount collection by ID.
+透過 POS 商店 ID 取得該 POS 商店的所有商品款式	List the product variants of a POS shop by ID.
+透過 POS 商店 ID 取得該 POS 商店資訊	Get a POS shop by ID.
+透過 POS 商店 ID 大量新增商品 (POS 專屬 API)	Batch-create products for a POS shop by ID (POS only).
+透過 POS 商店 ID 更新該 POS 商店資訊	Update a POS shop by ID.
+透過 POS 商店 ID 與 POS 機 ID 取得 POS 機資訊	Get a POS terminal by POS shop ID and terminal ID.
+透過 POS 商店 ID 與 POS 機 ID 更新 POS 機資訊	Update a POS terminal by POS shop ID and terminal ID.
+透過 SKU / QC 大量刪除商品圖片	Batch-delete product photos by SKU / QC.
+透過 SKU / QC 大量新增商品圖片	Batch-create product photos by SKU / QC.
+透過 Vip 設定 ID 刪除該 Vip 設定	Delete VIP settings by ID.
+透過 Vip 設定 ID 取得該 Vip 設定	Get VIP settings by ID.
+透過 Vip 設定 ID 新增／更新 Vip 優惠	Create or update the VIP promotion of VIP settings by ID.
+透過 Vip 設定 ID 新增／更新 Vip 條件	Create or update the VIP rule of VIP settings by ID.
+透過 Vip 設定 ID 更新該 Vip 設定	Update VIP settings by ID.
+透過 顧客 ID 取得 LINE UID	Get a customer's social-login UID by customer ID.
+透過 顧客 ID 取得 VIP 資料	Get a customer's VIP information by customer ID.
+透過 顧客 ID 更新/創立 LINE UID	Create or update a customer's social-login UID by customer ID.
+透過任選折扣群組 ID 刪除該任選折扣群組	Delete a special collection by ID.
+透過任選折扣群組 ID 取得該任選折扣群組	Get a special collection by ID.
+透過任選折扣群組 ID 更新該任選折扣群組	Update a special collection by ID.
+透過任選折扣群組規則 ID 刪除該任選折扣群組規則	Delete a special collection rule by ID.
+透過任選折扣群組規則 ID 更新該任選折扣群組規則	Update a special collection rule by ID.
+透過優惠券 ID 取得特定全館優惠券資訊	Get a shop coupon of the customer by coupon ID.
+透過全館優惠券 ID 刪除該全館優惠券	Delete a shop coupon by ID.
+透過全館優惠券 ID 取得該全館優惠券	Get a shop coupon by ID.
+透過全館優惠券 ID 更新該全館優惠券	Update a shop coupon by ID.
+透過全館活動 ID 刪除該全館活動	Delete a shop-wide discount by ID.
+透過全館活動 ID 取得該全館活動	Get a shop-wide discount by ID.
+透過全館活動 ID 更新該全館活動	Update a shop-wide discount by ID.
+透過出倉單 ID 取得該出倉單	Get a stock invoice by ID.
+透過出貨紀錄 ID 取得托運單資料 (限超商託運單使用)	Get the consignment note of a fulfillment by ID (convenience-store shipments only).
+透過加價購群組 ID 刪除該加價購群組	Delete an add-buy collection by ID.
+透過加價購群組 ID 取得該加價購群組	Get an add-buy collection by ID.
+透過加價購群組 ID 更新該加價購群組	Update an add-buy collection by ID.
+透過商品 ID 上傳該商品的圖片	Upload a photo for a product by ID.
+透過商品 ID 刪除該商品資料	Delete a product by ID.
+透過商品 ID 取得該商品所有商品介紹	List the descriptions of a product by ID.
+透過商品 ID 取得該商品所有商品標籤	List the tags of a product by ID.
+透過商品 ID 取得該商品所有商品款式資料	List the variants of a product by ID.
+透過商品 ID 取得該商品所有商品選項	List the options of a product by ID.
+透過商品 ID 取得該商品的所有圖片	List the photos of a product by ID.
+透過商品 ID 取得該商品資料	Get a product by ID.
+透過商品 ID 建立該商品的商品介紹	Create a description for a product by ID.
+透過商品 ID 建立該商品的商品款式資料	Create a variant for a product by ID.
+透過商品 ID 建立該商品的商品選項	Create an option for a product by ID.
+透過商品 ID 更新商品 SEO 資料	Update the SEO meta tags of a product by ID.
+透過商品 ID 與商品介紹 ID 取得該商品介紹	Get a product description by product ID and description ID.
+透過商品 ID 與商品介紹 ID 更新該商品介紹	Update a product description by product ID and description ID.
+透過商品 ID 與商品圖片 ID 刪除該商品的圖片	Delete a product photo by product ID and photo ID.
+透過商品 ID 與商品款式 ID 刪除該商品款式資料	Delete a product variant by product ID and variant ID.
+透過商品 ID 與商品款式 ID 取得該商品款式資料	Get a product variant by product ID and variant ID.
+透過商品 ID 與商品款式 ID 更新該商品款式資料	Update a product variant by product ID and variant ID.
+透過商品 ID 與商品選項 ID 刪除該商品選項	Delete a product option by product ID and option ID.
+透過商品 ID 與商品選項 ID 取得該商品選項	Get a product option by product ID and option ID.
+透過商品 ID 與商品選項 ID 更新該商品選項	Update a product option by product ID and option ID.
+透過商品 ID 複數刪除該商品的商品標籤	Remove several tags from a product by ID.
+透過商品 ID 複數建立該商品的商品標籤	Add several tags to a product by ID.
+透過商品 SKU 取得該商品所有商品款式資料	List the variants of a product by SKU.
+透過圖片 ID 刪除 CKeditor 圖庫中的圖片	Delete a picture from the CKEditor library by ID.
+透過庫存同步群組 ID 刪除該庫存同步群組	Delete an inventory sync group by ID.
+透過庫存同步群組 ID 取得該庫存同步群組	Get an inventory sync group by ID.
+透過庫存同步群組 ID 更新該庫存同步群組	Update an inventory sync group by ID.
+透過庫存調整紀錄 ID 取得該庫存調整紀錄	Get a stock adjustment by ID.
+透過搜尋取得商品資料(q 跟 vendor 至少選一項填寫)	Search products (at least one of q and vendor is required).
+透過智慧群組 ID 刪除該智慧群組	Delete a smart collection by ID.
+透過智慧群組 ID 取得該智慧群組	Get a smart collection by ID.
+透過智慧群組 ID 更新該智慧群組	Update a smart collection by ID.
+透過智慧群組規則 ID 刪除該智慧群組規則	Delete a smart collection rule by ID.
+透過智慧群組規則 ID 更新該智慧群組規則	Update a smart collection rule by ID.
+透過產品 ID 更新該加價購群組中的商品	Update a product of an add-buy collection by product ID.
+透過產品 ID刪除該加價購群組中的商品	Remove a product from an add-buy collection by product ID.
+透過群組名稱取得商品資料	List the products of a collection by collection handle.
+透過自訂欄位類型 ID 刪除該自訂欄位類型	Delete a custom field type by ID.
+透過自訂欄位類型 ID 取得該自訂欄位類型	Get a custom field type by ID.
+透過自訂群組 ID 刪除該自訂群組	Delete a custom collection by ID.
+透過自訂群組 ID 取得該自訂群組	Get a custom collection by ID.
+透過訂單 ID 取得所有退貨紀錄資訊	List the return records of an order by ID.
+透過訂單 ID 取得該訂單的所有付款紀錄	List the transactions of an order by ID.
+透過訂單 ID 取得該訂單的所有出貨紀錄	List the fulfillments of an order by ID.
+透過訂單 ID 取得該訂單資料	Get an order by ID.
+透過訂單 ID 取消該訂單	Cancel an order by ID.
+透過訂單 ID 將該快速到貨訂單配送方式修改為自訂出貨 (客製項目，如需使用請洽開店顧問)	Change an express-delivery order to custom shipping by order ID (custom feature; contact your consultant).
+透過訂單 ID 將該訂單配送狀態更改為未出貨	Set an order's shipping status back to unshipped by ID.
+透過訂單 ID 將該訂單配送狀態更改為準備出貨	Set an order's shipping status to preparing by ID.
+透過訂單 ID 將該門市取貨訂單之配送狀態修改為已到店	Mark a store-pickup order as arrived at the store by ID.
+透過訂單 ID 將該門市取貨訂單之配送狀態修改為已收貨 (包含將自訂物流訂單之配送狀態修改為已收貨)	Mark a store-pickup order (or a custom-shipping order) as received by ID.
+透過訂單 ID 將該門市取貨訂單之配送狀態修改為逾期取貨	Mark a store-pickup order as not picked up in time by ID.
+透過訂單 ID 建立該訂單的付款紀錄	Create a transaction for an order by ID.
+透過訂單 ID 建立該訂單的手動出貨	Create a manual (custom) shipment for an order by ID.
+透過訂單 ID 建立該訂單的自動出貨	Create an automatic (carrier) shipment for an order by ID.
+透過訂單 ID 建立該訂單的超商出貨	Create a convenience-store shipment for an order by ID.
+透過訂單 ID 建立該門市訂單的快速到貨出貨	Create an express-delivery shipment for a store order by ID.
+透過訂單 ID 手動修改該訂單的退貨狀態	Manually change an order's return status by ID.
+透過訂單 ID 更改訂單 (目前僅開放修改訂單備註)	Update an order by ID (currently only the note can be changed).
+透過訂單 ID 更改訂單物流訊息	Update an order's warehouse note by ID.
+透過訂單 ID 更改該訂單付款狀態	Update an order's payment status by ID.
+透過訂單 ID 更改該訂單狀態	Update an order's status by ID.
+透過訂單 ID 更新訂單標籤	Update an order's tags by ID.
+透過訂單 ID 更新該電子發票資料 (客製項目，如欲使用，請洽開店顧問)	Update the e-invoice of an order by ID (custom feature; contact your consultant).
+透過訂單 ID 結束該訂單的超商部分出貨（限定萊爾富訂單使用，此為客製功能）	Conclude the partial convenience-store shipment of an order by ID (Hi-Life orders only; custom feature).
+透過訂單 ID 與出貨紀錄 ID 取得出貨紀錄資料	Get a fulfillment by order ID and fulfillment ID.
+透過訂單編號取得訂單 ID	Get order IDs by order number.
+透過調倉單 ID 取得該調倉單	Get a stock requisition by ID.
+透過進倉單 ID 取得該進倉單	Get a stock receipt by ID.
+透過門市 ID 刪除該門市資訊	Delete a branch store by ID.
+透過門市 ID 取得該門市的備貨設定	Get the preparation (prepare-delivery) settings of a branch store by ID.
+透過門市 ID 取得該門市的所有門市店員資訊	List the staff users of a branch store by ID.
+透過門市 ID 取得該門市的所有門市運費設定	List the shipping rates of a branch store by ID.
+透過門市 ID 取得門市資訊	Get a branch store by ID.
+透過門市 ID 建立該門市店員資訊	Create a staff user for a branch store by ID.
+透過門市 ID 建立該門市的門市運費設定	Create a shipping rate for a branch store by ID.
+透過門市 ID 更新該門市的備貨設定	Update the preparation (prepare-delivery) settings of a branch store by ID.
+透過門市 ID 更新該門市資訊	Update a branch store by ID.
+透過門市 ID 與門市人員 ID 刪除門市人員	Delete a staff user by branch store ID and user ID.
+透過門市 ID 與門市人員 ID 取得門市店員資訊	Get a staff user by branch store ID and user ID.
+透過門市 ID 與門市人員 ID 更新門市人員	Update a staff user by branch store ID and user ID.
+透過門市 ID 與門市運費設定 ID 刪除門市運費設定	Delete a shipping rate by branch store ID and shipping rate ID.
+透過門市 ID 與門市運費設定 ID 取得門市運費設定	Get a shipping rate by branch store ID and shipping rate ID.
+透過門市 ID 與門市運費設定 ID 更新門市運費設定	Update a shipping rate by branch store ID and shipping rate ID.
+透過門市優惠券 ID 刪除該門市優惠券	Delete a POS shop coupon by ID.
+透過門市優惠券 ID 取得該門市優惠券	Get a POS shop coupon by ID.
+透過門市優惠券 ID 更新該門市優惠券	Update a POS shop coupon by ID.
+透過限購群組 ID 取得該限購群組	Get a limit collection by ID.
+透過限購群組 ID 移除該限購群組	Delete a limit collection by ID.
+透過電子發票 ID 取得該電子發票資料	Get an e-invoice by ID.
+透過電子發票號碼取得該電子發票資料	Get an e-invoice by invoice number.
+透過顧客 Email 或手機取得顧客 ID	Get customer IDs by e-mail or mobile number.
+透過顧客 ID 取得 EC 購物車未結帳商品	List the items in a customer's EC cart by customer ID.
+透過顧客 ID 取得最近有效訂單的購買商品	List the items of a customer's recent valid orders by customer ID.
+透過顧客 ID 取得該顧客消費概況，包含「累積有效訂單消費金額 」、「累積有效訂單數」與「累積有效訂單平均金額」	Get a customer's spending overview by ID: total spend, count and average amount of valid orders.
+透過顧客 ID 取得該顧客的全館優惠券	List a customer's shop coupons by customer ID.
+透過顧客 ID 取得該顧客的所有個人優惠券	List a customer's personal coupons by customer ID.
+透過顧客 ID 取得該顧客的所有其他通路有效訂單	List a customer's other-channel valid orders by customer ID.
+透過顧客 ID 取得該顧客的所有客服問答	List a customer's customer-service message posts by customer ID.
+透過顧客 ID 取得該顧客的所有紅利	List a customer's bonus points by customer ID.
+透過顧客 ID 取得該顧客的所有自訂欄位	List a customer's custom fields by customer ID.
+透過顧客 ID 取得該顧客的所有訂單	List a customer's orders by customer ID.
+透過顧客 ID 取得該顧客資料	Get a customer by ID.
+透過顧客 ID 建立該顧客的個人優惠券	Create a personal coupon for a customer by ID.
+透過顧客 ID 建立該顧客的其他通路有效訂單(extra_infos 需開通 Plugin 才可使用)	Create an other-channel valid order for a customer by ID (extra_infos requires a plugin).
+透過顧客 ID 建立該顧客的紅利	Create bonus points for a customer by ID.
+透過顧客 ID 建立該顧客的自訂欄位	Create custom fields for a customer by ID.
+透過顧客 ID 扣除顧客紅利點數	Consume a customer's bonus points by customer ID.
+透過顧客 ID 與優惠券 ID 刪除個人優惠券	Delete a personal coupon by customer ID and coupon ID.
+透過顧客 ID 與優惠券 ID 取得個人優惠券	Get a personal coupon by customer ID and coupon ID.
+透過顧客 ID 與優惠券 ID 更新個人優惠券	Update a personal coupon by customer ID and coupon ID.
+透過顧客 ID 與優惠券 ID 核銷全館優惠券使用次數	Decrement the remaining uses of a shop coupon by customer ID and coupon ID.
+透過顧客 ID 與其他通路有效訂單 ID 刪除其他通路有效訂單	Delete an other-channel valid order by customer ID and order ID.
+透過顧客 ID 與其他通路有效訂單 ID 取消其他通路有效訂單 (客製項目，如欲使用，請洽開店顧問)	Cancel an other-channel valid order by customer ID and order ID (custom feature; contact your consultant).
+透過顧客 ID 與其他通路有效訂單 ID 更新其他通路有效訂單(extra_infos 需開通 Plugin 才可使用)	Update an other-channel valid order by customer ID and order ID (extra_infos requires a plugin).
+透過顧客 ID 與紅利 ID 刪除紅利	Delete bonus points by customer ID and bonus point ID.
+透過顧客 ID 與紅利 ID 更新紅利	Update bonus points by customer ID and bonus point ID.
+透過顧客 ID 與自訂欄位 ID 刪除多個自訂欄位	Delete several custom fields by customer ID and custom field IDs.
+透過顧客 ID 與自訂欄位 ID 刪除自訂欄位	Delete a custom field by customer ID and custom field ID.
+透過顧客 ID 與自訂欄位 ID 取得其他通路有效訂單	Get an other-channel valid order by customer ID and order ID.
+透過顧客 ID 與自訂欄位 ID 取得自訂欄位	Get a custom field by customer ID and custom field ID.
+透過顧客 ID 與自訂欄位 ID 更新自訂欄位	Update a custom field by customer ID and custom field ID.
+透過顧客姓名取得顧客 ID (後綴模糊搜尋)，如 A 可以找到 Andy、amy、Allen，但無法找到 Cathy	Get customer IDs by name (prefix match: "A" finds Andy, amy and Allen but not Cathy).
+進行顧客搜尋排程，需再利用排程 ID 透過 GET /v1/customers/customer_groups/check_status/{job_id} 取得群組內的顧客資訊	Schedule a customer filter job; poll GET /v1/customers/customer_groups/check_status/{job_id} with the returned job ID to get the customers of the group.
+鄉鎮市區	District / township.
+配送日期是否必填	Whether the delivery date is required.
+門市代碼	Store code.
+門市運費設定	Store shipping rates.
+開啟 / 關閉快速到貨	Enable / disable express delivery.
+限定購買會員標籤 (逗點區隔)(客製項目，如欲使用，請洽開店顧問)	Customer tags allowed to buy, comma-separated (custom feature; contact your consultant).
+隨機碼	Random code.
+零用金	Petty cash.
+電話國碼	Phone country calling code.
+顧客標籤	Customer tags.
+AES 金鑰	AES key.
+POS 店 ID (EC ID 為 0)	POS shop ID (0 for the EC shop).
+POS 機名稱	POS terminal name.
+SEO 標籤	SEO meta tags.
+SEO 網站描述	SEO site description.
+SEO 網站標題	SEO site title.
+SEO 網站關鍵字	SEO site keywords.
+UID Provider 類型	UID provider type.
+UTM 追蹤資訊(客製項目，如欲使用，請洽開店顧問)	UTM tracking information (custom feature; contact your consultant).
+VIP優惠	VIP promotion.
+VIP名稱	VIP name.
+VIP條件	VIP rule.
+VIP順序	VIP position.
+Vip 優惠 (享折數優惠: discount, 免運費: free_shipping)	VIP promotion type (discount: percentage off; free_shipping: free shipping).
+Vip 時效結束日 (YYYY-MM-DD)	VIP valid until (YYYY-MM-DD).
+Vip 時效起始日 (YYYY-MM-DD)	VIP valid from (YYYY-MM-DD).
+Vip 條件 (訂單數量: order_count, 金額累積: total_price, 顧客標籤: customers_tag)	VIP rule type (order_count: number of orders; total_price: accumulated spend; customers_tag: customer tag).
+allowance: 折讓	allowance: allowance
+class_company: 三聯式統編	class_company: triplicate invoice with tax ID
+class_default: 二聯式	class_default: duplicate invoice
+company: 公司戶電子發票	company: company e-invoice
+default: 一般發票	default: standard invoice
+donate: 捐贈	donate: donated
+issue: 正常	issue: issued
+issue_invalid: 作廢	issue_invalid: voided
+lat座標	Latitude.
+lng座標	Longitude.
+love_code: 捐贈碼	love_code: donation code
+nature_person: 自然人憑證	nature_person: citizen digital certificate
+nil: 未開立	nil: not issued
+partial_allowance: 部分折讓	partial_allowance: partial allowance
+phone_barcode: 手機條碼	phone_barcode: mobile barcode carrier
+shopdotcom 訂單該退款的金額	Amount to refund for the shopdotcom order.
+sku 或 qc	SKU or QC.
+「7-11 交貨便」: SEVEN_C2C	SEVEN_C2C: 7-ELEVEN store-to-store
+「7-11 取貨不付款」: ecpay_b2c_seven_prepaid	ecpay_b2c_seven_prepaid: 7-ELEVEN pickup, prepaid (ECPay)
+「7-11 貨到付款」: ecpay_b2c_seven_cod	ecpay_b2c_seven_cod: 7-ELEVEN pickup, cash on delivery (ECPay)
+「7-11 退貨便」: SEVEN_C2B	SEVEN_C2B: 7-ELEVEN return service
+「ABX Express (KEX Express)」: abx_express	abx_express: ABX Express (KEX Express)
+「Amazon」: amazon_fba	amazon_fba: Amazon FBA
+「Citylink」: city_link	city_link: Citylink
+「DHL」: DHL	DHL: DHL
+「DPEX (迪比翼)」: dpex	dpex: DPEX
+「EZShip 超商取貨」: EZSHIP	EZSHIP: EZShip convenience-store pickup
+「GDex」: g_dex	g_dex: GDex
+「J&T Express」: jt_express	jt_express: J&T Express
+「Lalamove」: lalamove	lalamove: Lalamove
+「Line Clear Express」: line_clear_express	line_clear_express: Line Clear Express
+「NinjaVan」: ninja_van	ninja_van: NinjaVan
+「Pos Laju」: pos_laju	pos_laju: Pos Laju
+「Seven 超商取貨」: SEVEN	SEVEN: 7-ELEVEN convenience-store pickup
+「Skynet Express」: skynet	skynet: Skynet Express
+「TNT」: TNT	TNT: TNT
+「UPS」: UPS	UPS: UPS
+「pandago」: pandago	pandago: pandago
+「uber_direct」: uber_direct	uber_direct: Uber Direct
+「不想等太久」: wait_too_long	wait_too_long: did not want to wait
+「中華郵政」: postserv	postserv: Chunghwa Post
+「便利帶」: maple_express	maple_express: Maple Express
+「全家冷凍店到店」: FAMILY_COLD_C2C	FAMILY_COLD_C2C: FamilyMart frozen store-to-store
+「全家冷鏈」: FAMILY_COLD	FAMILY_COLD: FamilyMart cold chain
+「全家取貨不付款」: ecpay_b2c_family_prepaid	ecpay_b2c_family_prepaid: FamilyMart pickup, prepaid (ECPay)
+「全家店到店」: FAMILY_C2C	FAMILY_C2C: FamilyMart store-to-store
+「全家貨到付款」: ecpay_b2c_family_cod	ecpay_b2c_family_cod: FamilyMart pickup, cash on delivery (ECPay)
+「全家超商取貨」: FAMILY	FAMILY: FamilyMart convenience-store pickup
+「其它」: other	other: other
+「台灣宅配通」: e_can	e_can: Pelican (Taiwan Pelican Express)
+「啟用邀請被拒絕」: declined	declined: activation invitation declined
+「嘉里大榮」: tjoin	tjoin: Kerry TJ Logistics
+「宇迅Linex物流」: linex_hub_ez	linex_hub_ez: Linex logistics
+「對商品有疑慮」: have_concern_about_product	have_concern_about_product: concerns about the product
+「已列為警示帳號」: warning	warning: flagged account
+「已結案」: completed	completed: closed
+「已退貨」: manual_return_done	manual_return_done: returned
+「已退貨」: returned	returned: returned
+「已邀請會員啟用」: invited	invited: activation invitation sent
+「已開啟」: pending	pending: open
+「帳號已啟用」: enabled	enabled: account activated
+「帳號已禁用」: disabled	disabled: account disabled
+「帳號未啟用」: pending	pending: account not activated
+「帳號未驗證」: validate	validate: account not verified
+「想用其他優惠重新訂購」: want_to_use_other_discount	want_to_use_other_discount: wants to reorder with another discount
+「拒絕退貨」: manual_return_refuse	manual_return_refuse: return refused
+「操作錯誤」: operation_mistake	operation_mistake: mistake
+「新竹物流」: hct	hct: HCT Logistics
+「日本郵便」: japan_post	japan_post: Japan Post
+「欺詐性訂單」: fraud	fraud: fraudulent order
+「比價後價格/優惠偏高」: price_too_high	price_too_high: price / discount not competitive
+「沒有及時付款」: not_pay	not_pay: not paid in time
+「沒有商品了」: inventory	inventory: out of stock
+「盤盈」: surplus	surplus: stock surplus
+「盤虧」: loss	loss: stock loss
+「祥億貨運」: SHYANG_YIH	SHYANG_YIH: Shyang Yih Transport
+「綠界 7-11」: Allpay_SEVEN	Allpay_SEVEN: ECPay 7-ELEVEN
+「綠界 全家」: Allpay_FAMILY	Allpay_FAMILY: ECPay FamilyMart
+「美商聯邦快遞」: fedex	fedex: FedEx
+「萊爾富冷凍」: HILIFE_COLD	HILIFE_COLD: Hi-Life frozen
+「萊爾富店到店」: HILIFE_C2C	HILIFE_C2C: Hi-Life store-to-store
+「萊爾富超商取貨」: HILIFE	HILIFE: Hi-Life convenience-store pickup
+「處理中」: processing	processing: processing
+「調整寄送地點」: modify_shipment_location	modify_shipment_location: change of delivery address
+「超商取貨逾期未取」: forgot	forgot: not picked up in time
+「超峰快遞」: cfe_express	cfe_express: CFE Express
+「退貨」: return	return: return
+「退貨中」: manual_returning	manual_returning: returning
+「退貨審查」: manual_check_goods	manual_check_goods: return under inspection
+「運送異常」: problem	problem: delivery problem
+「郵局國際快捷EMS」: ems	ems: EMS (Chunghwa Post international express)
+「重複訂單」: duplicate	duplicate: duplicate order
+「銷貨」: sold	sold: sold
+「鑫達快遞」: sd_express	sd_express: SD Express
+「順豐速運」: SF	SF: SF Express
+「顧客改變/取消訂單」: customer	customer: customer changed or cancelled the order
+「黑貓宅急便」: ezcat	ezcat: T-cat home delivery
+「黑貓快速到店-冷凍」: ezcat_cvs_cold	ezcat_cvs_cold: T-cat quick store delivery, frozen
+「黑貓快速到店-冷藏」: ezcat_cvs_refrigerate	ezcat_cvs_refrigerate: T-cat quick store delivery, refrigerated
+「黑貓快速到店-常溫」: ezcat_cvs	ezcat_cvs: T-cat quick store delivery, ambient
+交易類型 (capture: 已收款)	Transaction type (capture: payment received).
+付款卡號後四碼	Last four digits of the payment card.
+付款方式 (manual: 手動)	Payment method (manual: manual).
+付款網址	Payment URL.
+付款金額	Payment amount.
+代客下單操作人	Staff who placed the order on the customer's behalf.
+位置	Position.
+使用期限 (天數）（設 0 則永不失效)	Validity in days (0: never expires).
+來源 POS 店 ID (EC ID 為 0)	Source POS shop ID (0 for the EC shop).
+倉庫類型ID	Warehouse type ID.
+值	Value.
+價格資訊	Price information.
+優惠券ID	Coupon ID.
+優惠券代碼	Coupon code.
+優惠券使用次數上限	Coupon usage limit.
+優惠券名稱	Coupon name.
+優惠券已使用次數	Times the coupon was used.
+優惠券折扣	Coupon discount.
+優惠券是否有效	Whether the coupon is valid.
+優惠券綁定商品標籤	Product tags the coupon is bound to.
+優惠券綁定門市ID	POS shop IDs the coupon is bound to.
+優惠券設定	Coupon settings.
+允許的付款方式	Allowed payment methods.
+免運門檻	Free shipping threshold.
+全館折扣優惠券可用日數	Days the discount's coupon stays usable.
+全館折扣內容	Discount details.
+全館折扣名稱	Discount name.
+全館折扣最低訂單總金額	Minimum order total for the discount.
+全館折扣結束時間	Discount end time.
+全館折扣起始時間	Discount start time.
+全館折扣類型	Discount type.
+其他資訊	Extra information.
+其他通路累積金額起算日	Start date of the other-channel accumulated spend.
+其他顧客取消原因	Other cancellation reason given by the customer.
+出倉 POS 店 ID	Outbound POS shop ID.
+出倉 POS 店名稱	Outbound POS shop name.
+出貨日期	Shipped at.
+出貨紀錄 ID	Fulfillment ID.
+到期日 (YYYY-MM-DD hh:mm:ss)	Expiry (YYYY-MM-DD hh:mm:ss).
+到期日 (YYYY-MM-DD hh:mm:ss) 或填 0 為無期限	Expiry (YYYY-MM-DD hh:mm:ss), or 0 for no expiry.
+剩餘商品是否計入折扣	Whether remaining items count toward the discount.
+加價購名稱	Add-buy collection name.
+加價購商品排序方式	Add-buy product ordering.
+加價購最低金額	Add-buy minimum amount.
+加價購結束時間	Add-buy end time.
+加價購網址名	Add-buy collection handle.
+加價購群組順序	Add-buy collection position.
+加價購購買數量上限	Add-buy purchase limit.
+加價購起始時間	Add-buy start time.
+區碼	Area code.
+升等條件: 單筆消費總額 (不需設定請帶 null)	Upgrade condition: single-order spend (null when not set).
+升等條件: 會員效期內消費總額 (不需設定請帶 null)	Upgrade condition: spend within the validity period (null when not set).
+升等條件計算期間（天）	Upgrade condition window (days).
+升等禮: 優惠券: 優惠券種類 (1: 金額, 2: 百分比)	Upgrade gift coupon: type (1: amount, 2: percent).
+升等禮: 優惠券: 商品標籤	Upgrade gift coupon: product tags.
+升等禮: 優惠券: 啟用	Upgrade gift coupon: enabled.
+升等禮: 優惠券: 張數	Upgrade gift coupon: number of coupons.
+升等禮: 優惠券: 折價序號	Upgrade gift coupon: code.
+升等禮: 優惠券: 折扣 (金額 / 百分比)	Upgrade gift coupon: discount (amount or percent).
+升等禮: 優惠券: 最低消費門檻	Upgrade gift coupon: minimum spend.
+升等禮: 優惠券: 有效使用天數	Upgrade gift coupon: usable days.
+升等禮: 優惠券: 與其他行銷活動併用限制 活動	Upgrade gift coupon: campaigns the restriction applies to.
+升等禮: 優惠券: 與其他行銷活動併用限制 類型	Upgrade gift coupon: restriction type.
+升等禮: 紅利: 啟用	Upgrade gift bonus: enabled.
+升等禮: 紅利: 有效期限 (天) (天數設為0時，效期為無限期)	Upgrade gift bonus: validity in days (0: never expires).
+升等禮: 紅利: 贈送紅利 (點)	Upgrade gift bonus: points granted.
+取消理由	Cancellation reason.
+可以操作顧客列表	May manage the customer list.
+可以查詢其他商店訂單	May view other stores' orders.
+商品 PIM 資訊(CYBERBIZ CHANNEL BRIDGE 專用)	Product PIM information (CYBERBIZ Channel Bridge only).
+商品圖片網址	Product photo URL.
+商品圖片順序	Product photo position.
+商品所屬門市	Branch store the product belongs to.
+商品所屬門市 ID	ID of the branch store the product belongs to.
+商品款式 ID	Product variant ID.
+商品款式SKU	Variant SKU.
+商品款式可用紅利上限	Maximum bonus usable on the variant.
+商品款式安全水位	Variant safety inventory level.
+商品款式定價	Variant compare-at price.
+商品款式已銷數量	Variant quantity sold.
+商品款式庫存數量	Variant inventory quantity.
+商品款式廠商編號	Variant vendor item code.
+商品款式成本	Variant cost.
+商品款式是否需要收貨地址	Whether the variant requires shipping.
+商品款式材積	Variant volume (dimensional size).
+商品款式重量	Variant weight.
+商品款式金額	Variant price.
+商品款式順序	Variant position.
+商品款式類型1	Variant option 1.
+商品款式類型2	Variant option 2.
+商品款式類型3	Variant option 3.
+商品照片	Product photos.
+商品簡述 html 樣板文字	Product brief HTML template text.
+商品簡述是否使用 html 樣板文字	Whether the product brief uses the HTML template text.
+商品網址	Product URL.
+商品自訂欄位	Product custom fields.
+商品英文名稱	Product English name.
+商品販售數量	Quantity sold.
+商品販售結束時間	Sell-to time.
+商品販售起始時間	Sell-from time.
+商品選項	Product options.
+商品選項區別方式	Option values.
+商品選項名稱	Option name.
+商品選項順序	Option position.
+商品限購群組名稱	Limit collection name.
+商品限購群組網址名	Limit collection handle.
+商品限購群組順序	Limit collection position.
+啟用	Enabled.
+啟用/停用	Enable / disable.
+啟用限定各帳號使用次數	Per-account usage limit enabled.
+單品折扣群組商店 ID	Variant discount collection shop ID.
+單品折扣群組商店標題	Variant discount collection title.
+密碼	Password.
+封面圖片網址	Cover image URL.
+對應模組	Related module.
+對應模組 (Customer)	Related module (Customer).
+導購訂單資訊	Linked-order (affiliate) information.
+小計(不含運費)	Subtotal (excluding shipping).
+帳戶狀態	Account status.
+帶入 null 值表示清除驗證時間	Send null to clear the verification time.
+庫存同步群組名稱	Inventory sync group name.
+庫存同步群組庫存數量	Inventory sync group quantity.
+快速到貨門市資訊	Express-delivery store information.
+手動修改退貨狀態為	Return status to set.
+手機國碼(ex. +886)	Mobile country calling code (e.g. +886).
+批次調序	Batch reorder.
+折價券代碼	Coupon code.
+折價券名稱	Coupon name.
+折價券折扣金額	Coupon discount amount.
+折價券最低訂單總金額	Coupon minimum order total.
+折價券結束時間	Coupon end time.
+折價券起始時間	Coupon start time.
+折價券類型(ex: 金額、百分比、免運)	Coupon type (amount, percent, free shipping).
+折扣種類 ([amount] 金額; [percent] 百分比)	Discount kind (amount; percent).
+折扣種類 ([amount] 金額; [percent] 百分比; [free_shipping] 免運; [gift] 贈品) (逗點區隔)	Discount kinds, comma-separated (amount; percent; free_shipping; gift).
+指定 POS 商家 ID (EC ID 為 0)	POS shop ID (0 for the EC shop).
+指定配送日期	Requested delivery date.
+排序方式	Ordering.
+排程 ID	Job ID.
+推薦分潤代碼	Referral (affiliate) code.
+收件人	Recipient.
+收件人姓名	Recipient name.
+收貨人資訊	Recipient information.
+收貨日期	Received at.
+效期（天）	Validity (days).
+文章 HTML 內容	Article HTML content.
+文章數量	Number of articles.
+星期 (monthly 0~6, weekly 0~6) 或 日期 (day_of_month 1~31)	Weekday (monthly / weekly: 0-6) or day (day_of_month: 1-31).
+是否允許行銷	Accepts marketing.
+是否允許超取	Convenience-store pickup allowed.
+是否允許超商貨到付款	Convenience-store cash on delivery allowed.
+是否取消 shopdotcom 的訂單	Whether to cancel the shopdotcom order.
+是否可以使用宅配貨到付款(需額外付費，如欲使用，請洽開店顧問)	Home-delivery cash on delivery allowed (paid add-on; contact your consultant).
+是否可以使用超商取貨	Convenience-store pickup allowed.
+是否可以使用超商貨到付款	Convenience-store cash on delivery allowed.
+是否將此客戶設為警示帳號	Whether to flag the customer as a warning account.
+是否接受行銷	Accepts marketing.
+是否接受行銷訊息	Accepts marketing messages.
+是否接收通知信	Accepts notification e-mails.
+是否消耗全部點數 (如果這欄是 true, 則可以不用填寫 amount)	Whether to consume all points (when true, amount can be omitted).
+是否發送通知郵件給顧客	Whether to send a notification e-mail to the customer.
+是否管理庫存	Whether inventory is managed.
+是否與「任選折扣群組」或「全館活動」併用 (請和 restrict_strategy 擇一使用）	Whether it can be combined with special collections or shop-wide campaigns (use either this or restrict_strategy).
+是否贈送生日禮	Whether the birthday gift is sent.
+是否通知消費者	Whether to notify the customer.
+時間資訊	Timestamps.
+智慧群組內文	Smart collection description.
+智慧群組名稱	Smart collection name.
+智慧群組網址名	Smart collection handle.
+智慧群組規則	Smart collection rules.
+智慧群組順序	Smart collection position.
+最低購買數量	Minimum purchase quantity.
+最小消費金額大於等於	Minimum order amount at least.
+會員地址	Customer address.
+會員標籤	Customer tags.
+月份 (monthly 1~4, day_of_month 1~12)	Month (monthly: 1-4, day_of_month: 1-12).
+有效期限(天)	Validity (days).
+有綁定的商品標籤 (逗點區隔)	Bound product tags, comma-separated.
+核銷數量	Redeemed quantity.
+核銷門市ID	Redeeming POS shop ID.
+核銷門市人員ID	Redeeming staff ID.
+標籤	Tags.
+標籤 (逗點區隔)	Tags, comma-separated.
+標籤類型	Tag category.
+欲出貨的尺寸 (黑貓快速到店專用，選項 60/90/105)	Package size (T-cat quick store delivery only: 60 / 90 / 105).
+欲刪除的自訂欄位 ID	Custom field IDs to delete.
+欲建立商品的 POS 商店 ID，逗點區隔 (單次上限 20 間 POS)	POS shop IDs to create the products in, comma-separated (at most 20 per call).
+欲搜尋備貨設定的門市 ID	Branch store ID whose preparation settings to look up.
+欲搜尋全館優惠券的顧客 ID	Customer ID whose shop coupons to look up.
+欲搜尋的自訂欄位類型	Custom field type to look up.
+欲搜尋訂單的顧客 ID	Customer ID whose orders to look up.
+欲搜尋顧客群組 ID	Customer group ID to look up.
+欲更新的 POS 商店 ID	POS shop ID to update.
+活動序號	Campaign serial numbers.
+消費門檻	Spend threshold.
+溫層	Temperature zone.
+無庫存時是否允許購買	Whether purchase is allowed when out of stock.
+物流廠商	Carrier.
+物流訊息	Warehouse / logistics note.
+狀態	Status.
+狀態(ex. pending: 帳號未啟用; validate: 帳號未驗證; enabled: 帳號已啟用; disabled: 帳號已禁用; invited: 已邀請會員啟用; declined: 啟用邀請被拒絕; warning: 已列為警示帳號)	Status (pending: not activated; validate: not verified; enabled: activated; disabled: disabled; invited: activation invitation sent; declined: invitation declined; warning: flagged account).
+狀態資訊	Status information.
+獲得優惠券來源訂單ID	ID of the order that granted the coupon.
+獲得優惠券可用日數	Days the granted coupon stays usable.
+生效日期 (ex. 2021-12-31， 必須大於七天)	Effective date (e.g. 2021-12-31; at least seven days ahead).
+生日	Birthday.
+生日 (YYYY-MM-DD)	Birthday (YYYY-MM-DD).
+生日禮: 優惠券: 優惠券種類 (1: 金額, 2: 百分比)	Birthday gift coupon: type (1: amount, 2: percent).
+生日禮: 優惠券: 商品標籤	Birthday gift coupon: product tags.
+生日禮: 優惠券: 啟用	Birthday gift coupon: enabled.
+生日禮: 優惠券: 張數	Birthday gift coupon: number of coupons.
+生日禮: 優惠券: 折價序號	Birthday gift coupon: code.
+生日禮: 優惠券: 折扣 (金額 / 百分比)	Birthday gift coupon: discount (amount or percent).
+生日禮: 優惠券: 最低消費門檻	Birthday gift coupon: minimum spend.
+生日禮: 優惠券: 有效使用天數	Birthday gift coupon: usable days.
+生日禮: 優惠券: 與其他行銷活動併用限制 活動	Birthday gift coupon: campaigns the restriction applies to.
+生日禮: 優惠券: 與其他行銷活動併用限制 類型	Birthday gift coupon: restriction type.
+生日禮: 紅利: 啟用	Birthday gift bonus: enabled.
+生日禮: 紅利: 有效期限 (天) (天數設為0時，效期為無限期)	Birthday gift bonus: validity in days (0: never expires).
+生日禮: 紅利: 贈送紅利 (點)	Birthday gift bonus: points granted.
+當前 VIP 群組	Current VIP group.
+發票作廢或折讓時間 (YYYY-MM-DD hh:mm:ss)	Invoice voided or allowance time (YYYY-MM-DD hh:mm:ss).
+發票資訊	Invoice information.
+發票開立時間	Invoice issued at.
+發票開立時間 (YYYY-MM-DD hh:mm:ss)	Invoice issued at (YYYY-MM-DD hh:mm:ss).
+發票類型	Invoice type.
+目前可使用	Currently usable.
+省份	Province.
+第三方串接編號	Merchant trade number.
+第三方交易編號	Third-party transaction number.
+第三方在Cyberbiz設定的識別key	Identification key the third party configured in CYBERBIZ.
+紅利商城紅利總使用量	Total bonus points redeemed in the bonus mall.
+紅利設定	Bonus settings.
+紅利變動 (+/-數量)	Bonus change (+/- amount).
+紅利點數數量	Number of bonus points.
+紅利點數總計	Total bonus points.
+紙本發票統一編號	Paper invoice tax ID.
+紙本發票號碼	Paper invoice number.
+累積金額成立時間 (YYYY-MM-DD)	Accumulated amount start date (YYYY-MM-DD).
+結帳人分潤代碼	Checkout affiliate code.
+結帳人名稱	Checkout user name.
+結束日期 (YYYY-MM-DD)	End date (YYYY-MM-DD).
+結果最大筆數	Maximum number of results.
+綠界物流訂單編號	ECPay logistics order number.
+總重量	Total weight.
+群組商品名稱	Collection product name.
+群組商品款式	Collection product variants.
+群組結束日期	Collection end date.
+群組結束時間	Collection end time.
+群組起始時間	Collection start time.
+群組開始日期	Collection start date.
+自取門市資訊	Pickup store information.
+自定欄位	Custom fields.
+自訂欄位內容	Custom field value.
+自訂欄位顯示名稱	Custom field label.
+自訂群組內文	Custom collection description.
+自訂群組名稱	Custom collection name.
+自訂群組商品排序方式	Custom collection product ordering.
+自訂群組網址名	Custom collection handle.
+自訂群組順序	Custom collection position.
+與其他行銷活動併用限制 類型 ([unrestricted] 所有行銷活動商品皆可使用此優惠券; [restrict] 除指定活動商品外，其他商品可使用此優惠券; [forbidden] 訂單包含指定活動商品時，不得使用此優惠券)	Restriction type for combining with other campaigns: unrestricted = usable on every campaign product; restrict = usable except on the listed campaigns' products; forbidden = not usable when the order contains a listed campaign's product.
+萊爾富冷凍材積	Hi-Life frozen package volume.
+行銷活動群組內文	Special collection description.
+行銷活動群組名稱	Special collection name.
+行銷活動群組網址名	Special collection handle.
+行銷活動群組規則	Special collection rules.
+行銷活動群組順序	Special collection position.
+行銷活動群組類型	Special collection type.
+要新增的標籤名稱	Tag names to add.
+要移除的標籤名稱	Tag names to remove.
+訂單來源	Order source.
+訂單優惠折數	Order discount percentage.
+訂單名稱	Order name.
+訂單商品資訊	Order line items.
+訂單數量	Number of orders.
+訂單狀態	Order status.
+訂單計算結束日 (YYYY-MM-DD)	Order counting end date (YYYY-MM-DD).
+訂單計算起始日 (YYYY-MM-DD)	Order counting start date (YYYY-MM-DD).
+訂單資訊	Order information.
+計價規則 Code	Pricing rule code.
+計價規則 ID	Pricing rule ID.
+註冊人分潤代碼	Registrant affiliate code.
+註冊人推薦碼	Registrant referral code.
+評論設定	Review setting.
+說明頁路徑	Description page path.
+調整類型	Adjustment type.
+貨態追蹤網址(目前只支援 Uber Direct 與 Pandago)	Tracking URL (Uber Direct and Pandago only).
+購買人資訊(客製項目，如欲使用，請洽開店顧問)	Billing information (custom feature; contact your consultant).
+購買會員資訊	Buyer information.
+贈送紅利(點)	Bonus points granted.
+退款時間	Refunded at.
+退款資訊	Refund information.
+送貨狀態	Shipping status.
+透過自訂欄位的 name 取得該自訂欄位	Get a custom field by name.
+逗點區隔的紅利群組名稱	Bonus group names, comma-separated.
+逗點區隔的紅利群組名稱 (僅加入，不會移出舊的群組)	Bonus group names to add, comma-separated (existing groups are kept).
+週次 (monthly 1~4, weekly 1~8)	Week (monthly: 1-4, weekly: 1-8).
+進倉 POS 店 ID	Inbound POS shop ID.
+進倉 POS 店名稱	Inbound POS shop name.
+進倉項目	Stock receipt items.
+過濾已發佈的商品	Only published products.
+適用通路 ID (1: 全通路, 2: EC, 3: POS)	Applicable channel ID (1: all, 2: EC, 3: POS).
+鄉鎮地區	District / township.
+配送名稱	Shipping method name.
+配送商品	Shipped items.
+配送單號	Tracking number.
+配送日期 YYYY-MM-DD (客製項目，如欲使用，請洽開店顧問)	Delivery date YYYY-MM-DD (custom feature; contact your consultant).
+配送時段	Delivery time slot.
+配送時段(客製項目，如欲使用，請洽開店顧問)	Delivery time slot (custom feature; contact your consultant).
+配送狀態	Shipping status.
+配送資訊	Fulfillments.
+金額累積	Accumulated amount.
+門市名稱	Store name.
+門市店員信箱	Store staff e-mail.
+門市店員姓名	Store staff name.
+門市編號	Store number.
+門市電話	Store phone.
+關聯 POS 商店資訊	Related POS shop.
+關聯商品ID	Related product ID.
+關聯商品名稱	Related product name.
+關聯自訂群組	Related custom collections.
+關聯行銷活動	Related special collection.
+關聯顧客ID	Related customer ID.
+關聯顧客ID (若為全館優惠券則為空值)	Related customer ID (null for shop-wide coupons).
+限定各帳號使用次數	Usage limit per account.
+限定購買會員標籤	Customer tags allowed to buy.
+階層名稱	Level name.
+電子信箱	E-mail address.
+預計送達日	Expected delivery date.
+預設地址	Default address.
+預購訂單紙本發票統一編號	Pre-order paper invoice tax ID.
+預購訂單紙本發票號碼	Pre-order paper invoice number.
+額外資訊	Extra information.
+類型	Type.
+顧客ID	Customer ID.
+顧客取消原因	Customer cancellation reason.
+顧客已使用全館優惠券的次數	Times the customer used the shop coupon.
+顧客是否還有剩餘使用次數可使用此全館優惠券	Whether the customer still has uses left for the shop coupon.
+顧客標籤 (逗號分隔)	Customer tags, comma-separated.
+顧客資訊	Customer information.
+顯示位置	Display position.
+點收單	Check record.
+點收項目	Checked items.
+LINE 購物 affiliate	LINE Shopping affiliate.
+LINE 購物 ecid	LINE Shopping ecid.
+POS 店名稱	POS shop name.
+Pos 銷售員 Email	POS salesperson e-mail.
+Pos 銷售員 ID	POS salesperson ID.
+Pos 銷售員所屬店家 ID	POS shop ID of the salesperson.
+VIP 階層	VIP levels.
+VIP優惠金額	VIP promotion amount.
+VIP優惠類型	VIP promotion type.
+VIP折扣	VIP discount.
+VIP時效結束日	VIP valid until.
+VIP時效起始日	VIP valid from.
+VIP條件訂單數量	VIP rule: number of orders.
+VIP條件訂單總金額	VIP rule: order total.
+VIP條件計算結束日	VIP rule counting end date.
+VIP條件計算起始日	VIP rule counting start date.
+VIP條件類型	VIP rule type.
+VIP條件顧客標籤	VIP rule: customer tag.
+VIP運費折扣	VIP shipping discount.
+「POS」：pos	pos: POS
+「ec」: EC	ec: EC
+「pos_shop」: 其他 POS 商店	pos_shop: another POS shop
+「third_party」: 第三方	third_party: third party
+「不需退貨」: no_need	no_need: no return needed
+「付款失敗」: failed	failed: payment failed
+「原寄件門市」: in_origin_cvs	in_origin_cvs: at the origin store
+「已入庫」: done	done: received into stock
+「已出庫」: done	done: shipped out of stock
+「已出貨」: fulfilled	fulfilled: shipped
+「已到店」: arrived	arrived: arrived at the store
+「已匯款未收到」: remitted	remitted: transfer reported, not yet received
+「已取消」: cancelled	cancelled: cancelled
+「已收到款項」: paid	paid: paid
+「已收貨」: received	received: received
+「已確認」: done	done: confirmed
+「已結案」: closed	closed: closed
+「已退款」: refunded	refunded: refunded
+「已開啟」: open	open: open
+「待入庫」: ready	ready: awaiting receipt
+「待出庫」: ready	ready: awaiting shipment
+「待退款」: pending_refund	pending_refund: refund pending
+「待部分退款」: pending_partial_refund	pending_partial_refund: partial refund pending
+「拒絕退貨」: refused	refused: return refused
+「未出貨」: unshipped	unshipped: not shipped
+「準備出貨」: preparing	preparing: preparing shipment
+「等待付款」: pending	pending: awaiting payment
+「網路商店」：ec	ec: online store
+「貨到付款」: cod	cod: cash on delivery
+「轉運中心」: in_hub	in_hub: at the transfer hub
+「退貨中」: returning	returning: returning
+「退貨審查」: checking	checking: return under inspection
+「退貨申請」: request_return	request_return: return requested
+「逾期未取」: expired	expired: not picked up in time
+「部分出貨」: partial	partial: partially shipped
+「部分退款」: partial_refunded	partial_refunded: partially refunded
+「部分退貨」: partial_return	partial_return: partially returned
+下一個 VIP 層級	Next VIP level.
+下一期子訂單建單日期	Creation date of the next child order.
+付款名稱	Payment name.
+付款方式 ID	Payment method ID.
+付款種類	Payment kind.
+使用期限	Validity.
+來源店家名稱	Source shop name.
+供應商名稱(代號) (僅限萊爾富)	Supplier name (code) (Hi-Life only).
+依作者名稱搜尋	Filter by author name.
+依文章標題搜尋	Filter by article title.
+依最早建立時間篩選	Filter by earliest creation time.
+依最晚建立時間篩選	Filter by latest creation time.
+依標籤名稱篩選	Filter by tag name.
+依發佈狀態篩選	Filter by publication status.
+依置頂狀態篩選	Filter by pinned status.
+優惠券可用天數	Coupon usable days.
+優惠券明細	Coupon details.
+優惠券明細(單個) (Deprecated. Will be removed soon)	Coupon detail (single; deprecated, will be removed soon).
+優惠券次數	Coupon count.
+優惠券種類	Coupon type.
+優惠券種類 (1: 金額, 2: 百分比)	Coupon type (1: amount, 2: percent).
+優惠券金額	Coupon amount.
+免運券運費折扣	Free-shipping coupon discount.
+全館優惠券 ID	Shop coupon ID.
+全館折扣明細	Shop-wide discount details.
+全館活動名稱	Shop-wide campaign name.
+全館活動折扣	Shop-wide campaign discount.
+公司名稱	Company name.
+出倉 POS 店 ID (EC ID 為 0)	Outbound POS shop ID (0 for the EC shop).
+出倉 POS 店 ID (EC 為 0，第三方為 -1)	Outbound POS shop ID (0 for the EC shop, -1 for a third party).
+出貨 POS 店 ID (EC ID 為 0)	Shipping POS shop ID (0 for the EC shop).
+出貨次數	Number of shipments.
+出貨編號 ID	Fulfillment ID.
+出貨資訊	Fulfillment information.
+分票後的核銷碼	Redemption codes after ticket splitting.
+到期日	Expiry.
+包含的條件	Included conditions.
+區	District.
+升等條件差額（單筆消費金額）	Single-order spend still needed to upgrade.
+升等條件差額（期間內累計金額）	Spend within the period still needed to upgrade.
+升等條件計算期間	Upgrade condition window.
+升等條件設定: 單筆消費總額	Upgrade condition: single-order spend.
+升等條件設定: 會員效期內消費總額	Upgrade condition: spend within the validity period.
+升等禮: 細部設定	Upgrade gift: settings.
+取得最大購買商品筆數	Maximum number of purchased products to return.
+取得特定訂單標籤之訂單，聯集請用逗點分隔。	Orders with the given tags; comma-separate for a union.
+取消原因	Cancellation reason.
+只取得目前可使用的全館優惠券	Only shop coupons currently usable.
+可使用優惠券的最低訂單金額	Minimum order amount to use the coupon.
+可核銷數量	Redeemable quantity.
+各support shipping的處理結果	Result of each support shipping.
+品名	Item name.
+商品ID	Product ID.
+商品介紹標題	Product description title.
+商品折扣拆負項	Itemised product discounts.
+商品款式 IDs 逗點區隔 (企業版專屬功能，如欲使用，請洽開店顧問)	Variant IDs, comma-separated (Enterprise plan only; contact your consultant).
+商品款式 SKU	Variant SKU.
+商品款式選項 1	Variant option 1.
+商品款式選項 2	Variant option 2.
+商品款式選項 3	Variant option 3.
+商品簡述 HTML	Product brief HTML.
+商品總金額	Products total.
+商品群組名稱	Collection name.
+商品自訂欄位(客製項目)	Product custom fields (custom feature).
+商品重量	Product weight.
+商品關聯群組類別，智慧群組為 SmartCollection、自訂群組為 Customcollection	Related collection type: SmartCollection or Customcollection.
+啟用連結	Activation link.
+單筆訂單折抵上限類型(no_limit: "無限制", percentage: "百分比", amount: "金額")	Per-order redemption limit type (no_limit, percentage, amount).
+單筆訂單折抵上限，如果 usage_limit_type 是 percentage 時，usage_limit_value 的數值代表可折抵的百分比上限	Per-order redemption limit; when usage_limit_type is percentage the value is the maximum percentage.
+回覆方	Replied by.
+回覆方為 admin，則顯示 admin 資訊	Admin information when the reply came from an admin.
+回覆狀態(ex. reply_yet: 未回覆; replied: 已回覆)	Reply status (reply_yet: not replied; replied: replied).
+圖片網址	Image URL.
+圖片網址(Content)	Image URL (content size).
+圖片網址(Thumb)	Image URL (thumbnail).
+圖片顯示的順序	Image display position.
+地址一	Address line 1.
+地址二	Address line 2.
+地址詳細資訊	Address details.
+子訂單序號	Child order sequence number.
+子訂單成立時間(YYYY-MM-DD hh:mm:ss)	Child order created at (YYYY-MM-DD hh:mm:ss).
+子訂單數量	Number of child orders.
+子訂單準備天數	Child order preparation days.
+客服專線	Customer service phone.
+實際出貨日	Actual shipping date.
+封面圖片檔案	Cover image file.
+對應出倉單 ID	Related stock invoice ID.
+對應進倉單 ID	Related stock receipt ID.
+對獎發票期別	Invoice lottery period.
+導購來源	Affiliate source.
+導購資訊	Affiliate information.
+小計	Subtotal.
+已核銷數量	Redeemed quantity.
+市	City.
+帳單資訊	Billing information.
+幣別	Currency.
+店長折扣	Manager (manual) discount.
+庫存同步群組 ID	Inventory sync group ID.
+庫存同步群組款式 ID	Inventory sync group variant ID.
+庫存調整紀錄 ID	Stock adjustment ID.
+廠商名稱	Vendor name.
+廠商訂單編號	Vendor order number.
+建立日期時間	Created at.
+張數	Number of coupons.
+必選填設定	Required setting.
+快遞公司	Courier company.
+截止日期 (YYYY-MM-DD)	End date (YYYY-MM-DD).
+所有物流名稱	All shipping method names.
+折價序號	Coupon code.
+折扣 (金額 / 百分比)	Discount (amount or percent).
+折扣前總金額	Total before discounts.
+折扣名稱	Discount name.
+折扣後總金額	Total after discounts.
+折扣金額明細	Discount breakdown.
+折扣類型 ID	Discount type ID.
+折扣類型代碼	Discount type code.
+折扣類型名稱	Discount type name.
+排除特定訂單標籤之訂單，聯集請用逗點分隔。	Exclude orders with the given tags; comma-separate for a union.
+提貨人	Pickup person.
+提貨人電話	Pickup person phone.
+換貨 POS 店 ID	Exchange POS shop ID.
+換貨 POS 機 ID	Exchange POS terminal ID.
+換貨商品資訊	Exchanged items.
+換貨時間	Exchanged at.
+換貨發票資訊	Exchange invoice.
+換貨紙本發票統一編號	Exchange paper invoice tax ID.
+換貨紙本發票號碼	Exchange paper invoice number.
+換貨金額	Exchange amount.
+搜尋的文字	Search text.
+搜尋關鍵字	Search keyword.
+收貨人名稱	Recipient name.
+收貨人地址	Recipient address.
+收貨人地址詳細資訊	Recipient address details.
+收貨人電話	Recipient phone.
+收貨人電話國碼	Recipient phone country calling code.
+效期	Validity.
+新增時是否顯示	Whether shown on creation.
+日	Day.
+明細編號	Detail number.
+是否允許宅配貨到付款	Home-delivery cash on delivery allowed.
+是否允許宅配貨到付款(需額外付費，如欲使用，請洽開店顧問)	Home-delivery cash on delivery allowed (paid add-on; contact your consultant).
+是否分票	Whether tickets are split.
+是否可以存取顧客資料	May access customer data.
+是否可以查看其他店家訂單	May view other stores' orders.
+是否可編輯	Editable.
+是否啟用註冊送優惠券	Whether the registration coupon is enabled.
+是否贈送註冊禮	Whether the registration gift is sent.
+是否需檢視證件	Whether ID verification is required.
+更新日期時間	Updated at.
+最低消費門檻	Minimum spend.
+最多筆數(最多 50)	Maximum number of results (at most 50).
+最後一期子訂單建單日期	Creation date of the last child order.
+最近一筆預購單 id	ID of the latest pre-order.
+會員ID	Customer ID.
+月	Month.
+有效使用天數	Usable days.
+有效期限 (天) (天數設為0時，效期為無限期)	Validity in days (0: never expires).
+核銷時間	Redeemed at.
+標籤 ID	Tag ID.
+欲上傳的圖片	Picture to upload.
+欲出貨的 order ID	Order ID to ship.
+欲出貨的品項	Items to ship.
+欲出貨的品項 ID	Item ID to ship.
+欲出貨的品項數量	Quantity to ship.
+欲出貨的訂單 ID	Order ID to ship.
+欲刪除的 Vip 設定 ID	VIP settings ID to delete.
+欲刪除的任選折扣群組 ID	Special collection ID to delete.
+欲刪除的任選折扣群組規則 ID	Special collection rule ID to delete.
+欲刪除的優惠券 ID	Coupon ID to delete.
+欲刪除的全館優惠券 ID	Shop coupon ID to delete.
+欲刪除的全館活動 ID	Shop-wide discount ID to delete.
+欲刪除的其他通路有效訂單 ID	Other-channel valid order ID to delete.
+欲刪除的加價購群組 ID	Add-buy collection ID to delete.
+欲刪除的商品 ID	Product ID to delete.
+欲刪除的商品圖片 ID	Product photo ID to delete.
+欲刪除的商品款式 ID	Product variant ID to delete.
+欲刪除的商品選項 ID	Product option ID to delete.
+欲刪除的圖片 ID	Picture ID to delete.
+欲刪除的庫存同步群組 ID	Inventory sync group ID to delete.
+欲刪除的智慧群組 ID	Smart collection ID to delete.
+欲刪除的智慧群組規則 ID	Smart collection rule ID to delete.
+欲刪除的紅利 ID	Bonus point ID to delete.
+欲刪除的自訂欄位類型 ID	Custom field type ID to delete.
+欲刪除的自訂群組 ID	Custom collection ID to delete.
+欲刪除的門市 ID	Branch store ID to delete.
+欲刪除的門市人員 ID	Staff user ID to delete.
+欲刪除的門市優惠券 ID	POS shop coupon ID to delete.
+欲刪除的門市運費設定 ID	Shipping rate ID to delete.
+欲取消的其他通路有效訂單 ID	Other-channel valid order ID to cancel.
+欲扣除的顧客 ID	Customer ID to deduct from.
+欲搜尋個人 EC 購物車未結帳商品的顧客 ID	Customer ID whose EC cart items to look up.
+欲搜尋個人最近有效訂單購買商品的顧客 ID	Customer ID whose recent purchases to look up.
+欲搜尋個人消費概況的顧客 ID	Customer ID whose spending overview to look up.
+欲搜尋的 POS 商店 ID	POS shop ID to look up.
+欲搜尋的優惠券 ID	Coupon ID to look up.
+欲搜尋的全館優惠券 ID	Shop coupon ID to look up.
+欲搜尋的全館活動 ID	Shop-wide discount ID to look up.
+欲搜尋的其他通路有效訂單 ID	Other-channel valid order ID to look up.
+欲搜尋的出貨紀錄 ID	Fulfillment ID to look up.
+欲搜尋的商品 SKU	Product SKU to look up.
+欲搜尋的商品介紹 ID	Product description ID to look up.
+欲搜尋的商品款式 ID	Product variant ID to look up.
+欲搜尋的商品選項 ID	Product option ID to look up.
+欲搜尋的自訂欄位 ID	Custom field ID to look up.
+欲搜尋的自訂欄位 name	Custom field name to look up.
+欲搜尋的自訂欄位類型 ID	Custom field type ID to look up.
+欲搜尋的訂單編號們，用逗點分隔	Order numbers to look up, comma-separated.
+欲搜尋的門市 ID	Branch store ID to look up.
+欲搜尋的門市人員 ID	Staff user ID to look up.
+欲搜尋的門市優惠券 ID	POS shop coupon ID to look up.
+欲搜尋的門市運費設定 ID	Shipping rate ID to look up.
+欲搜尋的關鍵字(留空則取得所有票券訂單)	Search keyword (empty: all e-ticket orders).
+欲搜尋的電子發票 ID	E-invoice ID to look up.
+欲搜尋的電子發票號碼	E-invoice number to look up.
+欲搜尋的顧客 Emails，用逗點分隔	Customer e-mails to look up, comma-separated.
+欲搜尋的顧客 ID	Customer ID to look up.
+欲搜尋的顧客姓名	Customer name to look up.
+欲搜尋的顧客手機，用逗點分隔	Customer mobile numbers to look up, comma-separated.
+欲搜尋票券訂單的搜尋欄位	Column to search e-ticket orders by.
+欲搜尋顧客群組 IDs(逗號分隔)	Customer group IDs to look up, comma-separated.
+欲搜尋顧客群組 名稱	Customer group name to look up.
+欲搜尋顧客群組 類別 ([default] ORFM預設分群; [custom] 自訂分群)	Customer group type to look up (default: ORFM preset groups; custom: custom groups).
+欲收取的款項(若為取貨付款訂單)	Amount to collect (for cash-on-pickup orders).
+欲更新商品 SEO 資訊的商品 ID	Product ID whose SEO meta tags to update.
+欲更新快速到貨狀態的門市 ID	Branch store ID whose express-delivery setting to update.
+欲更新的 POS 機 ID	POS terminal ID to update.
+欲更新的 Vip 設定 ID	VIP settings ID to update.
+欲更新的任選折扣群組 ID	Special collection ID to update.
+欲更新的任選折扣群組規則 ID	Special collection rule ID to update.
+欲更新的優惠券 ID	Coupon ID to update.
+欲更新的全館優惠券 ID	Shop coupon ID to update.
+欲更新的全館活動 ID	Shop-wide discount ID to update.
+欲更新的其他通路有效訂單 ID	Other-channel valid order ID to update.
+欲更新的加價購群組 ID	Add-buy collection ID to update.
+欲更新的商品 ID	Product ID to update.
+欲更新的商品介紹 ID	Product description ID to update.
+欲更新的商品款式 ID	Product variant ID to update.
+欲更新的商品選項 ID	Product option ID to update.
+欲更新的庫存同步群組 ID	Inventory sync group ID to update.
+欲更新的智慧群組 ID	Smart collection ID to update.
+欲更新的智慧群組規則 ID	Smart collection rule ID to update.
+欲更新的紅利 ID	Bonus point ID to update.
+欲更新的自訂欄位 ID	Custom field ID to update.
+欲更新的自訂群組 ID	Custom collection ID to update.
+欲更新的訂單 ID	Order ID to update.
+欲更新的門市 ID	Branch store ID to update.
+欲更新的門市優惠券 ID	POS shop coupon ID to update.
+欲更新的限購群組 ID	Limit collection ID to update.
+欲更新的顧客 ID	Customer ID to update.
+欲查詢的 POS 機 ID	POS terminal ID to look up.
+欲核銷的全館優惠券 ID	Shop coupon ID to decrement.
+欲核銷的全館優惠券的顧客 ID	Customer ID whose shop coupon to decrement.
+欲結束出貨的訂單 ID	Order ID whose shipment to conclude.
+欲自動出貨多筆訂單的出貨資訊	Shipment information for the orders to ship automatically.
+款式新增時間	Variant created at.
+款式更新時間	Variant updated at.
+每一筆紅利的有效期限	Validity of each bonus grant.
+消費贈送的紅利點數，如果 consumption_price 設定為 5，consumption_bonus 設定為 1，即代表每消費 5 元，就可獲得 1 點紅利點數	Bonus points per spend step: with consumption_price 5 and consumption_bonus 1, every 5 spent earns 1 point.
+物流商代碼	Carrier code.
+物流商名稱	Carrier name.
+生日禮: 細部設定	Birthday gift: settings.
+申請退貨時間	Return requested at.
+當前 VIP 層級	Current VIP level.
+發票作廢或折讓時間	Invoice voided or allowance time.
+發票明細	Invoice details.
+發票開立日期	Invoice issue date.
+盤點品項	Counted items.
+目的 POS 商店 ID	Target POS shop ID.
+目的類型	Target type.
+省	Province.
+票券名稱	Ticket name.
+票券狀態	Ticket status.
+第 n 個商品	Item position (nth item).
+第一期子訂單建單日期	Creation date of the first child order.
+第三方名稱	Third-party name.
+等級名稱	Level name.
+紅利倍數: 有效期限(天)	Bonus multiplier: validity (days).
+紅利倍數: 消費門檻	Bonus multiplier: spend threshold.
+紅利倍數: 贈送紅利(點)	Bonus multiplier: points granted.
+紅利兌換比例 設定 1，即代表 1 點紅利點數等於 1 元	Bonus redemption ratio; 1 means one point equals 1 dollar.
+紅利商城兌換點數，若非紅利兌換則為null	Bonus points redeemed in the bonus mall; null when not a bonus redemption.
+紅利折扣	Bonus discount.
+紅利折抵最低消費門檻	Minimum spend to redeem bonus points.
+累積有效訂單平均金額	Average amount of valid orders.
+累積有效訂單數	Number of valid orders.
+累積有效訂單消費金額	Total spend of valid orders.
+組合內容	Bundle contents.
+組合品價差 (企業版專屬功能，如欲使用，請洽開店顧問)	Bundle price difference (Enterprise plan only; contact your consultant).
+組合品價差細節 (企業版專屬功能，如欲使用，請洽開店顧問)	Bundle price difference details (Enterprise plan only; contact your consultant).
+組合品子商品資訊	Bundle component items.
+組合數量	Bundle quantity.
+綁定的商品 ID 列表	Bound product IDs.
+綠界物流編號	ECPay logistics number.
+網址	URL.
+編號	Number.
+總折扣金額	Total discount.
+續會條件差額（單筆消費金額）	Single-order spend still needed to renew.
+續會條件差額（期間內累計金額）	Spend within the period still needed to renew.
+續會條件設定: 單筆消費總額	Renewal condition: single-order spend.
+續會條件設定: 會員效期內消費總額	Renewal condition: spend within the validity period.
+美安 Click_ID	shopdotcom (Market America) click ID.
+美安 RID	shopdotcom (Market America) RID.
+群組內顧客人數	Number of customers in the group.
+群組商品順序	Collection product position.
+群組類別(custom: 自訂分群,default: ORFM 預設分群)	Group type (custom: custom groups; default: ORFM preset groups).
+聯絡電話	Contact phone.
+自訂 UID	Custom UID.
+自訂欄位 (JSON 格式)	Custom fields (JSON).
+自訂欄位 ID	Custom field ID.
+自訂欄位 key	Custom field key.
+自訂欄位類型	Custom field type.
+自訂群組或智慧群組 ID	Custom or smart collection ID.
+草稿 VIP 群組	Draft VIP groups.
+處理結果	Result.
+行銷活動折扣	Special collection (campaign) discount.
+要建立自動出貨的訂單編號	Order numbers to ship automatically.
+規則內容	Rule details.
+規則商品數量	Rule product quantity.
+規則折扣百分比	Rule discount percentage.
+規則折扣金額	Rule discount amount.
+訂單付款狀態，聯集請用逗點分隔	Payment statuses; comma-separate for a union.
+訂單來源：	Order source:
+訂單免運 (百分比)	Order free shipping (percent).
+訂單取消結束時間 (YYYY-MM-DD hh:mm:ss)	Cancelled before (YYYY-MM-DD hh:mm:ss).
+訂單取消起始時間 (YYYY-MM-DD hh:mm:ss)	Cancelled after (YYYY-MM-DD hh:mm:ss).
+訂單建立結束時間 (YYYY-MM-DD hh:mm:ss)	Created before (YYYY-MM-DD hh:mm:ss).
+訂單建立起始時間 (YYYY-MM-DD hh:mm:ss)	Created after (YYYY-MM-DD hh:mm:ss).
+訂單換貨前金額	Order amount before the exchange.
+訂單換貨後金額	Order amount after the exchange.
+訂單明細	Order details.
+訂單更新結束時間 (YYYY-MM-DD hh:mm:ss)	Updated before (YYYY-MM-DD hh:mm:ss).
+訂單更新起始時間 (YYYY-MM-DD hh:mm:ss)	Updated after (YYYY-MM-DD hh:mm:ss).
+訂單狀態，聯集請用逗點分隔	Order statuses; comma-separate for a union.
+訂單發票號碼	Order invoice number.
+訂單結案結束時間 (YYYY-MM-DD hh:mm:ss)	Closed before (YYYY-MM-DD hh:mm:ss).
+訂單結案起始時間 (YYYY-MM-DD hh:mm:ss)	Closed after (YYYY-MM-DD hh:mm:ss).
+訂單總金額	Order total.
+訂單認單時間	Order confirmed at.
+訂單退款結束時間 (YYYY-MM-DD hh:mm:ss)	Refunded before (YYYY-MM-DD hh:mm:ss).
+訂單退款起始時間 (YYYY-MM-DD hh:mm:ss)	Refunded after (YYYY-MM-DD hh:mm:ss).
+訂單退貨狀態，聯集請用逗點分隔	Return statuses; comma-separate for a union.
+訂單配送狀態，聯集請用逗點分隔	Shipping statuses; comma-separate for a union.
+訂單銷售使用 Pos 機 ID	POS terminal ID the order was sold on.
+訂單銷售使用 Pos 機名稱	POS terminal name the order was sold on.
+訊息主題	Message subject.
+訊息內容	Message body.
+訊息標題	Message title.
+託運單HTML內容 (僅限7-11 C2C)	Consignment note HTML (7-ELEVEN store-to-store only).
+託運單JSON內容 (僅限萊爾富冷凍)	Consignment note JSON (Hi-Life frozen only).
+託運單PDF內容 (Base64 字串，僅限萊爾富)	Consignment note PDF as a Base64 string (Hi-Life only).
+託運單圖檔網址 (僅限全家)	Consignment note image URL (FamilyMart only).
+託運單號尚在取得中，可至 get /v1/orders/{order_id}/fulfillments 查詢 tracking_number 欄位。如超過10分鐘仍未取得託運單號，可先嘗試重新取號。如有問題再請聯繫客服。	The tracking number is still being obtained; read tracking_number from GET /v1/orders/{order_id}/fulfillments. If it is still missing after 10 minutes, request a new number; contact support if the problem persists.
+設定	Settings.
+註冊成功贈送的紅利點數	Bonus points granted on registration.
+說明頁	Description page.
+調整 POS 店 ID (EC ID 為 0)	Adjusted POS shop ID (0 for the EC shop).
+買方營業人統編	Buyer's business tax ID.
+賣方名稱	Seller name.
+賣方營業人地址	Seller's business address.
+賣方營業人統編	Seller's business tax ID.
+購買人地址	Billing address.
+購買人地址詳細資訊	Billing address details.
+購買人姓名	Billing name.
+購買人電話	Billing phone.
+購買人電話國碼	Billing phone country calling code.
+購買會員Email	Buyer e-mail.
+購買會員手機	Buyer mobile number.
+購買者（客戶）id	Buyer (customer) ID.
+贈送紅利 (點)	Bonus points granted.
+贈送紅利點數的消費金額條件	Spend required to earn bonus points.
+超取店號	Convenience-store pickup store number.
+退款內容簡述	Refund summary.
+退款金額	Refund amount.
+退貨原因	Return reason.
+退貨地址	Return address.
+退貨時間	Returned at.
+退貨訂單品項	Returned items.
+退貨資訊	Return information.
+週	Week.
+進倉 POS 店 ID (EC ID 為 0)	Inbound POS shop ID (0 for the EC shop).
+進倉 POS 店 ID (EC 為 0，第三方為 -1)	Inbound POS shop ID (0 for the EC shop, -1 for a third party).
+進倉品項	Received items.
+進貨 POS 店 ID (EC ID 為 0)	Receiving POS shop ID (0 for the EC shop).
+逾期未取時間	Pickup expired at.
+過濾門市的商品	Only branch-store products.
+配送編號	Shipment number.
+配送週期設定	Delivery cycle settings.
+配送週期類型	Delivery cycle type.
+銷售頁 id	Sales page ID.
+銷售頁名稱	Sales page name.
+銷售頁資訊	Sales page information.
+錯誤或警告訊息	Error or warning message.
+門市	Store.
+門市代號	Store code.
+門市店員 ID	Store staff ID.
+門市運費設定 ID	Shipping rate ID.
+開啟/關閉 會員紅利積點	Enable / disable customer bonus points.
+關聯群組 ID	Related collection ID.
+關聯群組種類	Related collection type.
+關聯訂單ID	Related order ID.
+關閉時間	Closed at.
+階層失效時間	Level valid until.
+階層生效時間	Level valid from.
+預計出貨日	Expected shipping date.
+類型代碼	Type code.
+顧客Email	Customer e-mail.
+顧客id	Customer ID.
+顧客信箱	Customer e-mail.
+顧客名稱	Customer name.
+顧客姓名	Customer name.
+顧客手機	Customer mobile number.
+顧客資料更新結束時間 (YYYY-MM-DD hh:mm:ss)	Customer updated before (YYYY-MM-DD hh:mm:ss).
+顧客資料更新起始時間 (YYYY-MM-DD hh:mm:ss)	Customer updated after (YYYY-MM-DD hh:mm:ss).
+顧客預設性別其他選項(除了男女)	Default gender options other than male and female.
+點收時間	Checked at.
+點數	Points.
+POS 相關資訊	POS information.
+取消原因詳情	Cancellation reason details.
+商品照片網址陣列	Product photo URLs.
+商品課稅類別：`inclusive_tax` (應稅)、`zero_tax` (零稅率)、`exclusive_tax` (免稅)	Tax type: `inclusive_tax` (taxable), `zero_tax` (zero-rated), `exclusive_tax` (tax exempt).
+多付款方式資訊陣列	Multiple payment information.
+款式 SKU	Variant SKU.
+群組商品陣列	Products in the collection.
+與其他行銷活動併用限制活動	Campaigns the restriction applies to.
+訂單 ID	Order ID.
+退貨狀態	Return status.
+Email 驗證時間	E-mail verified at.
+POS 銷售員 Email	POS salesperson e-mail.
+POS 銷售員 ID	POS salesperson ID.
+POS 銷售員所屬店家 ID	POS shop ID of the salesperson.
+Provider 類型	Provider type.
+UID Providers 陣列	UID providers.
+VIP 折扣	VIP discount.
+VIP 運費折扣	VIP shipping discount.
+VIP 階層陣列	VIP levels.
+付款狀態	Payment status.
+來源 ID	Source ID.
+來源類型：`BranchStore` 或 `PosShop`	Source type: `BranchStore` or `PosShop`.
+優惠券 ID	Coupon ID.
+優惠券明細 (單個) [已棄用]	Coupon detail (single; deprecated).
+優惠券明細陣列	Coupon details.
+優惠券狀態：`no_start_use` (尚未啟用)、`used` (已全部使用完畢)、`has_expire_date` (可使用且有到期日)、`no_expire_date` (可使用且無到期日)、`expired` (已過期)	Coupon status: `no_start_use` (not yet usable), `used` (fully used up), `has_expire_date` (usable, expires), `no_expire_date` (usable, never expires), `expired`. Read together with `gift_order_status`: a coupon whose source order was cancelled is invalid.
+優惠券種類：`1` (金額)、`2` (百分比)	Coupon type: `1` (amount), `2` (percent).
+優惠券綁定門市 ID	POS shop IDs the coupon is bound to.
+允許的付款方式陣列	Allowed payment methods.
+加入數量	Quantity added.
+升等條件：單筆消費總額	Upgrade condition: single-order spend.
+升等條件：會員效期內消費總額	Upgrade condition: spend within the validity period.
+升等禮：細部設定	Upgrade gift: settings.
+取消原因 ID	Cancellation reason ID.
+取消訂單來源	Cancellation source.
+商品 PIM 資訊陣列	Product PIM information.
+商品折扣拆負項陣列	Itemised product discounts.
+商品標籤陣列	Product tags.
+商品款式陣列	Product variants.
+商品款式類型 1	Variant option 1.
+商品款式類型 2	Variant option 2.
+商品款式類型 3	Variant option 3.
+商品照片陣列	Product photos.
+商品簡述 HTML 樣板文字	Product brief HTML template text.
+商品簡述是否使用 HTML 樣板文字	Whether the product brief uses the HTML template text.
+商品選項陣列	Product options.
+商品關聯群組陣列	Related collections.
+手機國碼 (ex. +886)	Mobile country calling code (e.g. +886).
+折價券類型：金額、百分比、免運	Coupon type: amount, percent or free shipping.
+折扣 (金額/百分比)	Discount (amount or percent).
+換貨商品資訊陣列	Exchanged items.
+是否可使用宅配貨到付款	Home-delivery cash on delivery allowed.
+是否可使用超商取貨	Convenience-store pickup allowed.
+是否可使用超商貨到付款	Convenience-store cash on delivery allowed.
+會員 ID	Customer ID.
+會員標籤陣列	Customer tags.
+有效期限 (天)，天數設為 0 時效期為無限期	Validity in days (0: never expires).
+欄位內容	Field value.
+欄位名稱	Field name.
+欄位顯示名稱	Field label.
+狀態：`pending` (帳號未啟用)、`validate` (帳號未驗證)、`enabled` (帳號已啟用)、`disabled` (帳號已禁用)、`invited` (已邀請會員啟用)、`declined` (啟用邀請被拒絕)、`warning` (已列為警示帳號)	Status: `pending` (not activated), `validate` (not verified), `enabled` (activated), `disabled` (disabled), `invited` (activation invitation sent), `declined` (invitation declined), `warning` (flagged account).
+獲得優惠券來源訂單 ID	ID of the order that granted the coupon.
+獲得優惠券來源訂單狀態：`closed` (已結案)、`open` (進行中)、`cancelled` (已取消)	Status of the order that granted the coupon: `closed` (completed), `open` (in progress), `cancelled`. Read together with `coupon_status`.
+生日禮：名稱	Birthday gift: name.
+生日禮：提前贈送天數	Birthday gift: days in advance.
+生日禮：細部設定	Birthday gift: settings.
+第三方折扣	Third-party discount.
+紅利倍數：有效期限 (天)	Bonus multiplier: validity (days).
+紅利倍數：消費門檻	Bonus multiplier: spend threshold.
+紅利倍數：贈送紅利 (點)	Bonus multiplier: points granted.
+紅利商城兌換點數，若非紅利兌換則為 null	Bonus points redeemed in the bonus mall; null when not a bonus redemption.
+組合內容陣列	Bundle contents.
+組合品價差	Bundle price difference.
+經度座標	Longitude.
+緯度座標	Latitude.
+續會條件：單筆消費總額	Renewal condition: single-order spend.
+續會條件：會員效期內消費總額	Renewal condition: spend within the validity period.
+自定欄位陣列	Custom fields.
+與其他行銷活動併用限制類型	Restriction type for combining with other campaigns.
+與其他行銷活動併用限制類型：`unrestricted` (所有行銷活動商品皆可使用)、`restrict` (除指定活動商品外可使用)、`forbidden` (訂單包含指定活動商品時不得使用)	Restriction type: `unrestricted` (usable on every campaign product), `restrict` (usable except on the listed campaigns' products), `forbidden` (not usable when the order contains a listed campaign's product).
+行銷活動群組規則陣列	Special collection rules.
+被加入購物車商品款式陣列	Variants added to the cart.
+訂單免運設定	Order free-shipping settings.
+訂單商品資訊陣列	Order line items.
+訂單折扣設定	Order discount settings.
+訂單標籤陣列	Order tags.
+訂單銷售使用 POS 機 ID	POS terminal ID the order was sold on.
+訂單銷售使用 POS 機名稱	POS terminal name the order was sold on.
+貨態追蹤網址 (目前只支援 Uber Direct 與 Pandago)	Tracking URL (Uber Direct and Pandago only).
+購買人資訊 (客製項目)	Billing information (custom feature).
+購買會員 Email	Buyer e-mail.
+退款資訊陣列	Refund history.
+配送商品陣列	Shipped items.
+配送資訊陣列	Fulfillments.
+門市運費設定陣列	Store shipping rates.
+關聯商品 ID	Related product ID.
+關聯自訂群組陣列	Related custom collections.
+關聯訂單 ID	Related order ID.
+關聯顧客 ID	Related customer ID.
+關聯顧客 ID (若為全館優惠券則為空值)	Related customer ID (null for shop-wide coupons).
+顧客是否還有剩餘使用次數	Whether the customer still has uses left.

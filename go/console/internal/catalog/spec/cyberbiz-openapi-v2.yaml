@@ -1,0 +1,3460 @@
+openapi: 3.1.0
+info:
+  title: CYBERBIZ API v2 and app endpoints
+  version: 1.0.1
+  description: |-
+    # CYBERBIZ API v2 and app endpoints
+
+    The `/v2` operations and the unprefixed app endpoints (`/shop`, `/settings`) of the CYBERBIZ
+    e-commerce platform. There is no machine-readable v2 specification; this document is transcribed
+    from the CYBERBIZ Notion reference and corrected against recorded live responses (Golden Files).
+    v1 and v2 share the host, the token and the conventions below; v2 is not a replacement for v1
+    (orders, products and customers CRUD remain on v1).
+
+    ## Conventions
+
+    - **Base URL**: `https://app-store-api.cyberbiz.io` for every shop and every API version. Versions are path prefixes (`/v1`, `/v2`); the app endpoints `/shop` and `/settings` have no prefix.
+    - **Authentication**: `Authorization: Bearer <API Token>` on every request. The token is a JWT issued to the app for one Shop and carries its scopes (`read_orders`, `write_products`, ...). `read_*` scopes grant the GET operations of a resource group; `write_*` scopes grant POST/PUT/DELETE.
+    - **Rate limit**: at most 5 requests per second per token. Expect `429` beyond that.
+    - **Pagination**: list endpoints take `page` (1-based), `per_page` (default and maximum 50) and `offset`; the returned slice starts at record `offset + (page - 1) * per_page + 1`. The response carries `X-Page`, `X-Per-Page`, `X-Offset`, `X-Total`, `X-Total-Pages`, `X-Next-Page` and `X-Prev-Page`.
+    - **Timestamps** are local Asia/Taipei strings `YYYY-MM-DD HH:MM:SS` without a zone (schema `Timestamp`); dates are `YYYY-MM-DD` (schema `Date`).
+    - **Money** fields are JSON numbers (floats such as `9999.0`) even where the swagger says integer (schema `Money`).
+    - **Nullability**: no field is guaranteed non-null. Fields observed as `null` in live responses are marked nullable; treat any other field as possibly null too.
+    - **Request bodies** are sent as JSON. The original swagger documents most writes as form data; the platform accepts `application/json`.
+    - **Errors** use one of `{"error": ["..."]}`, `{"error": "..."}`, `{"message": "..."}`, `{"messages": "..."}`. `401` means the token is invalid **or** the feature is not licensed for the shop. Some lookups answer `200` with a bare `null` or `206` with `[]` when nothing matches.
+    - **Samples** in this document are synthetic: their shape comes from recorded responses, their values are fake.
+
+    ## Release Notes
+
+    ### 1.0.1 (2026-10-02)
+
+    - Postman collection descriptions no longer point to repository-internal files.
+
+    ### 1.0.0 (2026-09-08)
+
+    - Initial generation from the CYBERBIZ v1 swagger, the v1/v2 Postman collections, the Notion v2 reference and the webhook reference.
+    - Observed corrections applied: nullable fields, money as float, order_number as integer, arrays documented as objects, fields missing from the swagger, Bearer authentication.
+    - Synthetic samples derived from the Golden Files for every operation and event.
+servers:
+  - url: https://app-store-api.cyberbiz.io
+    description: Production (the same host for every shop and every API version).
+security:
+  - bearerAuth: []
+tags:
+  - name: app
+    description: 'App-level endpoints without a version prefix: the shop and the app''s settings on that shop.'
+  - name: product_feeds
+    description: Product feed URLs for advertising platforms.
+  - name: affiliates
+    description: Affiliate (revenue-share) vendor orders.
+  - name: pages
+    description: Custom storefront pages with an HTML section.
+  - name: shipping
+    description: Convenience-store and home-delivery shipping labels.
+  - name: menus
+    description: Storefront menus (link lists).
+  - name: categories
+    description: Multi-level product categories.
+  - name: collections
+    description: Custom and smart collections (v2 search endpoints).
+  - name: customer_oauth
+    description: Customer OAuth.
+  - name: customers
+    description: 'Customers: profile, tags, custom fields, bonus points, coupons, orders, VIP information.'
+  - name: shop_emails
+    description: Shop e-mail address and subscribers.
+  - name: products
+    description: Products, variants, options, photos, descriptions, tags and bind-shipping settings.
+  - name: pos_wallets
+    description: POS stored-value wallets (requires the POS stored-value feature).
+paths:
+  /settings:
+    get:
+      tags:
+        - app
+      summary: Get the app's settings on this shop
+      description: 'The app installation (`shop_add_on`) on this shop: its setting values, vendor type, token, validity window and the installed app version with its manifest and granted scopes.'
+      operationId: getSettings
+      responses:
+        "200":
+          description: The app installation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopAddOnEnvelope'
+              example:
+                shop_add_on:
+                  id: 1
+                  settings: {}
+                  vendor_type: example-app
+                  token: synthetic-token-do-not-use
+                  start_at: null
+                  end_at: null
+                  add_on_version:
+                    webhook_url: https://example.com/webhooks/cyberbiz
+                    manifest:
+                      name: Example App
+                      version: 0.1.0
+                      scopes: public
+                      manifest_version: 1
+                      type: other
+                      webhook_events:
+                        - customers/create
+                        - customers/update
+                        - uid_providers/create
+                        - uid_providers/update
+                        - customer_tags/update
+                        - bonus_points/create
+                        - bonus_points/update
+                        - bonus_points/destroy
+                        - comment_bonus/create
+                        - orders/opened
+                        - orders/create
+                        - orders/paid
+                        - orders/preparing
+                        - orders/fulfilled
+                        - orders/received
+                        - orders/arrived
+                        - orders/expired
+                        - orders/cancelled
+                        - orders/returned
+                        - orders/partial_return
+                        - orders/refunded
+                        - orders/partial_refunded
+                        - orders/closed
+                        - orders/request_return
+                        - affiliate_vendor_orders/create
+                        - affiliate_vendor_orders/closed
+                        - affiliate_vendor_orders/cancelled
+                        - orders/update
+                        - products/create
+                        - products/update
+                        - products/delete
+                        - products/update_photos
+                        - products/update_options
+                        - variants/create
+                        - variants/update
+                        - variants/delete
+                        - cart/add
+                        - domains/create
+                        - domains/update
+                        - domains/destroy
+                        - collections/create
+                        - collections/delete
+                        - collections/update
+                        - apps/uninstall
+                        - express_delivery_orders/update
+                        - bulk_operations/finish
+                        - coupons/create
+                        - coupons/update
+                        - coupons/destroy
+                        - customer_vip_level/update
+                        - menus/create
+                        - menus/update
+                        - menus/destroy
+                    embedded: true
+                    status: init
+                    scopes: public read_products write_products read_customers write_customers read_orders write_orders read_affiliates read_discounts write_discounts read_pos write_pos read_branch_stores write_branch_stores read_edms customer_notifications write_content read_content customer_oauth read_shop_points consume_shop_points read_eticket write_eticket refill_shop_points read_shop_emails pim read_shop_users
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+    put:
+      tags:
+        - app
+      summary: Update the app's settings on this shop
+      description: Updates the values of the `setting_fields` declared in the app manifest. Each `field` must equal a field name declared at application time.
+      operationId: putSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShopAddOnSettingsUpdate'
+            example:
+              settings:
+                - field: your_field_name
+                  data: value
+      responses:
+        "200":
+          description: The updated app installation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopAddOnUpdatedEnvelope'
+              example:
+                shop_add_on:
+                  id: 1
+                  settings:
+                    your_field_name: value
+                  vendor_type: example-app
+                  token: synthetic-token-do-not-use
+                  start_at: null
+                  end_at: null
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /shop:
+    get:
+      tags:
+        - app
+      summary: Get the shop
+      description: 'The shop the token belongs to: primary domain, name, id, contact e-mail, Open Graph image and LINE settings.'
+      operationId: getShop
+      responses:
+        "200":
+          description: The shop.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopInfoEnvelope'
+              example:
+                shop_info:
+                  primary_domain: example.cyberbiz.co
+                  name: 王小明
+                  id: 1
+                  email: customer@example.com
+                  og_image_url: //example.cyberbiz.co/media/sample-product.jpg
+                  shop_line_chat_bot: null
+                  shop_line:
+                    login_enable: true
+                    liff_id: null
+                    liff_enable: false
+                  language: zh-TW
+                  currency: TWD
+                  sms_prefix: 【CYBERBIZ代發】
+                  merchant_location: Taiwan
+                  market_location: Taiwan
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/affiliate_vendor_orders:
+    get:
+      tags:
+        - affiliates
+      summary: List affiliate vendor orders
+      description: |-
+        Orders attributed to the affiliate (revenue-share) vendor. Child orders of a periodic order created with the affiliate query parameters (`affiliate`, `cid`, `uid`) are included. The Notion reference shows an `affiliate_vendor_orders` envelope; the live API answers a bare array (Golden File), which is what this document describes.
+
+        Scope: `read_affiliates`.
+      operationId: getV2AffiliateVendorOrders
+      parameters:
+        - name: start_time
+          in: query
+          description: Order creation start (`YYYY-MM-DD hh:mm:ss`, Asia/Taipei)
+          schema:
+            type: string
+          example: "2026-09-01 00:00:00"
+        - name: end_time
+          in: query
+          description: Order creation end (`YYYY-MM-DD hh:mm:ss`, Asia/Taipei)
+          schema:
+            type: string
+          example: "2026-09-30 23:59:59"
+        - name: closed_at_start_time
+          in: query
+          description: Order `closed_at` start (`YYYY-MM-DD hh:mm:ss`, Asia/Taipei)
+          schema:
+            type: string
+          example: "2026-09-01 00:00:00"
+        - name: closed_at_end_time
+          in: query
+          description: Order `closed_at` end (`YYYY-MM-DD hh:mm:ss`, Asia/Taipei)
+          schema:
+            type: string
+          example: "2026-09-30 23:59:59"
+        - name: statuses
+          in: query
+          description: 'Order statuses, comma-separated: `open`, `closed`, `cancelled`.'
+          schema:
+            type: string
+          example: open,closed
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/offset'
+      responses:
+        "200":
+          description: The affiliate orders.
+          headers:
+            X-Page:
+              $ref: '#/components/headers/X-Page'
+            X-Per-Page:
+              $ref: '#/components/headers/X-Per-Page'
+            X-Offset:
+              $ref: '#/components/headers/X-Offset'
+            X-Total:
+              $ref: '#/components/headers/X-Total'
+            X-Total-Pages:
+              $ref: '#/components/headers/X-Total-Pages'
+            X-Next-Page:
+              $ref: '#/components/headers/X-Next-Page'
+            X-Prev-Page:
+              $ref: '#/components/headers/X-Prev-Page'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AffiliateVendorOrder'
+              example:
+                - status_code: create_succeed
+                  uid: U0000000000000000000000000000001
+                  cid: 0123456789abcdef0123456789abcdef
+                  vendor_name: example-vendor
+                  order:
+                    customer_id: 1
+                    subtotal_price: 300.0
+                    created_at: "2026-09-01 10:00:00"
+                    updated_at: "2026-09-01 10:00:00"
+                    order_number: 1001
+                    order_name: '#1001'
+                    buyer:
+                      email: customer@example.com
+                      mobile: "0912345678"
+                    line_items:
+                      - id: 2
+                        product_id: 3
+                        product_variant_id: 4
+                        title: 範例商品
+                        variant_title: ""
+                        sku: SKU-001
+                        qc: null
+                        vendor: null
+                        price: 300.0
+                        cost: null
+                        quantity: 1
+                        item_type: normal
+                        discount_name: ""
+                        discounts: []
+                        total_price_before_discounts: 300.0
+                        total_discount: 0.0
+                        total_price_after_discounts: 300.0
+                        tax_type_id: inclusive_tax
+                        bonus_redemption_price: null
+                        related_items: []
+                        created_at: "2026-09-01 10:00:00"
+                    shipping_type: cyberbiz
+                    shipping_name: 自取
+                    delivery_date: null
+                    delivery_time: 0
+                    delegate: null
+                    prices:
+                      total_line_items_price: 300.0
+                      shipping_rate_price: 10.0
+                      discounts:
+                        special_collection_discount: 0.0
+                        vip_discount: 0.0
+                        shop_discount: null
+                        coupon_discount: null
+                        coupon_discounts: []
+                        bonus_consumed: 0.0
+                        vip_shipping_discount: 0.0
+                        coupon_shipping_discount: 0.0
+                        price_discount: 0.0
+                      total_price: 310.0
+                    transaction_number: null
+                    merchant_trade_no: S1#1001
+                    statuses:
+                      order_status: open
+                      financial_status: pending
+                      fulfillment_status: unshipped
+                      return_status: no_need
+                    timings:
+                      request_return_at: null
+                      return_at: null
+                      refund_at: null
+                      closed_at: null
+                      cancelled_at: null
+                      expired_at: null
+                      confirmed_at: "2026-09-01 10:00:00"
+                    return_histories: []
+                    note: ""
+                    total_bonus_redemption_price: 0.0
+                    linked_order_info:
+                      source: 非導購訂單
+                    shipping_status: null
+                    extra_info: null
+                    from_device: 桌機
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/categories:
+    get:
+      tags:
+        - categories
+      summary: List categories
+      description: |-
+        Multi-level product categories. `full_handle` encodes the hierarchy (`clothing/mens/shirts`) and builds the storefront URL `https://<domain>/categories/<full_handle>`; `handle` is the category's own segment.
+
+        Scope: `read_products`.
+      operationId: getV2Categories
+      parameters:
+        - name: q
+          in: query
+          description: Category title to search (string match).
+          schema:
+            type: string
+          example: 服飾
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+      responses:
+        "200":
+          description: The categories.
+          headers:
+            X-Page:
+              $ref: '#/components/headers/X-Page'
+            X-Per-Page:
+              $ref: '#/components/headers/X-Per-Page'
+            X-Offset:
+              $ref: '#/components/headers/X-Offset'
+            X-Total:
+              $ref: '#/components/headers/X-Total'
+            X-Total-Pages:
+              $ref: '#/components/headers/X-Total-Pages'
+            X-Next-Page:
+              $ref: '#/components/headers/X-Next-Page'
+            X-Prev-Page:
+              $ref: '#/components/headers/X-Prev-Page'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+              example:
+                - title: 範例群組
+                  handle: ecoupon
+                  full_handle: ecoupon
+                  id: 1
+                - title: 範例群組
+                  handle: entea
+                  full_handle: entea
+                  id: 2
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/custom_collections:
+    get:
+      tags:
+        - collections
+      summary: Search custom collections
+      description: |-
+        Custom collections, searchable by title or handle. `products_order_name` carries the display label of the ordering (e.g. `按標題拼音升序: A-Z`), not the code; codes are `title.asc`, `title.desc`, `created_at.desc`, `created_at.asc`, `price.desc`, `price.asc`, `manual`, `sell_weight.desc`.
+
+        Scope: `read_products`.
+      operationId: getV2CustomCollections
+      parameters:
+        - name: q
+          in: query
+          description: Title or handle to search (string match).
+          schema:
+            type: string
+          example: 首頁
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+      responses:
+        "200":
+          description: The collections.
+          headers:
+            X-Page:
+              $ref: '#/components/headers/X-Page'
+            X-Per-Page:
+              $ref: '#/components/headers/X-Per-Page'
+            X-Offset:
+              $ref: '#/components/headers/X-Offset'
+            X-Total:
+              $ref: '#/components/headers/X-Total'
+            X-Total-Pages:
+              $ref: '#/components/headers/X-Total-Pages'
+            X-Next-Page:
+              $ref: '#/components/headers/X-Next-Page'
+            X-Prev-Page:
+              $ref: '#/components/headers/X-Prev-Page'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomCollectionV2'
+              example:
+                - title: 範例群組
+                  handle: 英茶香
+                  published: true
+                  body_html: null
+                  products_order_name: '按標題拼音升序: A-Z'
+                  position: 2
+                  id: 1
+                - title: 範例群組
+                  handle: 所有商品
+                  published: true
+                  body_html: null
+                  products_order_name: '按標題拼音升序: A-Z'
+                  position: 1
+                  id: 2
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/customer_oauth:
+    post:
+      tags:
+        - customer_oauth
+      summary: Customer OAuth
+      description: |-
+        Documentation defect: the Notion section for this endpoint is a verbatim copy of `GET /v2/categories`, so no request/response contract is published. The request body below comes from the CYBERBIZ Postman collection; the response is undocumented. Consult CYBERBIZ support before relying on it.
+
+        Scope: `customer_oauth`.
+      operationId: postV2CustomerOauth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerOAuthRequest'
+            example:
+              uid: U0000000000000000000000000000001
+              provider: line
+      responses:
+        "200":
+          description: Undocumented.
+          content:
+            application/json:
+              schema:
+                description: Undocumented response body.
+              example: null
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/customers:
+    get:
+      tags:
+        - customers
+      summary: List customers
+      description: |-
+        Customers as a bare array. The live API returns the compact shape shown in the sample; `include_params` adds optional sections (`vip_info` is documented; the Postman collection also sends `uid_providers,tags`). When `ids` is given pagination is disabled.
+
+        Scope: `read_customers`.
+      operationId: getV2Customers
+      parameters:
+        - name: ids
+          in: query
+          description: Comma-separated customer ids (at most 100). Disables pagination.
+          schema:
+            type: string
+          example: 1,2,3
+        - name: include_params
+          in: query
+          description: 'Extra sections to include, comma-separated. Documented: `vip_info`.'
+          schema:
+            type: string
+          example: vip_info
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/offset'
+      responses:
+        "200":
+          description: The customers.
+          headers:
+            X-Page:
+              $ref: '#/components/headers/X-Page'
+            X-Per-Page:
+              $ref: '#/components/headers/X-Per-Page'
+            X-Offset:
+              $ref: '#/components/headers/X-Offset'
+            X-Total:
+              $ref: '#/components/headers/X-Total'
+            X-Total-Pages:
+              $ref: '#/components/headers/X-Total-Pages'
+            X-Next-Page:
+              $ref: '#/components/headers/X-Next-Page'
+            X-Prev-Page:
+              $ref: '#/components/headers/X-Prev-Page'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerV2'
+              example:
+                - id: 1
+                  name: 王小明
+                  status: enabled
+                  email: customer@example.com
+                  country_calling_code: null
+                  mobile: "0912345678"
+                  enable_cvs_pickup: true
+                  enable_cvs_cod: true
+                  enable_home_delivery_cod: null
+                  accepts_marketing: true
+                  gender: female
+                  birthday: null
+                  other_accumulated_consumption: 0
+                  other_accumulated_consumption_expired_at: null
+                  note: null
+                  created_at: "2023-10-03 12:04:02"
+                  updated_at: "2026-03-26 18:30:18"
+                  confirmed_at: "2023-11-30 22:30:58"
+                  mobile_sms_confirmed_at: "2023-11-30 22:30:58"
+                - id: 2
+                  name: 王小明
+                  status: enabled
+                  email: customer@example.com
+                  country_calling_code: null
+                  mobile: "0912345678"
+                  enable_cvs_pickup: true
+                  enable_cvs_cod: true
+                  enable_home_delivery_cod: null
+                  accepts_marketing: true
+                  gender: 男
+                  birthday: null
+                  other_accumulated_consumption: 0
+                  other_accumulated_consumption_expired_at: null
+                  note: null
+                  created_at: "2023-11-22 16:49:25"
+                  updated_at: "2023-11-22 16:49:25"
+                  confirmed_at: "2023-11-22 16:49:25"
+                  mobile_sms_confirmed_at: "2023-11-22 16:49:25"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/customers/by_uid_provider:
+    get:
+      tags:
+        - customers
+      summary: Get a customer by social-login uid
+      description: |-
+        Looks up one customer by the uid of a social-login provider. Answers `null` when no customer matches (Golden File). The parameters are `uid` and `provider` (verified against the live API); the Notion reference's `provider_type` is a documentation error.
+
+        Scope: `read_customers`.
+      operationId: getV2CustomersByUidProvider
+      parameters:
+        - name: uid
+          in: query
+          description: The provider's user id.
+          schema:
+            type: string
+          example: U0000000000000000000000000000001
+        - name: provider
+          in: query
+          description: 'Provider: `line`, `line_at`, `facebook`, ...'
+          schema:
+            type: string
+          example: line
+      responses:
+        "200":
+          description: The customer, or `null` when not found. Answers `null` when the resource does not exist.
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/CustomerV2'
+                  - type: "null"
+              example: null
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/menus:
+    get:
+      tags:
+        - menus
+      summary: List menus
+      description: |-
+        All menus (link lists) of the storefront. The Notion sample is not valid JSON; the live API answers a bare array (Golden File).
+
+        Scope: `read_content`.
+      operationId: getV2Menus
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+      responses:
+        "200":
+          description: The menus.
+          headers:
+            X-Page:
+              $ref: '#/components/headers/X-Page'
+            X-Per-Page:
+              $ref: '#/components/headers/X-Per-Page'
+            X-Offset:
+              $ref: '#/components/headers/X-Offset'
+            X-Total:
+              $ref: '#/components/headers/X-Total'
+            X-Total-Pages:
+              $ref: '#/components/headers/X-Total-Pages'
+            X-Next-Page:
+              $ref: '#/components/headers/X-Next-Page'
+            X-Prev-Page:
+              $ref: '#/components/headers/X-Prev-Page'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuSummary'
+              example:
+                - id: 1
+                  title: 範例標題
+                  system_default: true
+                - id: 2
+                  title: 範例標題
+                  system_default: true
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/menus/{menu_id}:
+    get:
+      tags:
+        - menus
+      summary: Get a menu with its items
+      description: |-
+        One menu with its nested items; nesting is recursive through `items`.
+
+        Scope: `read_content`.
+      operationId: getV2MenusMenuId
+      parameters:
+        - name: menu_id
+          in: path
+          description: Menu id.
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: The menu.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Menu'
+              example:
+                id: 1
+                title: 範例標題
+                system_default: true
+                items: []
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/orders/cvs_shipping_labels:
+    post:
+      tags:
+        - shipping
+      summary: Print convenience-store shipping labels
+      description: |-
+        Returns a zip file containing one PDF with all requested labels (`seven_c2c` labels are delivered as HTML). `Content-Disposition: attachment; filename=cvs_<shipping_type>_shipping_labels_<timestamp>.zip`.
+
+        Scope: `write_orders`.
+      operationId: postV2OrdersCvsShippingLabels
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CvsShippingLabelsRequest'
+            example:
+              shipping_type: seven
+              fulfillment_ids:
+                - 1
+                - 2
+                - 3
+      responses:
+        "200":
+          description: A zip archive with the labels.
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+              example: (binary zip archive)
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/orders/fulfillments/support_shipping_labels:
+    post:
+      tags:
+        - shipping
+      summary: Print home-delivery shipping labels
+      description: |-
+        Returns a zip file containing one PDF with all labels for T-cat, SF Express, Pelican or HCT. `print_type` applies to HCT only. `Content-Disposition: attachment; filename=support_<shipping_type>_shipping_labels_<timestamp>.zip`.
+
+        Scope: `write_orders`.
+      operationId: postV2OrdersFulfillmentsSupportShippingLabels
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportShippingLabelsRequest'
+            example:
+              shipping_type: ezcat
+              print_type: normal
+              order_ids:
+                - 1
+                - 2
+      responses:
+        "200":
+          description: A zip archive with the labels.
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+              example: (binary zip archive)
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/orders/fulfillments/support_shippings:
+    post:
+      tags:
+        - shipping
+      summary: Create home-delivery shipping labels
+      description: |-
+        Creates shipping labels for T-cat (`ezcat`), SF Express (`sf`), Pelican (`pelican`) or HCT (`hct`) for several orders at once. `fridge_or_frozen`, `is_fragile` and `use_transfer` are not supported by `sf` and `hct`. Orders that fail are listed in `failed_orders`; the rest get a fulfillment.
+
+        Scope: `write_orders`.
+      operationId: postV2OrdersFulfillmentsSupportShippings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportShippingCreate'
+            example:
+              shipping_type: ezcat
+              size: 60
+              temperature: normal
+              fridge_or_frozen: none
+              use_transfer: false
+              is_fragile: true
+              shipping_orders:
+                - order_id: 1
+                  line_item_ids:
+                    - 2
+                - order_id: 3
+                  line_item_ids:
+                    - 4
+      responses:
+        "200":
+          description: Created fulfillments and failed orders.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportShippingResult'
+              example:
+                failed_orders:
+                  - order_id: 1
+                    message: 訂單 id = 3 無此商品 line_item_ids = [4]
+                fulfillments:
+                  - id: 2
+                    order_id: 3
+                    tracking_number: TRK000000001
+                    tracking_company: ezcat
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/orders/{order_id}/cvs_shipping:
+    post:
+      tags:
+        - shipping
+      summary: Create a convenience-store shipping label
+      description: |-
+        Creates a CVS shipping label for one order. Supported carriers: FamilyMart (incl. store-to-store and cold chain), Hi-Life (incl. store-to-store and cold chain), 7-ELEVEN (incl. store-to-store) and T-cat quick store delivery (ambient, frozen, refrigerated). Only orders whose reply has a non-null `cvs_shipping_type` can then print a label.
+
+        Scope: `write_orders`.
+      operationId: postV2OrdersOrderIdCvsShipping
+      parameters:
+        - name: order_id
+          in: path
+          description: Order id.
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CvsShippingCreate'
+            example:
+              measurement: S60
+      responses:
+        "201":
+          description: The created fulfillment.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CvsFulfillment'
+              example:
+                id: 1
+                tracking_company: FAMILY_C2C
+                cvs_shipping_type: family_c2c
+                tracking_number: TRK000000001
+                fulfilled_at: "2026-09-01 10:00:00"
+                received_at: null
+                status: fulfilled
+                line_items:
+                  - id: 2
+                    product_id: 3
+                    product_variant_id: 4
+                    title: 範例商品
+                    variant_title: ""
+                    sku: SKU-001
+                    qc: null
+                    vendor: null
+                    price: 1000.0
+                    cost: 500.0
+                    quantity: 1
+                    item_type: normal
+                    discount_name: ""
+                    discounts: []
+                    total_price_before_discounts: 1000.0
+                    total_discount: 0.0
+                    total_price_after_discounts: 1000.0
+                    tax_type_id: inclusive_tax
+                    bonus_redemption_price: null
+                    related_items: []
+                    created_at: "2026-09-01 10:00:00"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/pages:
+    post:
+      tags:
+        - pages
+      summary: Create a custom page
+      description: |-
+        Creates a custom page containing one custom HTML section. Pages created here cannot be edited in the admin backend (preview only); change them through `PUT /v2/pages/{page_id}`.
+
+        Scope: `write_content`.
+      operationId: postV2Pages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageCreate'
+            example:
+              title: 範例標題
+      responses:
+        "201":
+          description: The created page.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page'
+              example:
+                id: 1
+                title: 範例群組
+                handle: demo-page
+                status: published
+                html_infos: '{"1714492800_app_store_api":"\u003ch1\u003eDemo content\u003c/h1\u003e"}'
+                created_at: "2026-09-01 10:00:00"
+                updated_at: "2026-09-01 10:00:00"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/pages/{page_id}:
+    put:
+      tags:
+        - pages
+      summary: Update a custom page
+      description: |-
+        Updates a page created through `POST /v2/pages`. To change the section content send both `section_id` and `section_content`; `section_content` is a JSON string (unicode-escape the HTML, then JSON-encode). Only the custom HTML section created by `POST /v2/pages` can be modified. The reference says `page_id` is passed in the query string; the Postman collection sends it in both the path and the query.
+
+        Scope: `write_content`.
+      operationId: putV2PagesPageId
+      parameters:
+        - name: page_id
+          in: path
+          description: Custom page id.
+          required: true
+          schema:
+            type: integer
+          example: 1
+        - name: page_id
+          in: query
+          description: Custom page id (the reference documents it as a query parameter).
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageUpdate'
+            example:
+              title: 範例群組
+              handle: new-handle
+              status: published
+              section_id: 1714492800_app_store_api
+              section_content: '"\u003ch1\u003eNew content\u003c/h1\u003e"'
+      responses:
+        "200":
+          description: The updated page.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page'
+              example:
+                id: 1
+                title: 範例群組
+                handle: demo-page
+                status: published
+                html_infos: '{"1714492800_app_store_api":"\u003ch1\u003eDemo content\u003c/h1\u003e"}'
+                created_at: "2026-09-01 10:00:00"
+                updated_at: "2026-09-01 10:00:00"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/pos_wallets/{customer_id}/balance:
+    get:
+      tags:
+        - pos_wallets
+      summary: Get a customer's POS wallet balance
+      description: |-
+        Stored-value balance of a customer. Only for shops with the POS stored-value feature enabled.
+
+        Scope: `read_pos`.
+      operationId: getV2PosWalletsCustomerIdBalance
+      parameters:
+        - name: customer_id
+          in: path
+          description: Customer id.
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: The balance.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletBalance'
+              example:
+                balance: 1500.0
+                currency: TWD
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/pos_wallets/{customer_id}/transactions:
+    get:
+      tags:
+        - pos_wallets
+      summary: List a customer's POS wallet transactions
+      description: |-
+        Wallet transaction history, newest first, capped at 1000 records (no pagination). `topup` entries carry `einvoice`, `paper_invoice_no` and `financial_status`; `refund` entries carry `invalid_einvoices` and `allowance_einvoices`; `consumption`, `cancel_order` and `bonus` carry only the common fields. Timestamps are `YYYY-MM-DD HH:MM+0800`.
+
+        Scope: `read_pos`.
+      operationId: getV2PosWalletsCustomerIdTransactions
+      parameters:
+        - name: customer_id
+          in: path
+          description: Customer id.
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: The transactions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WalletTransaction'
+              example:
+                - type: refund
+                  amount: -500.0
+                  balance_after: 1000.0
+                  created_at: 2026-09-01 12:04+0800
+                  payment_name: 現金
+                  invalid_einvoices:
+                    - title: ""
+                      company_no: ""
+                      invoice_no: AB12345678
+                      invoice_status: issue_invalid
+                      invoice_at: 2026-09-01 12:01+0800
+                      invalid_at: 2026-09-01 12:04+0800
+                      random_num: "1234"
+                      invoice_type: default
+                      love_code: ""
+                      phone_barcode: ""
+                      nature_person: ""
+                  allowance_einvoices: []
+                - type: topup
+                  amount: 1500.0
+                  balance_after: 1500.0
+                  created_at: 2026-09-01 12:02+0800
+                  payment_name: 現金
+                  financial_status: paid
+                  einvoice:
+                    title: ""
+                    company_no: ""
+                    invoice_no: AB12345678
+                    invoice_status: issue
+                    invoice_at: 2026-09-01 12:02+0800
+                    invalid_at: null
+                    random_num: "1234"
+                    invoice_type: default
+                    love_code: ""
+                    phone_barcode: ""
+                    nature_person: ""
+                  paper_invoice_no: null
+                - type: consumption
+                  amount: -200.0
+                  balance_after: 1300.0
+                  created_at: 2026-08-12 15:42+0800
+                  payment_name: null
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/product_feeds:
+    get:
+      tags:
+        - product_feeds
+      summary: List product feed URLs
+      description: |-
+        The product feed URLs of the shop for facebook, google, shopdotcom and line. No parameters.
+
+        Scope: `public`.
+      operationId: getV2ProductFeeds
+      responses:
+        "200":
+          description: The feeds.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductFeedsEnvelope'
+              example:
+                product_feeds:
+                  - name: 範例名稱
+                    url: //example.cyberbiz.co/media/sample-product.jpg
+                    mime_type: text/csv
+                  - name: 範例名稱
+                    url: //example.cyberbiz.co/media/sample-product.jpg
+                    mime_type: text/csv
+                  - name: 範例名稱
+                    url: //example.cyberbiz.co/media/sample-product.jpg
+                    mime_type: text/xml
+                  - name: 範例名稱
+                    url: //example.cyberbiz.co/media/sample-product.jpg
+                    mime_type: application/json
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/products/batch_update_branch_store_inventory:
+    put:
+      tags:
+        - products
+      summary: Batch-update branch-store inventory
+      description: |-
+        Queues an asynchronous job that sets branch-store inventory by store number and SKU; at most 1000 items per call. Requires the 'batch update branch store inventory by store number and sku' plugin (otherwise `422`). Poll the job with `GET /v2/products/branch_store_inventory_update_status`.
+
+        Scope: `write_products`.
+      operationId: putV2ProductsBatchUpdateBranchStoreInventory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryBatchUpdate'
+            example:
+              store_number: S001
+              items:
+                - sku: SKU-001
+                  inventory_quantity: 10
+                - sku: SKU-002
+                  inventory_quantity: 5
+      responses:
+        "202":
+          description: The queued job.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryJobQueued'
+              example:
+                job_id: 5f1a2b3c4d5e6f7a8b9c0d1e
+                status: QUEUED
+                message: Inventory update job has been queued
+                store_number: S001
+                total_items: 2
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/products/branch_store_inventory_update_status:
+    get:
+      tags:
+        - products
+      summary: Poll a batch inventory job
+      description: |-
+        Status of a job created by `PUT /v2/products/batch_update_branch_store_inventory`. `status` is `QUEUE` (poll) / `QUEUED` (create), `PROCESSING`, `SUCCESS` or `FAILED`; an unknown job answers `{"error": ["job_id '...' 不存在"]}`. Timestamps here carry a `+0800` suffix.
+
+        Scope: `read_products`.
+      operationId: getV2ProductsBranchStoreInventoryUpdateStatus
+      parameters:
+        - name: job_id
+          in: query
+          description: Job id from the batch update response.
+          required: true
+          schema:
+            type: string
+          example: 5f1a2b3c4d5e6f7a8b9c0d1e
+      responses:
+        "200":
+          description: The job status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryJobStatus'
+              example:
+                job_id: 5f1a2b3c4d5e6f7a8b9c0d1e
+                status: SUCCESS
+                message: Inventory update completed successfully
+                created_at: 2026-09-01 10:00:00 +0800
+                completed_at: 2026-09-01 10:00:17 +0800
+                result:
+                  total: 2
+                  succeeded: 1
+                  failed: 1
+                  failed_items:
+                    - sku: SKU-001
+                      error: sku not found
+                error: null
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          description: 'Validation failed, or the feature is not enabled for the shop. The body is `{"error": [...]}` or `{"message": "..."}`. (message recorded for this endpoint)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  - 無「利用店號和 sku 批量更新門市庫存」功能，請聯絡您的開店顧問
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/products/search:
+    post:
+      tags:
+        - products
+      summary: Search products
+      description: |-
+        Product search with a JSON body. Unlike other list endpoints it pages with `limit` / `offset` in the body and returns `total_count` / `total_pages` in the response instead of `X-*` headers. `skus`, `branch_stores` and `store_nos` are custom features; contact your consultant.
+
+        Scope: `read_products`.
+      operationId: postV2ProductsSearch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductSearchRequest'
+            example:
+              q: 範例
+              limit: 50
+              offset: 0
+              filter_published: true
+              skus:
+                - SKU-001
+              store_types:
+                - 1
+      responses:
+        "200":
+          description: Matching products.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductSearchResult'
+              example:
+                products:
+                  - id: 1
+                    title: 範例商品
+                    handle: sample-product
+                    english_title: null
+                    product_url: //example.cyberbiz.co/products/sample-product
+                    published: true
+                    sell_from: null
+                    sell_to: null
+                    product_type: null
+                    product_type_code: null
+                    slogan: ""
+                    brief: ""
+                    brief_text: null
+                    brief_includes_html: false
+                    body_html: ""
+                    vendor: null
+                    price: 1000.0
+                    sell_weight: 0
+                    tax_type_id: inclusive_tax
+                    custom_collections:
+                      - title: 範例群組
+                        handle: frontpage
+                        published: true
+                        body_html: null
+                        products_order_name: '按標題拼音升序: A-Z'
+                        position: 0
+                        id: 1
+                    special_collection: null
+                    tags: []
+                    product_variants:
+                      - product_id: 1
+                        name: 範例款式
+                        position: 1
+                        price: 1000.0
+                        cost: null
+                        compare_at_price: 1500.0
+                        meas: 0.0
+                        max_usable_bonus: 0.0
+                        weight: 0.0
+                        option1: 大
+                        option2: 紅色
+                        option3: null
+                        inventory_management: false
+                        inventory_quantity: null
+                        sold: 0
+                        safety_inventory_quantity: null
+                        inventory_policy: deny
+                        sku: SKU-001
+                        qc: null
+                        requires_shipping: true
+                        created_at: "2026-09-01 10:00:00"
+                        updated_at: "2026-09-01 10:00:00"
+                        honeycomb_sync: true
+                        vendor: null
+                        id: 2
+                        photo_urls:
+                          - //example.cyberbiz.co/media/sample-product.jpg
+                    product_options:
+                      - name: 範例名稱
+                        position: 1
+                        types: 大,中,小
+                        id: 3
+                    pos_shop: null
+                    photo_urls:
+                      - //example.cyberbiz.co/media/sample-product.jpg
+                    related_collections: []
+                    created_at: "2026-09-01 10:00:00"
+                    updated_at: "2026-09-01 10:00:00"
+                    temperature_types:
+                      - 常溫
+                    searchable: true
+                    google_product_category_id: null
+                    seo_meta_tags:
+                      title: null
+                      description: null
+                      keywords: null
+                total_count: 1
+                total_pages: 1
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/shop_emails/shop_emails:
+    get:
+      tags:
+        - shop_emails
+      summary: Get the shop e-mail and subscribers
+      description: |-
+        The shop's e-mail address and the addresses subscribed to order notifications. No parameters.
+
+        Scope: `read_shop_emails`.
+      operationId: getV2ShopEmailsShopEmails
+      responses:
+        "200":
+          description: The addresses.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopEmails'
+              example:
+                shop_email: shop@example.com
+                subscribes:
+                  - customer@example.com
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/smart_collections:
+    get:
+      tags:
+        - collections
+      summary: Search smart collections
+      description: |-
+        Smart (rule-based) collections with their rules and matching products, searchable by title or handle.
+
+        Scope: `read_products`.
+      operationId: getV2SmartCollections
+      parameters:
+        - name: q
+          in: query
+          description: Title or handle to search.
+          schema:
+            type: string
+          example: 千元
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+      responses:
+        "200":
+          description: The collections.
+          headers:
+            X-Page:
+              $ref: '#/components/headers/X-Page'
+            X-Per-Page:
+              $ref: '#/components/headers/X-Per-Page'
+            X-Offset:
+              $ref: '#/components/headers/X-Offset'
+            X-Total:
+              $ref: '#/components/headers/X-Total'
+            X-Total-Pages:
+              $ref: '#/components/headers/X-Total-Pages'
+            X-Next-Page:
+              $ref: '#/components/headers/X-Next-Page'
+            X-Prev-Page:
+              $ref: '#/components/headers/X-Prev-Page'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SmartCollectionV2'
+              example:
+                - title: 範例群組
+                  handle: within_a_thousand
+                  published: true
+                  body_html: null
+                  position: 1
+                  rules:
+                    - id: 1
+                      filter: 商品價格 小於 1000
+                  products:
+                    - id: 1
+                      title: 範例標題
+                      position: 1
+                    - id: 2
+                      title: 範例標題
+                      position: 2
+                  id: 1
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'The Shop''s API Token, sent as `Authorization: Bearer <token>`. One token authorises one Shop and carries the scopes the app was granted.'
+  parameters:
+    page:
+      name: page
+      in: query
+      description: Page number, 1-based.
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+      example: 1
+    per_page:
+      name: per_page
+      in: query
+      description: Records per page; default and maximum 50.
+      schema:
+        type: integer
+        default: 50
+        minimum: 1
+        maximum: 50
+      example: 50
+    offset:
+      name: offset
+      in: query
+      description: Records to skip before paging. The first returned record is `offset + (page - 1) * per_page + 1`.
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      example: 0
+  headers:
+    X-Page:
+      description: The page that was returned (echoes `page`).
+      schema:
+        type: string
+      example: "1"
+    X-Per-Page:
+      description: Records per page (echoes `per_page`).
+      schema:
+        type: string
+      example: "50"
+    X-Offset:
+      description: Records skipped before paging (echoes `offset`).
+      schema:
+        type: string
+      example: ""
+    X-Total:
+      description: Total number of records matching the query, regardless of paging.
+      schema:
+        type: string
+      example: "92"
+    X-Total-Pages:
+      description: 'Total pages: CEILING((X-Total - X-Offset) / X-Per-Page).'
+      schema:
+        type: string
+      example: "2"
+    X-Next-Page:
+      description: Number of the next page; at most X-Total-Pages. Empty on the last page.
+      schema:
+        type: string
+      example: "2"
+    X-Prev-Page:
+      description: Number of the previous page; empty on the first page.
+      schema:
+        type: string
+      example: ""
+  responses:
+    Unauthorized:
+      description: The token is missing, invalid, expired, lacks the scope, or the feature is not licensed for this shop (CYBERBIZ answers 401 for both).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            unauthorized:
+              $ref: '#/components/examples/unauthorized'
+    Forbidden:
+      description: 'The action is not allowed in the resource''s current state, or a required plugin is missing. The body is `{"error": "..."}` or `{"messages": "..."}`.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            forbidden:
+              $ref: '#/components/examples/forbidden'
+    NotFound:
+      description: The resource does not exist. Note that some lookups answer `200` with a `null` body or `206` with `[]` instead of `404`.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            notFound:
+              $ref: '#/components/examples/notFound'
+    UnprocessableEntity:
+      description: 'Validation failed, or the feature is not enabled for the shop. The body is `{"error": [...]}` or `{"message": "..."}`.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            unprocessableEntity:
+              $ref: '#/components/examples/unprocessableEntity'
+    TooManyRequests:
+      description: More than 5 requests per second were sent. Back off and retry; the body shape is not documented.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            tooManyRequests:
+              $ref: '#/components/examples/tooManyRequests'
+  examples:
+    unauthorized:
+      summary: Unauthorized
+      value:
+        error:
+          - 無權使用該 API
+    forbidden:
+      summary: Forbidden
+      value:
+        error: Must have pos_shop_coupon plugin
+    notFound:
+      summary: NotFound
+      value:
+        error:
+          - 無此資源
+    unprocessableEntity:
+      summary: UnprocessableEntity
+      value:
+        error:
+          - custom_field_type 無效值
+    tooManyRequests:
+      summary: TooManyRequests
+      value:
+        error:
+          - Rate limit exceeded
+  schemas:
+    AffiliateOrder:
+      type: object
+      properties:
+        customer_id:
+          description: Customer id.
+          type: integer
+        subtotal_price:
+          $ref: '#/components/schemas/Money'
+          description: Subtotal before shipping.
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Created at.
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Updated at.
+        order_number:
+          description: Order number (integer).
+          type: integer
+        order_name:
+          description: Order name, `#` followed by the order number.
+          type: string
+        buyer:
+          $ref: '#/components/schemas/OrderBuyer'
+          description: The buying customer's contact.
+        line_items:
+          description: Ordered items.
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItemV2'
+        shipping_type:
+          description: Shipping type code.
+          type: string
+        shipping_name:
+          description: Shipping method name.
+          type: string
+        delivery_date:
+          description: Requested delivery date.
+          anyOf:
+            - $ref: '#/components/schemas/Date'
+            - type: "null"
+        delivery_time:
+          description: Requested delivery time slot (0 = any).
+          type: integer
+        delegate:
+          description: Staff account that placed the order on the customer's behalf.
+          type:
+            - string
+            - "null"
+        prices:
+          $ref: '#/components/schemas/OrderPrices'
+          description: Price breakdown.
+        transaction_number:
+          description: Third-party payment transaction number.
+          type:
+            - string
+            - "null"
+        merchant_trade_no:
+          description: Merchant trade number sent to the payment gateway.
+          type: string
+        statuses:
+          $ref: '#/components/schemas/OrderStatuses'
+          description: Status fields; see the enums.
+        timings:
+          $ref: '#/components/schemas/OrderTimings'
+          description: Status timestamps.
+        return_histories:
+          description: Refund history.
+          type: array
+          items:
+            type: string
+        note:
+          description: Note.
+          type: string
+        total_bonus_redemption_price:
+          $ref: '#/components/schemas/Money'
+          description: Total bonus points redeemed in the bonus mall.
+        linked_order_info:
+          description: Affiliate / linked-order attribution.
+          type: object
+          properties:
+            source:
+              description: Attribution source.
+              type: string
+        shipping_status:
+          description: Carrier shipping status.
+          type:
+            - string
+            - "null"
+        extra_info:
+          description: Extra information.
+          type:
+            - string
+            - "null"
+        from_device:
+          description: Device the order was placed from.
+          type: string
+    AffiliateVendorOrder:
+      type: object
+      properties:
+        status_code:
+          description: Attribution status, e.g. `create_succeed`.
+          type: string
+        uid:
+          description: The affiliate user id (`uid` query parameter of the storefront visit).
+          type: string
+        cid:
+          description: The affiliate campaign id (`cid` query parameter of the storefront visit).
+          type: string
+        vendor_name:
+          description: The affiliate vendor name.
+          type: string
+        order:
+          $ref: '#/components/schemas/AffiliateOrder'
+          description: The attributed order.
+    Category:
+      type: object
+      properties:
+        title:
+          description: Title.
+          type: string
+        handle:
+          description: URL handle.
+          type: string
+        full_handle:
+          description: Full URL path including every parent handle, e.g. `clothing/mens/shirts`.
+          type: string
+        id:
+          description: Id.
+          type: integer
+    CollectionProductV2:
+      type: object
+      properties:
+        id:
+          description: Id.
+          type: integer
+        title:
+          description: Title.
+          type: string
+        position:
+          description: Position (1-based).
+          type: integer
+    CustomCollectionV2:
+      type: object
+      properties:
+        title:
+          description: Title.
+          type: string
+        handle:
+          description: URL handle.
+          type: string
+        published:
+          description: Whether it is published.
+          type: boolean
+        body_html:
+          description: HTML description.
+          type:
+            - string
+            - "null"
+        products_order_name:
+          description: Display label of the product ordering used in the storefront.
+          type: string
+        position:
+          description: Position (1-based).
+          type: integer
+        id:
+          description: Id.
+          type: integer
+    CustomerAddressV2:
+      type: object
+      properties:
+        company:
+          type:
+            - string
+            - "null"
+        country_calling_code:
+          type:
+            - string
+            - "null"
+        phone:
+          type: string
+        address:
+          type: string
+        detail_address:
+          type: object
+          properties:
+            zip:
+              type: string
+            country:
+              type:
+                - string
+                - "null"
+            province:
+              type:
+                - string
+                - "null"
+            city:
+              type: string
+            district:
+              type: string
+            address1:
+              type: string
+            address2:
+              type:
+                - string
+                - "null"
+    CustomerOAuthRequest:
+      type: object
+      properties:
+        uid:
+          description: The affiliate user id (`uid` query parameter of the storefront visit).
+          type: string
+        provider:
+          description: OAuth provider, e.g. `line`, `facebook`.
+          type: string
+    CustomerV2:
+      type: object
+      properties:
+        id:
+          description: Id.
+          type: integer
+        name:
+          description: Name.
+          type: string
+        status:
+          description: Status.
+          type: string
+        email:
+          description: E-mail address.
+          type: string
+        country_calling_code:
+          type:
+            - string
+            - "null"
+        mobile:
+          type:
+            - string
+            - "null"
+        enable_cvs_pickup:
+          type: boolean
+        enable_cvs_cod:
+          type: boolean
+        enable_home_delivery_cod:
+          type:
+            - boolean
+            - "null"
+        accepts_marketing:
+          type: boolean
+        accepts_email_notification:
+          description: Only present when `include_params` requests it.
+          type: boolean
+        tags:
+          description: Tag filter. Only present when `include_params` requests it.
+          type: array
+          items:
+            type: string
+        address:
+          $ref: '#/components/schemas/CustomerAddressV2'
+          description: Only present when `include_params` requests it.
+        gender:
+          type:
+            - string
+            - "null"
+        birthday:
+          anyOf:
+            - $ref: '#/components/schemas/Date'
+            - type: "null"
+        other_accumulated_consumption:
+          $ref: '#/components/schemas/Money'
+        other_accumulated_consumption_expired_at:
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        note:
+          description: Note.
+          type:
+            - string
+            - "null"
+        custom_fields:
+          description: Only present when `include_params` requests it.
+          type: array
+          items:
+            type: string
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Created at.
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Updated at.
+        confirmed_at:
+          description: Confirmed at.
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        mobile_sms_confirmed_at:
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        bonus_remain:
+          $ref: '#/components/schemas/Money'
+          description: Only present when `include_params` requests it.
+        uid_providers:
+          description: Only present when `include_params` requests it.
+          type: array
+          items:
+            $ref: '#/components/schemas/UidProvider'
+        vip_info:
+          $ref: '#/components/schemas/VipInfo'
+          description: VIP information (with `include_params=vip_info`). Only present when `include_params` requests it.
+    CvsFulfillment:
+      type: object
+      properties:
+        id:
+          description: Id.
+          type: integer
+        tracking_company:
+          description: Carrier code.
+          type: string
+        cvs_shipping_type:
+          description: CVS shipping type, e.g. `family_c2c`; null when the order is not a CVS shipment.
+          type: string
+        tracking_number:
+          description: Carrier tracking number.
+          type: string
+        fulfilled_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Shipped at.
+        received_at:
+          description: Received at.
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        status:
+          description: Status.
+          type: string
+        line_items:
+          description: Ordered items.
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItemV2'
+    CvsShippingCreate:
+      type: object
+      properties:
+        measurement:
+          description: Package volume size, `S60` or `S105`; required for Hi-Life and FamilyMart cold chain.
+          type: string
+          enum:
+            - S60
+            - S105
+        size:
+          description: 'Package size: `60` / `90` / `105` for T-cat quick store delivery; `60` / `90` / `120` / `150` for home delivery.'
+          type: integer
+          enum:
+            - 60
+            - 90
+            - 105
+    CvsShippingLabelsRequest:
+      type: object
+      required:
+        - shipping_type
+        - fulfillment_ids
+      properties:
+        shipping_type:
+          description: Shipping type code.
+          type: string
+          enum:
+            - seven
+            - seven_c2c
+            - family
+            - family_c2c
+            - family_cold
+            - family_cold_c2c
+            - hilife
+            - hilife_cold
+            - hilife_c2c
+            - ezcat_cvs
+            - ezcat_cvs_cold
+            - ezcat_cvs_refrigerate
+        fulfillment_ids:
+          description: Fulfillment ids to print.
+          type: array
+          items:
+            type: integer
+    Date:
+      description: A calendar date written as `YYYY-MM-DD`.
+      type: string
+      pattern: ^\d{4}-\d{2}-\d{2}$
+      examples:
+        - "1990-01-01"
+    Error:
+      description: 'The error envelope. CYBERBIZ uses four shapes: `{"error": ["..."]}`, `{"error": "..."}`, `{"message": "..."}` and `{"messages": "..."}`; messages are in Traditional Chinese or English.'
+      type: object
+      properties:
+        error:
+          description: One or more error messages.
+          anyOf:
+            - type: array
+              items:
+                type: string
+            - type: string
+        message:
+          description: A single error message (422 on some endpoints).
+          type: string
+        messages:
+          description: A single error message (403 on some endpoints).
+          type: string
+    InventoryBatchUpdate:
+      type: object
+      required:
+        - store_number
+        - items
+      properties:
+        store_number:
+          description: Branch store number.
+          type: string
+        items:
+          description: Child items (recursive).
+          type: array
+          items:
+            type: object
+            required:
+              - sku
+              - inventory_quantity
+            properties:
+              sku:
+                description: SKU.
+                type: string
+              inventory_quantity:
+                description: Inventory quantity to set.
+                type: integer
+    InventoryJobQueued:
+      type: object
+      properties:
+        job_id:
+          description: Job id.
+          type: string
+        status:
+          description: Status.
+          type: string
+        message:
+          description: Message.
+          type: string
+        store_number:
+          description: Branch store number.
+          type: string
+        total_items:
+          $ref: '#/components/schemas/Money'
+          description: Number of items in the job.
+    InventoryJobStatus:
+      type: object
+      properties:
+        job_id:
+          description: Job id.
+          type: string
+        status:
+          description: Status.
+          type: string
+          enum:
+            - QUEUE
+            - QUEUED
+            - PROCESSING
+            - SUCCESS
+            - FAILED
+        message:
+          description: Message.
+          type: string
+        created_at:
+          description: Created at. Format `YYYY-MM-DD HH:MM:SS +0800`.
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        completed_at:
+          description: Completion time, `YYYY-MM-DD HH:MM:SS +0800`.
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        result:
+          description: Job result once finished.
+          type:
+            - object
+            - "null"
+          properties:
+            total:
+              $ref: '#/components/schemas/Money'
+              description: Items processed.
+            succeeded:
+              description: Items updated.
+              type: integer
+            failed:
+              description: Items that failed.
+              type: integer
+            failed_items:
+              description: Failed items with the reason.
+              type: array
+              items:
+                type: object
+                properties:
+                  sku:
+                    description: SKU.
+                    type: string
+                  error:
+                    description: Error.
+                    type: string
+        error:
+          description: Failure reason when `status` is `FAILED`.
+          type:
+            - string
+            - "null"
+    LineItemV2:
+      type: object
+      properties:
+        id:
+          description: Id.
+          type: integer
+        product_id:
+          description: Product id.
+          type: integer
+        product_variant_id:
+          description: Product variant id.
+          type: integer
+        title:
+          description: Title.
+          type: string
+        variant_title:
+          description: Variant name.
+          type: string
+        sku:
+          description: SKU.
+          type: string
+        qc:
+          description: Vendor item code.
+          type:
+            - string
+            - "null"
+        vendor:
+          description: Vendor.
+          type:
+            - string
+            - "null"
+        price:
+          $ref: '#/components/schemas/Money'
+          description: Unit price.
+        cost:
+          description: Unit cost.
+          anyOf:
+            - $ref: '#/components/schemas/Money'
+            - type: "null"
+        quantity:
+          description: Quantity.
+          type: integer
+        item_type:
+          description: Item type, e.g. `normal`.
+          type: string
+        discount_name:
+          description: Discount name.
+          type: string
+        discounts:
+          description: Itemised discounts.
+          type: array
+          items:
+            $ref: '#/components/schemas/Money'
+        total_price_before_discounts:
+          $ref: '#/components/schemas/Money'
+          description: Line total before discounts.
+        total_discount:
+          $ref: '#/components/schemas/Money'
+          description: Line discount total.
+        total_price_after_discounts:
+          $ref: '#/components/schemas/Money'
+          description: Line total after discounts.
+        tax_type_id:
+          description: 'Tax type: `inclusive_tax` (taxable), `zero_tax` (zero-rated), `exclusive_tax` (tax exempt).'
+          type: string
+          enum:
+            - inclusive_tax
+            - zero_tax
+            - exclusive_tax
+        bonus_redemption_price:
+          description: Bonus points redeemed for this item; null when not a bonus redemption.
+          anyOf:
+            - $ref: '#/components/schemas/Money'
+            - type: "null"
+        related_items:
+          description: Bundle contents for combo products.
+          type: array
+          items:
+            type: string
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Created at.
+    Menu:
+      type: object
+      properties:
+        id:
+          description: Id.
+          type: integer
+        title:
+          description: Title.
+          type: string
+        system_default:
+          description: Whether the menu is a system default menu.
+          type: boolean
+        items:
+          description: Child items (recursive).
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuItem'
+    MenuItem:
+      type: object
+      properties:
+        id:
+          description: Id.
+          type: integer
+        title:
+          description: Title.
+          type: string
+        subject_handle:
+          description: Handle of the linked subject (product, page, collection), when any.
+          type:
+            - string
+            - "null"
+        url:
+          description: Link URL.
+          type: string
+        position:
+          description: Position (1-based).
+          type: integer
+        subtitle:
+          description: Subtitle.
+          type:
+            - string
+            - "null"
+        icon_image_url:
+          description: Icon image URL.
+          type:
+            - string
+            - "null"
+        item_type:
+          description: 'Item type; values seen: `frontpage`, `collections_all`, `http`, `product`, `contact`, `page`.'
+          type: string
+        level:
+          description: Nesting level (1 = top).
+          type: integer
+        items:
+          description: Child items (recursive).
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuItem'
+        end_at:
+          description: Only null was observed; the type is unknown.
+          x-cyberbiz-observed: true
+        start_at:
+          description: Observed in live responses; not in the CYBERBIZ swagger.
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+          x-cyberbiz-observed: true
+    MenuSummary:
+      type: object
+      properties:
+        id:
+          description: Id.
+          type: integer
+        title:
+          description: Title.
+          type: string
+        system_default:
+          description: Whether the menu is a system default menu.
+          type: boolean
+    Money:
+      description: A currency amount in the shop's currency (TWD) serialised as a JSON number, usually with one decimal (`9999.0`). Integers appear for some fields; treat every money field as a decimal.
+      type: number
+      examples:
+        - 9999
+    OrderBuyer:
+      type: object
+      properties:
+        email:
+          description: E-mail address.
+          type: string
+        mobile:
+          type: string
+    OrderPrices:
+      type: object
+      properties:
+        total_line_items_price:
+          $ref: '#/components/schemas/Money'
+          description: Sum of line items.
+        shipping_rate_price:
+          $ref: '#/components/schemas/Money'
+          description: Shipping fee.
+        discounts:
+          description: Itemised discounts.
+          type: object
+          properties:
+            special_collection_discount:
+              $ref: '#/components/schemas/Money'
+              description: Special collection (campaign) discount.
+            vip_discount:
+              $ref: '#/components/schemas/Money'
+              description: VIP discount.
+            shop_discount:
+              description: Shop-wide discount detail.
+              anyOf:
+                - $ref: '#/components/schemas/Money'
+                - type: "null"
+            coupon_discount:
+              description: Coupon detail (single, deprecated).
+              anyOf:
+                - $ref: '#/components/schemas/Money'
+                - type: "null"
+            coupon_discounts:
+              description: Coupon details.
+              type: array
+              items:
+                $ref: '#/components/schemas/Money'
+            bonus_consumed:
+              $ref: '#/components/schemas/Money'
+              description: Bonus points spent.
+            vip_shipping_discount:
+              $ref: '#/components/schemas/Money'
+              description: VIP shipping discount.
+            coupon_shipping_discount:
+              $ref: '#/components/schemas/Money'
+              description: Free-shipping coupon discount.
+            price_discount:
+              $ref: '#/components/schemas/Money'
+              description: Manual (store manager) discount.
+        total_price:
+          $ref: '#/components/schemas/Money'
+          description: Order total.
+    OrderStatuses:
+      type: object
+      properties:
+        order_status:
+          description: 'Order status: `open` (in progress), `closed` (completed), `cancelled`.'
+          type: string
+          enum:
+            - open
+            - closed
+            - cancelled
+        financial_status:
+          description: 'Payment status: `paid`, `pending` (awaiting payment), `cod` (cash on delivery), `failed`, `abandoned`, `refunded`, `no_refunded`, `pending_refund`, `processing` (customer service), `remitted` (transfer reported, not received), `pending_partial_refund`, `partial_refunded`, `refunding`, `refund_failed`. The filter pseudo-values `except_abandoned_order` and `all_financial_status` are query helpers, not states.'
+          type: string
+          enum:
+            - paid
+            - pending
+            - cod
+            - failed
+            - abandoned
+            - refunded
+            - no_refunded
+            - pending_refund
+            - processing
+            - remitted
+            - pending_partial_refund
+            - partial_refunded
+            - refunding
+            - refund_failed
+        fulfillment_status:
+          description: 'Shipping status: `unshipped`, `preparing`, `cancel`, `fulfilled` (shipped), `partial`, `arrived` (at store), `received`, `returned`, `expired` (not picked up), `problem`, `no_need`.'
+          type: string
+          enum:
+            - unshipped
+            - preparing
+            - cancel
+            - fulfilled
+            - partial
+            - arrived
+            - received
+            - returned
+            - expired
+            - problem
+            - no_need
+        return_status:
+          description: 'Return status: `no_need`, `request_return`, `returning`, `checking`, `returned`, `in_hub`, `problem`, `processing`, `in_origin_cvs`, `refused`, `partial_return`.'
+          type: string
+          enum:
+            - no_need
+            - request_return
+            - returning
+            - checking
+            - returned
+            - in_hub
+            - problem
+            - processing
+            - in_origin_cvs
+            - refused
+            - partial_return
+    OrderTimings:
+      type: object
+      properties:
+        request_return_at:
+          description: Return requested at.
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        return_at:
+          description: Returned at.
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        refund_at:
+          description: Refunded at.
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        closed_at:
+          description: Closed at.
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        cancelled_at:
+          description: Cancelled at.
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        expired_at:
+          description: Pickup expired at.
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        confirmed_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Confirmed at.
+    Page:
+      type: object
+      properties:
+        id:
+          description: Id.
+          type: integer
+        title:
+          description: Title.
+          type: string
+        handle:
+          description: URL handle.
+          type: string
+        status:
+          description: Status.
+          type: string
+          enum:
+            - published
+            - unpublished
+        html_infos:
+          description: 'Page HTML sections as a JSON **string** mapping section id to section content; parse it to get `{section_id: section_content}`.'
+          type: string
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Created at.
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Updated at.
+    PageCreate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          description: Title.
+          type: string
+    PageUpdate:
+      type: object
+      properties:
+        title:
+          description: Title.
+          type: string
+        handle:
+          description: URL handle.
+          type: string
+        status:
+          description: Status.
+          type: string
+          enum:
+            - published
+            - unpublished
+        section_id:
+          description: Custom HTML section id, e.g. `1714492800_app_store_api`.
+          type: string
+        section_content:
+          description: 'Custom HTML section content as a JSON string: unicode-escape the HTML first, then JSON-encode it.'
+          type: string
+    ProductFeed:
+      type: object
+      properties:
+        name:
+          description: Name.
+          type: string
+          enum:
+            - facebook
+            - google
+            - shopdotcom
+            - line
+        url:
+          description: Link URL.
+          type: string
+        mime_type:
+          description: MIME type of the feed (`text/csv`, `text/xml`, `application/json`).
+          type: string
+    ProductFeedsEnvelope:
+      type: object
+      properties:
+        product_feeds:
+          description: Product feeds, one per platform.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductFeed'
+    ProductOptionV2:
+      type: object
+      properties:
+        name:
+          description: Name.
+          type: string
+        position:
+          description: Position (1-based).
+          type: integer
+        types:
+          type: string
+        id:
+          description: Id.
+          type: integer
+    ProductSearchRequest:
+      type: object
+      properties:
+        q:
+          description: Search text (fuzzy match on the product name).
+          type: string
+        limit:
+          description: Maximum number of results.
+          type: integer
+        offset:
+          description: Start index.
+          type: integer
+        filter_published:
+          description: Only published products (default true); `false` includes unpublished ones.
+          type: boolean
+          default: true
+        vendors:
+          description: Vendor filter.
+          type: array
+          items:
+            type: string
+        product_types:
+          description: Product type filter.
+          type: array
+          items:
+            type: string
+        tags:
+          description: Tag filter.
+          type: array
+          items:
+            type: string
+        store_types:
+          description: 'Store type filter: `1` EC, `2` POS, `4` branch store.'
+          type: array
+          items:
+            type: integer
+            enum:
+              - 1
+              - 2
+              - 4
+        filter_branch_store:
+          description: Only branch-store products.
+          type: boolean
+        filter_on_sell:
+          description: Only products currently on sale.
+          type: boolean
+        ids:
+          description: Customer ids.
+          type: array
+          items:
+            type: integer
+        exclude_tags:
+          description: Tags to exclude.
+          type: array
+          items:
+            type: string
+        skus:
+          description: SKU filter (custom feature).
+          type: array
+          items:
+            type: string
+        branch_stores:
+          description: Branch store ids (custom feature).
+          type: array
+          items:
+            type: integer
+        store_nos:
+          description: Branch store numbers (custom feature).
+          type: array
+          items:
+            type: string
+    ProductSearchResult:
+      type: object
+      properties:
+        products:
+          description: Products.
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductV2'
+        total_count:
+          description: Total number of matching products.
+          type: integer
+        total_pages:
+          $ref: '#/components/schemas/Money'
+          description: Total number of pages for the given `limit`.
+    ProductV2:
+      type: object
+      properties:
+        id:
+          description: Id.
+          type: integer
+        title:
+          description: Title.
+          type: string
+        handle:
+          description: URL handle.
+          type: string
+        english_title:
+          type:
+            - string
+            - "null"
+        product_url:
+          type: string
+        published:
+          description: Whether it is published.
+          type: boolean
+        sell_from:
+          type:
+            - string
+            - "null"
+        sell_to:
+          type:
+            - string
+            - "null"
+        product_type:
+          type:
+            - string
+            - "null"
+        product_type_code:
+          type:
+            - string
+            - "null"
+        slogan:
+          type: string
+        brief:
+          type: string
+        brief_text:
+          type:
+            - string
+            - "null"
+        brief_includes_html:
+          type: boolean
+        body_html:
+          description: HTML description.
+          type: string
+        vendor:
+          description: Vendor.
+          type:
+            - string
+            - "null"
+        price:
+          $ref: '#/components/schemas/Money'
+          description: Unit price.
+        sell_weight:
+          type: integer
+        tax_type_id:
+          description: 'Tax type: `inclusive_tax` (taxable), `zero_tax` (zero-rated), `exclusive_tax` (tax exempt).'
+          type: string
+          enum:
+            - inclusive_tax
+            - zero_tax
+            - exclusive_tax
+        custom_collections:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomCollectionV2'
+        special_collection:
+          type:
+            - object
+            - "null"
+          additionalProperties: true
+        tags:
+          description: Tag filter.
+          type: array
+          items:
+            type: string
+        product_variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductVariantV2'
+        product_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductOptionV2'
+        pos_shop:
+          type:
+            - object
+            - "null"
+          additionalProperties: true
+        photo_urls:
+          description: Photo URLs.
+          type: array
+          items:
+            type: string
+        related_collections:
+          type: array
+          items:
+            type: string
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Created at.
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Updated at.
+        temperature_types:
+          description: Temperature zones, e.g. `常溫`.
+          type: array
+          items:
+            type: string
+        searchable:
+          type: boolean
+        google_product_category_id:
+          type:
+            - integer
+            - "null"
+        seo_meta_tags:
+          description: SEO meta tags.
+          type: object
+          properties:
+            title:
+              description: Title.
+              type:
+                - string
+                - "null"
+            description:
+              type:
+                - string
+                - "null"
+            keywords:
+              type:
+                - string
+                - "null"
+    ProductVariantV2:
+      type: object
+      properties:
+        product_id:
+          description: Product id.
+          type: integer
+        name:
+          description: Name.
+          type: string
+        position:
+          description: Position (1-based).
+          type: integer
+        price:
+          $ref: '#/components/schemas/Money'
+          description: Unit price.
+        cost:
+          description: Unit cost.
+          anyOf:
+            - $ref: '#/components/schemas/Money'
+            - type: "null"
+        compare_at_price:
+          $ref: '#/components/schemas/Money'
+        meas:
+          type: number
+        max_usable_bonus:
+          $ref: '#/components/schemas/Money'
+        weight:
+          type: number
+        option1:
+          type: string
+        option2:
+          type: string
+        option3:
+          type:
+            - string
+            - "null"
+        inventory_management:
+          type: boolean
+        inventory_quantity:
+          description: Inventory quantity to set.
+          type:
+            - integer
+            - "null"
+        sold:
+          type: integer
+        safety_inventory_quantity:
+          type:
+            - integer
+            - "null"
+        inventory_policy:
+          type: string
+        sku:
+          description: SKU.
+          type: string
+        qc:
+          description: Vendor item code.
+          type:
+            - string
+            - "null"
+        requires_shipping:
+          type: boolean
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Created at.
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Updated at.
+        honeycomb_sync:
+          type: boolean
+        vendor:
+          description: Vendor.
+          type:
+            - string
+            - "null"
+        id:
+          description: Id.
+          type: integer
+        photo_urls:
+          description: Photo URLs.
+          type: array
+          items:
+            type: string
+    ShopAddOnEnvelope:
+      type: object
+      properties:
+        shop_add_on:
+          description: The app installation on this shop.
+          type: object
+          properties:
+            id:
+              description: Id.
+              type: integer
+            settings:
+              description: The app's setting values keyed by field name (as declared in the manifest `setting_fields`); for `PUT /settings`, the list of `{field, data}` pairs to set.
+              type: object
+              additionalProperties: true
+            vendor_type:
+              description: App vendor name.
+              type: string
+            token:
+              description: The app installation token.
+              type: string
+            start_at:
+              anyOf:
+                - $ref: '#/components/schemas/Timestamp'
+                - type: "null"
+            end_at:
+              anyOf:
+                - $ref: '#/components/schemas/Timestamp'
+                - type: "null"
+            add_on_version:
+              description: The installed app version.
+              type: object
+              properties:
+                webhook_url:
+                  description: Webhook endpoint the app registered.
+                  type: string
+                manifest:
+                  description: The app manifest.
+                  type: object
+                  properties:
+                    name:
+                      description: Name.
+                      type: string
+                    version:
+                      description: App version.
+                      type: string
+                    scopes:
+                      description: Granted scopes, space-separated.
+                      type: string
+                    manifest_version:
+                      description: Manifest version.
+                      type: integer
+                    type:
+                      description: 'Transaction type: `topup`, `consumption`, `refund`, `cancel_order`, `bonus`.'
+                      type: string
+                    webhook_events:
+                      description: Events the app subscribed to.
+                      type: array
+                      items:
+                        type: string
+                embedded:
+                  description: Whether the app is embedded in the admin.
+                  type: boolean
+                status:
+                  description: Status.
+                  type: string
+                scopes:
+                  description: Granted scopes, space-separated.
+                  type: string
+    ShopAddOnSettingsUpdate:
+      type: object
+      required:
+        - settings
+      properties:
+        settings:
+          description: The app's setting values keyed by field name (as declared in the manifest `setting_fields`); for `PUT /settings`, the list of `{field, data}` pairs to set.
+          type: array
+          items:
+            type: object
+            required:
+              - field
+              - data
+            properties:
+              field:
+                description: Setting field name as declared in the manifest.
+                type: string
+              data:
+                description: Setting value.
+                type: string
+    ShopAddOnUpdatedEnvelope:
+      type: object
+      properties:
+        shop_add_on:
+          description: The app installation on this shop.
+          type: object
+          properties:
+            id:
+              description: Id.
+              type: integer
+            settings:
+              description: The app's setting values keyed by field name (as declared in the manifest `setting_fields`); for `PUT /settings`, the list of `{field, data}` pairs to set.
+              type: object
+              additionalProperties: true
+            vendor_type:
+              description: App vendor name.
+              type: string
+            token:
+              description: The app installation token.
+              type: string
+            start_at:
+              description: Valid from.
+              anyOf:
+                - $ref: '#/components/schemas/Timestamp'
+                - type: "null"
+            end_at:
+              description: Valid until.
+              anyOf:
+                - $ref: '#/components/schemas/Timestamp'
+                - type: "null"
+    ShopEmails:
+      type: object
+      properties:
+        shop_email:
+          description: The shop's e-mail address.
+          type: string
+        subscribes:
+          description: Addresses subscribed to shop notifications.
+          type: array
+          items:
+            type: string
+    ShopInfoEnvelope:
+      type: object
+      properties:
+        shop_info:
+          description: The shop.
+          type: object
+          properties:
+            primary_domain:
+              description: The shop's primary domain.
+              type: string
+            name:
+              description: Name.
+              type: string
+            id:
+              description: Id.
+              type: integer
+            email:
+              description: E-mail address.
+              type: string
+            og_image_url:
+              description: Open Graph image URL.
+              type: string
+            shop_line_chat_bot:
+              description: LINE chat bot settings (`bot_id`), null when not configured.
+              type:
+                - object
+                - "null"
+              additionalProperties: true
+            shop_line:
+              description: LINE login / LIFF settings.
+              type: object
+              properties:
+                login_enable:
+                  description: Whether LINE login is enabled.
+                  type: boolean
+                liff_id:
+                  description: LIFF app id.
+                  type:
+                    - integer
+                    - "null"
+                liff_enable:
+                  description: Whether LIFF is enabled.
+                  type: boolean
+            language:
+              description: Storefront language, e.g. `zh-TW`.
+              type: string
+            currency:
+              description: Currency; currently always `TWD`.
+              type: string
+            sms_prefix:
+              description: Prefix prepended to SMS messages.
+              type: string
+            merchant_location:
+              description: Merchant location.
+              type: string
+            market_location:
+              description: Market location.
+              type: string
+    SmartCollectionRuleV2:
+      type: object
+      properties:
+        id:
+          description: Id.
+          type: integer
+        filter:
+          description: Human-readable rule, e.g. `商品價格 小於 1000`.
+          type: string
+    SmartCollectionV2:
+      type: object
+      properties:
+        title:
+          description: Title.
+          type: string
+        handle:
+          description: URL handle.
+          type: string
+        published:
+          description: Whether it is published.
+          type: boolean
+        body_html:
+          description: HTML description.
+          type:
+            - string
+            - "null"
+        position:
+          description: Position (1-based).
+          type: integer
+        rules:
+          description: Automatic filter rules.
+          type: array
+          items:
+            $ref: '#/components/schemas/SmartCollectionRuleV2'
+        products:
+          description: Products.
+          type: array
+          items:
+            $ref: '#/components/schemas/CollectionProductV2'
+        id:
+          description: Id.
+          type: integer
+    SupportShippingCreate:
+      type: object
+      required:
+        - shipping_type
+        - shipping_orders
+      properties:
+        shipping_type:
+          description: Shipping type code.
+          type: string
+          enum:
+            - ezcat
+            - sf
+            - pelican
+            - hct
+        size:
+          description: 'Package size: `60` / `90` / `105` for T-cat quick store delivery; `60` / `90` / `120` / `150` for home delivery.'
+          type: integer
+          enum:
+            - 60
+            - 90
+            - 120
+            - 150
+        fridge_or_frozen:
+          description: '`none`, `fridge` or `frozen`; not supported by `sf` and `hct`.'
+          type: string
+          enum:
+            - none
+            - fridge
+            - frozen
+        is_fragile:
+          description: Fragile flag; not supported by `sf` and `hct`.
+          type: boolean
+        temperature:
+          description: '`normal` or `cold`.'
+          type: string
+          enum:
+            - normal
+            - cold
+        use_transfer:
+          description: Prefer transferable tracking numbers; not supported by `sf` and `hct`.
+          type: boolean
+        shipping_orders:
+          description: Orders and line items to ship.
+          type: array
+          items:
+            type: object
+            required:
+              - order_id
+              - line_item_ids
+            properties:
+              order_id:
+                description: Order id.
+                type: integer
+              line_item_ids:
+                description: Line item ids of the order to include.
+                type: array
+                items:
+                  type: integer
+    SupportShippingLabelsRequest:
+      type: object
+      required:
+        - shipping_type
+        - order_ids
+      properties:
+        shipping_type:
+          description: Shipping type code.
+          type: string
+          enum:
+            - ezcat
+            - sf
+            - pelican
+            - hct
+        print_type:
+          description: 'HCT only: `normal` or `thermal`.'
+          type: string
+          enum:
+            - normal
+            - thermal
+        order_ids:
+          description: Order ids to print (batch only).
+          type: array
+          items:
+            type: integer
+    SupportShippingResult:
+      type: object
+      properties:
+        failed_orders:
+          description: Orders that could not be shipped, with the reason.
+          type: array
+          items:
+            type: object
+            properties:
+              order_id:
+                description: Order id.
+                type: integer
+              message:
+                description: Message.
+                type: string
+        fulfillments:
+          description: Fulfillments created for the orders that succeeded.
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Id.
+                type: integer
+              order_id:
+                description: Order id.
+                type: integer
+              tracking_number:
+                description: Carrier tracking number.
+                type: string
+              tracking_company:
+                description: Carrier code.
+                type: string
+    Timestamp:
+      description: A local date-time in Asia/Taipei written as `YYYY-MM-DD HH:MM:SS` with no zone designator (occasionally `YYYY-MM-DD HH:MM:SS +0800` or `YYYY-MM-DD HH:MM+0800` on v2 endpoints). Parse it in Asia/Taipei; never as UTC.
+      type: string
+      pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?( ?\+0800)?$
+      examples:
+        - "2026-09-01 10:00:00"
+    UidProvider:
+      type: object
+      properties:
+        provider_type:
+          description: 'Provider type: `line`, `line_at`, `facebook`, ... (on `uid_providers` entries; the lookup parameter is `provider`).'
+          type: string
+        uid:
+          description: The affiliate user id (`uid` query parameter of the storefront visit).
+          type: string
+    VipInfo:
+      type: object
+      properties:
+        customer_id:
+          description: Customer id.
+          type: integer
+        current_group:
+          description: Current VIP group.
+          type:
+            - string
+            - "null"
+        current_level:
+          description: Current VIP level.
+          type:
+            - string
+            - "null"
+        next_level:
+          description: Next VIP level.
+          type:
+            - string
+            - "null"
+        extra_info:
+          description: Extra information.
+          type: object
+          properties:
+            start_at:
+              description: Valid from.
+              anyOf:
+                - $ref: '#/components/schemas/Timestamp'
+                - type: "null"
+            end_at:
+              description: Valid until.
+              anyOf:
+                - $ref: '#/components/schemas/Timestamp'
+                - type: "null"
+            difference_of_total_spent_in_validity_days_for_renewal:
+              description: Spend still needed within the validity period to renew.
+              anyOf:
+                - $ref: '#/components/schemas/Money'
+                - type: "null"
+            difference_of_total_spent_for_renewal:
+              description: Single-order spend still needed to renew.
+              anyOf:
+                - $ref: '#/components/schemas/Money'
+                - type: "null"
+            difference_of_total_spent_in_validity_days_for_upgrade:
+              description: Spend still needed within the validity period to upgrade.
+              anyOf:
+                - $ref: '#/components/schemas/Money'
+                - type: "null"
+            difference_of_total_spent_for_upgrade:
+              description: Single-order spend still needed to upgrade.
+              anyOf:
+                - $ref: '#/components/schemas/Money'
+                - type: "null"
+    WalletBalance:
+      type: object
+      properties:
+        balance:
+          $ref: '#/components/schemas/Money'
+          description: Wallet balance in TWD.
+        currency:
+          description: Currency; currently always `TWD`.
+          type: string
+    WalletEinvoice:
+      type: object
+      properties:
+        title:
+          description: Title.
+          type: string
+        company_no:
+          description: Tax id on the invoice.
+          type: string
+        invoice_no:
+          description: E-invoice number; null for paper or not issued.
+          type: string
+        invoice_status:
+          description: 'E-invoice status: `null` (not issued), `issue` (issued), `issue_invalid` (voided), `allowance`, `partial_allowance`.'
+          type: string
+          enum:
+            - issue
+            - issue_invalid
+            - allowance
+            - partial_allowance
+        invoice_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Issued at.
+        invalid_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Voided at.
+        random_num:
+          description: Random code.
+          type: string
+        invoice_type:
+          description: 'E-invoice type: `default`, `company` (with tax id), `phone_barcode` (mobile barcode carrier), `nature_person` (citizen digital certificate), `donate`, `paper_invoice` (number in `paper_invoice_no`).'
+          type: string
+          enum:
+            - default
+            - company
+            - phone_barcode
+            - nature_person
+            - donate
+            - paper_invoice
+        love_code:
+          description: Donation code.
+          type: string
+        phone_barcode:
+          description: Mobile barcode carrier.
+          type: string
+        nature_person:
+          description: Citizen digital certificate carrier.
+          type: string
+    WalletTransaction:
+      type: object
+      properties:
+        type:
+          description: 'Transaction type: `topup`, `consumption`, `refund`, `cancel_order`, `bonus`.'
+          type: string
+          enum:
+            - topup
+            - consumption
+            - refund
+            - cancel_order
+            - bonus
+        amount:
+          $ref: '#/components/schemas/Money'
+          description: Amount; positive increases the balance (top-up, cancelled order), negative decreases it (consumption, refund).
+        balance_after:
+          $ref: '#/components/schemas/Money'
+          description: Balance after this transaction.
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: Created at.
+        payment_name:
+          description: Payment method name (e.g. `現金`); only for `topup` and `refund`.
+          type:
+            - string
+            - "null"
+        invalid_einvoices:
+          description: Voided e-invoices (`refund` only).
+          type: array
+          items:
+            $ref: '#/components/schemas/WalletEinvoice'
+        allowance_einvoices:
+          description: Allowance e-invoices (`refund` only).
+          type: array
+          items:
+            $ref: '#/components/schemas/WalletEinvoice'
+        financial_status:
+          description: 'Top-up payment status: `paid`, `failed`, `timeout` (processing), `pending`.'
+          type: string
+          enum:
+            - paid
+            - failed
+            - timeout
+            - pending
+        einvoice:
+          $ref: '#/components/schemas/WalletEinvoice'
+          description: E-invoice of the top-up (`topup` only).
+        paper_invoice_no:
+          description: Paper invoice number when `invoice_type` is `paper_invoice`.
+          type:
+            - string
+            - "null"
