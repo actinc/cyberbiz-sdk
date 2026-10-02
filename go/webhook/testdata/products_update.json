@@ -1,0 +1,51 @@
+{
+  "id": 700001,
+  "title": "Sample Product 1",
+  "english_title": "Sample Product 1",
+  "product_url": "https://shop.example.com/products/sample-product-1",
+  "published": true,
+  "sell_from": "2026-01-01 00:00:00",
+  "sell_to": null,
+  "product_type": "一般商品",
+  "product_type_code": "normal",
+  "slogan": "Sample slogan",
+  "brief": "<p>Sample brief</p>",
+  "brief_text": "Sample brief",
+  "brief_includes_html": true,
+  "body_html": "<p>Sample body</p>",
+  "vendor": null,
+  "price": 960.0,
+  "sell_weight": 12,
+  "tax_type_id": "inclusive_tax",
+  "custom_collections": [
+    {"id": 20001, "title": "Sample Collection", "handle": "sample-collection", "published": true, "body_html": "", "products_order_name": "manual", "position": 1}
+  ],
+  "special_collection": null,
+  "tags": [{"id": 30001, "name": "sample-tag", "category": 0}],
+  "product_variants": [
+    {
+      "id": 750001, "product_id": 700001, "name": "Sample Product 1", "position": 1,
+      "price": 960.0, "cost": 400.0, "compare_at_price": 1200.0, "meas": 0.0, "max_usable_bonus": 0.0, "weight": 0.5,
+      "option1": "Default", "option2": null, "option3": null,
+      "inventory_management": true, "inventory_quantity": 25, "sold": 12, "safety_inventory_quantity": 5,
+      "inventory_policy": "deny", "sku": "SKU-1", "qc": null, "requires_shipping": true, "honeycomb_sync": false,
+      "vendor": null, "photo_urls": ["/media/sample-1.png"], "pim_infos": [],
+      "created_at": "2026-01-01 10:00:00", "updated_at": "2026-01-09 13:10:05"
+    }
+  ],
+  "product_options": [{"id": 40001, "name": "Style", "position": 1, "types": "text"}],
+  "pos_shop": null,
+  "photo_urls": ["/media/sample-1.png"],
+  "photos": [{"id": 50001, "url": "/media/sample-1.png", "position": 1}],
+  "channel": {"id": 1, "name": "Web"},
+  "related_collections": [],
+  "branch_store": null,
+  "temperature_types": ["normal"],
+  "searchable": true,
+  "google_product_category_id": null,
+  "product_custom_fields": [{"name": "material", "value": "cotton"}],
+  "seo_meta_tags": {"title": "Sample Product 1", "description": "Sample"},
+  "required_customer_tags": [],
+  "created_at": "2026-01-01 10:00:00",
+  "updated_at": "2026-01-09 13:10:05"
+}

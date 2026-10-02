@@ -1,0 +1,24 @@
+{
+  "product_feeds": [
+    {
+      "name": "REDACTED",
+      "url": "https://example.cyberbiz.co/products/fbcatalog/482b9470305c013ccc6f0a430b9d5f3d",
+      "mime_type": "text/csv"
+    },
+    {
+      "name": "REDACTED",
+      "url": "https://example.cyberbiz.co/products/google_product_feed/482b9470305c013ccc6f0a430b9d5f3d",
+      "mime_type": "text/csv"
+    },
+    {
+      "name": "REDACTED",
+      "url": "https://example.cyberbiz.co/shopdotcom.xml",
+      "mime_type": "text/xml"
+    },
+    {
+      "name": "REDACTED",
+      "url": "https://example.cyberbiz.co/line_shopping/482b9470305c013ccc6f0a430b9d5f3d/product_full.json",
+      "mime_type": "application/json"
+    }
+  ]
+}

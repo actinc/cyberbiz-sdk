@@ -1,0 +1,45 @@
+{
+  "name": "REDACTED",
+  "status": "enabled",
+  "email": "redacted@example.com",
+  "country_calling_code": null,
+  "mobile": "0912345678",
+  "enable_cvs_pickup": true,
+  "enable_cvs_cod": true,
+  "enable_home_delivery_cod": null,
+  "accepts_marketing": true,
+  "accepts_email_notification": true,
+  "tags": [],
+  "address": {
+    "company": null,
+    "country_calling_code": null,
+    "phone": "0912345678",
+    "address": "REDACTED",
+    "detail_address": {
+      "zip": "REDACTED",
+      "country": null,
+      "province": "",
+      "city": "REDACTED",
+      "district": "REDACTED",
+      "address1": "REDACTED",
+      "address2": null
+    }
+  },
+  "gender": "female",
+  "birthday": null,
+  "other_accumulated_consumption": 0,
+  "other_accumulated_consumption_expired_at": null,
+  "note": null,
+  "custom_fields": [],
+  "created_at": "2023-10-03 12:04:02",
+  "updated_at": "2026-03-26 18:30:18",
+  "confirmed_at": "2023-11-30 22:30:58",
+  "mobile_sms_confirmed_at": "2023-11-30 22:30:58",
+  "bonus_remain": 10012.0,
+  "uid_providers": [
+    {
+      "provider_type": "line",
+      "uid": "REDACTED"
+    }
+  ]
+}

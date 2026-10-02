@@ -1,0 +1,111 @@
+[
+  {
+    "id": 9336548,
+    "items": [
+      {
+        "sku": "SKU-7b5fc5",
+        "qc": null,
+        "name": "REDACTED",
+        "quantity": 0,
+        "note": null,
+        "type": "surplus",
+        "created_at": "2023-09-08 17:58:48"
+      },
+      {
+        "sku": "SKU-8514f7",
+        "qc": null,
+        "name": "REDACTED",
+        "quantity": 0,
+        "note": null,
+        "type": "surplus",
+        "created_at": "2023-09-08 17:58:48"
+      },
+      {
+        "sku": "SKU-7b9ac9",
+        "qc": null,
+        "name": "REDACTED",
+        "quantity": 999,
+        "note": null,
+        "type": "surplus",
+        "created_at": "2023-09-08 17:58:48"
+      },
+      {
+        "sku": "SKU-f25a8e",
+        "qc": null,
+        "name": "REDACTED",
+        "quantity": 14,
+        "note": null,
+        "type": "surplus",
+        "created_at": "2023-09-08 17:58:48"
+      },
+      {
+        "sku": "SKU-7b0ed1",
+        "qc": null,
+        "name": "REDACTED",
+        "quantity": 31,
+        "note": null,
+        "type": "surplus",
+        "created_at": "2023-09-08 17:58:48"
+      },
+      {
+        "sku": "SKU-f25a8e",
+        "qc": null,
+        "name": "REDACTED",
+        "quantity": 0,
+        "note": null,
+        "type": "surplus",
+        "created_at": "2023-09-08 17:58:48"
+      },
+      {
+        "sku": "SKU-7b0ed1",
+        "qc": null,
+        "name": "REDACTED",
+        "quantity": 0,
+        "note": null,
+        "type": "surplus",
+        "created_at": "2023-09-08 17:58:48"
+      }
+    ]
+  },
+  {
+    "id": 9497408,
+    "items": [
+      {
+        "sku": "SKU-8102e6",
+        "qc": null,
+        "name": "REDACTED",
+        "quantity": 50,
+        "note": null,
+        "type": "surplus",
+        "created_at": "2025-12-19 14:54:22"
+      },
+      {
+        "sku": "SKU-541a0f",
+        "qc": null,
+        "name": "REDACTED",
+        "quantity": 50,
+        "note": null,
+        "type": "surplus",
+        "created_at": "2025-12-19 14:54:22"
+      },
+      {
+        "sku": "SKU-4ed9b6",
+        "qc": null,
+        "name": "REDACTED",
+        "quantity": 50,
+        "note": null,
+        "type": "surplus",
+        "created_at": "2025-12-19 14:54:22"
+      },
+      {
+        "sku": "SKU-b17d99",
+        "qc": null,
+        "name": "REDACTED",
+        "quantity": 50,
+        "note": null,
+        "type": "surplus",
+        "created_at": "2025-12-19 14:54:22"
+      }
+    ]
+  }
+]

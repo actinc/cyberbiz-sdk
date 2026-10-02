@@ -1,0 +1,24 @@
+[
+  {
+    "id": 72070294,
+    "title": "可用紅利",
+    "points": 13.0,
+    "unused_points": 12.0,
+    "consumption_price": 0.0,
+    "deadline": "2125-12-31 14:14:30",
+    "customer_id": 23300813,
+    "source": "外部紅利",
+    "order_id": null
+  },
+  {
+    "id": 105249460,
+    "title": "測試",
+    "points": 10000.0,
+    "unused_points": 10000.0,
+    "consumption_price": 0.0,
+    "deadline": "2126-03-26 18:30:48",
+    "customer_id": 23300813,
+    "source": "一般紅利積點(購物金)",
+    "order_id": null
+  }
+]

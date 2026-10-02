@@ -1,0 +1,166 @@
+[
+  {
+    "id": 109940716,
+    "product_id": 63562054,
+    "product_variant_id": 77162801,
+    "title": "松阪豬肉B級(二層肉)",
+    "variant_title": "",
+    "sku": "SKU-541a0f",
+    "qc": null,
+    "vendor": null,
+    "price": 500.0,
+    "cost": null,
+    "quantity": 1,
+    "item_type": "normal",
+    "return_status": null,
+    "discount_name": "",
+    "discounts": [
+      {
+        "position": 0,
+        "id": 8,
+        "code": "bundle_discount",
+        "name": "REDACTED",
+        "discount": 433.0
+      }
+    ],
+    "total_price_before_discounts": 500.0,
+    "total_discount": 433.0,
+    "total_price_after_discounts": 67.0,
+    "tax_type_id": "inclusive_tax",
+    "bonus_redemption_price": null,
+    "related_items": [],
+    "created_at": "2026-03-10 11:34:31",
+    "channel": null,
+    "weight": 0.0,
+    "photo": "/assets/no-image-icon-51105c8025736695fb62df5940d64e6f8f911ec321eee45f3bb5e39029c3853a.png",
+    "custom_fields": []
+  },
+  {
+    "id": 109940670,
+    "product_id": 66395143,
+    "product_variant_id": 80512161,
+    "title": "女裝組合",
+    "variant_title": "",
+    "sku": "SKU-9c86d0",
+    "qc": null,
+    "vendor": null,
+    "price": 999.0,
+    "cost": null,
+    "quantity": 1,
+    "item_type": "normal",
+    "return_status": null,
+    "discount_name": "",
+    "discounts": [],
+    "total_price_before_discounts": 999.0,
+    "total_discount": 0,
+    "total_price_after_discounts": 999.0,
+    "tax_type_id": "inclusive_tax",
+    "bonus_redemption_price": null,
+    "related_items": [
+      {
+        "quantity": 1,
+        "items": [
+          {
+            "id": 77160567,
+            "product_id": 63560016,
+            "product_variant_id": 77160567,
+            "title": "女休閒長T",
+            "variant_title": "女休閒長T - ",
+            "sku": "SKU-5120bc",
+            "qc": null,
+            "vendor": null,
+            "price": 390.0,
+            "cost": 100.0,
+            "quantity": 1,
+            "combo_product_price_difference": 57,
+            "combo_product_price_diff_details": [
+              57
+            ]
+          },
+          {
+            "id": 77160569,
+            "product_id": 63560016,
+            "product_variant_id": 77160569,
+            "title": "女休閒長T",
+            "variant_title": "女休閒長T - ",
+            "sku": "SKU-92c38f",
+            "qc": null,
+            "vendor": null,
+            "price": 390.0,
+            "cost": 100.0,
+            "quantity": 1,
+            "combo_product_price_difference": 57,
+            "combo_product_price_diff_details": [
+              57
+            ]
+          },
+          {
+            "id": 77160996,
+            "product_id": 63560434,
+            "product_variant_id": 77160996,
+            "title": "女裝發熱衣",
+            "variant_title": "女裝發熱衣 - ",
+            "sku": "SKU-b3b845",
+            "qc": null,
+            "vendor": null,
+            "price": 390.0,
+            "cost": 100.0,
+            "quantity": 1,
+            "combo_product_price_difference": 57,
+            "combo_product_price_diff_details": [
+              57
+            ]
+          }
+        ]
+      }
+    ],
+    "created_at": "2026-03-10 11:33:54",
+    "channel": null,
+    "weight": 0.0,
+    "photo": "/assets/no-image-icon-51105c8025736695fb62df5940d64e6f8f911ec321eee45f3bb5e39029c3853a.png",
+    "custom_fields": []
+  },
+  {
+    "id": 109937485,
+    "product_id": 63639028,
+    "product_variant_id": 77249770,
+    "title": "屋哇哇屋挖",
+    "variant_title": "紅溫兔",
+    "sku": "SKU-be0971",
+    "qc": "DODO181011232",
+    "vendor": null,
+    "price": 3000.0,
+    "cost": 10.0,
+    "quantity": 1,
+    "item_type": "normal",
+    "return_status": null,
+    "discount_name": "",
+    "discounts": [
+      {
+        "position": 0,
+        "id": 5,
+        "code": "bonus_discount",
+        "name": "REDACTED",
+        "discount": 1.0
+      },
+      {
+        "position": 0,
+        "id": 8,
+        "code": "bundle_discount",
+        "name": "REDACTED",
+        "discount": 2832.0
+      }
+    ],
+    "total_price_before_discounts": 3000.0,
+    "total_discount": 2833.0,
+    "total_price_after_discounts": 167.0,
+    "tax_type_id": "inclusive_tax",
+    "bonus_redemption_price": null,
+    "related_items": [],
+    "created_at": "2026-03-10 10:50:08",
+    "channel": null,
+    "weight": 0.25,
+    "photo": "/media/W1siZiIsIjI2NzIxL3Byb2R1Y3RzLzYzNjM5MDI4LzE3NjYxMzI3NDFfYjE3YzgxZDdkYzFiNzdjZjQ1MTcucG5nIl0sWyJwIiwidGh1bWIiLCIzMngzMiJdXQ.png?sha=6f2da0516fe8f25b",
+    "custom_fields": []
+  }
+]

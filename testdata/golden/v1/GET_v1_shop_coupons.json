@@ -1,0 +1,31 @@
+[
+  {
+    "title": "測試優惠碼",
+    "code": "SHMHHDNL",
+    "coupon_type_name": "金額",
+    "coupon_value": "5.0元",
+    "order_price_threshold": 0.0,
+    "start_date": null,
+    "end_date": null,
+    "concurrently_apply": true,
+    "usage_limit": 1000000000,
+    "can_accumulate_bonus": true,
+    "usage_unlimited": true,
+    "used_times": 1,
+    "gift_order_id": null,
+    "gift_days": null,
+    "account_usage_limit_enabled": false,
+    "account_usage_limit": 0,
+    "restrict_strategy": "unrestricted",
+    "restrict_campaigns": [],
+    "tags": [],
+    "pos_shop_ids": [],
+    "coupon_status": "no_expire_date",
+    "gift_order_status": "",
+    "valid": true,
+    "customer_used_times": 0,
+    "customer_usable": true,
+    "id": 345196115,
+    "product_ids": []
+  }
+]

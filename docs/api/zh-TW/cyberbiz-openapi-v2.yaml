@@ -1,0 +1,3458 @@
+openapi: 3.1.0
+info:
+  title: CYBERBIZ API v2 and app endpoints
+  version: 1.0.1
+  description: |-
+    # CYBERBIZ API v2 與 app 端點
+
+    CYBERBIZ 電商平台的 `/v2` 操作與無版本前綴的 app 端點（`/shop`、`/settings`）。v2 沒有機器可讀的規格；
+    本文件由 CYBERBIZ Notion 參考頁面轉錄，並依據實際錄製的回應（Golden File）修正。
+    v1 與 v2 共用主機、token 與下列慣例；v2 並非 v1 的替代品（訂單、商品、會員的 CRUD 仍在 v1）。
+
+    ## 慣例
+
+    - **Base URL**：所有商店與所有 API 版本皆為 `https://app-store-api.cyberbiz.io`。版本為路徑前綴（`/v1`、`/v2`）；app 端點 `/shop` 與 `/settings` 沒有前綴。
+    - **驗證**：每個請求都帶 `Authorization: Bearer <API Token>`。token 是核發給 app、對應單一商店的 JWT，並攜帶其權限範圍（`read_orders`、`write_products` 等）。`read_*` 授權該資源群組的 GET 操作；`write_*` 授權 POST/PUT/DELETE。
+    - **速率限制**：每個 token 每秒最多 5 個請求，超過會得到 `429`。
+    - **分頁**：列表端點接受 `page`（從 1 起算）、`per_page`（預設與上限 50）與 `offset`；回傳的區段從第 `offset + (page - 1) * per_page + 1` 筆開始。回應帶有 `X-Page`、`X-Per-Page`、`X-Offset`、`X-Total`、`X-Total-Pages`、`X-Next-Page` 與 `X-Prev-Page`。
+    - **時間**為 Asia/Taipei 當地時間字串 `YYYY-MM-DD HH:MM:SS`，不含時區（schema `Timestamp`）；日期為 `YYYY-MM-DD`（schema `Date`）。
+    - **金額**欄位為 JSON 數字（如 `9999.0` 的浮點數），即使 swagger 標為 integer（schema `Money`）。
+    - **Null**：沒有任何欄位保證非 null。實際回應中觀察到 `null` 的欄位已標為 nullable；其他欄位也應視為可能為 null。
+    - **請求內容**以 JSON 送出。原始 swagger 將多數寫入操作記為 form data；平台接受 `application/json`。
+    - **錯誤**格式為 `{"error": ["..."]}`、`{"error": "..."}`、`{"message": "..."}`、`{"messages": "..."}` 之一。`401` 代表 token 無效**或**商店未開通該功能。部分查詢找不到資料時回應 `200` 搭配 `null`，或 `206` 搭配 `[]`。
+    - 本文件的**範例**皆為合成資料：結構來自實際錄製的回應，數值皆為虛構。
+
+    ## Release Notes
+
+    ### 1.0.1 (2026-10-02)
+
+    - Postman collection 說明不再指向 repository 內部的檔案。
+
+    ### 1.0.0 (2026-09-08)
+
+    - 初版：由 CYBERBIZ v1 swagger、v1/v2 Postman collection、Notion v2 參考頁面與 webhook 參考文件產生。
+    - 套用實際觀察的修正：可為 null 的欄位、金額為浮點數、order_number 為整數、文件記為物件的陣列、swagger 缺少的欄位、Bearer 驗證。
+    - 每個操作與事件皆附有由 Golden File 衍生的合成範例。
+servers:
+  - url: https://app-store-api.cyberbiz.io
+    description: 正式環境（所有商店與所有 API 版本共用同一主機）。
+security:
+  - bearerAuth: []
+tags:
+  - name: app
+    description: 無版本前綴的 app 端點：商店本身與 app 在該商店的設定。
+  - name: product_feeds
+    description: 廣告平台用的商品 feed 網址。
+  - name: affiliates
+    description: 分潤廠商訂單。
+  - name: pages
+    description: 含自訂 HTML 區塊的前台自訂頁面。
+  - name: shipping
+    description: 超商與宅配託運單。
+  - name: menus
+    description: 前台選單（Linklist）。
+  - name: categories
+    description: 多層級商品分類。
+  - name: collections
+    description: 自訂群組與智慧群組（v2 搜尋端點）。
+  - name: customer_oauth
+    description: 會員 OAuth。
+  - name: customers
+    description: 會員：基本資料、標籤、自訂欄位、紅利點數、優惠券、訂單、VIP 資訊。
+  - name: shop_emails
+    description: 商店 email 與訂閱者。
+  - name: products
+    description: 商品、款式、選項、照片、介紹、標籤與綁定物流設定。
+  - name: pos_wallets
+    description: POS 儲值金（需開通 POS 儲值金功能）。
+paths:
+  /settings:
+    get:
+      tags:
+        - app
+      summary: 取得 app 在此商店的設定
+      description: app 在此商店的安裝資訊（`shop_add_on`）：設定值、vendor type、token、有效期間，以及已安裝的 app 版本、manifest 與授予的權限範圍。
+      operationId: getSettings
+      responses:
+        "200":
+          description: app 安裝資訊。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopAddOnEnvelope'
+              example:
+                shop_add_on:
+                  id: 1
+                  settings: {}
+                  vendor_type: example-app
+                  token: synthetic-token-do-not-use
+                  start_at: null
+                  end_at: null
+                  add_on_version:
+                    webhook_url: https://example.com/webhooks/cyberbiz
+                    manifest:
+                      name: Example App
+                      version: 0.1.0
+                      scopes: public
+                      manifest_version: 1
+                      type: other
+                      webhook_events:
+                        - customers/create
+                        - customers/update
+                        - uid_providers/create
+                        - uid_providers/update
+                        - customer_tags/update
+                        - bonus_points/create
+                        - bonus_points/update
+                        - bonus_points/destroy
+                        - comment_bonus/create
+                        - orders/opened
+                        - orders/create
+                        - orders/paid
+                        - orders/preparing
+                        - orders/fulfilled
+                        - orders/received
+                        - orders/arrived
+                        - orders/expired
+                        - orders/cancelled
+                        - orders/returned
+                        - orders/partial_return
+                        - orders/refunded
+                        - orders/partial_refunded
+                        - orders/closed
+                        - orders/request_return
+                        - affiliate_vendor_orders/create
+                        - affiliate_vendor_orders/closed
+                        - affiliate_vendor_orders/cancelled
+                        - orders/update
+                        - products/create
+                        - products/update
+                        - products/delete
+                        - products/update_photos
+                        - products/update_options
+                        - variants/create
+                        - variants/update
+                        - variants/delete
+                        - cart/add
+                        - domains/create
+                        - domains/update
+                        - domains/destroy
+                        - collections/create
+                        - collections/delete
+                        - collections/update
+                        - apps/uninstall
+                        - express_delivery_orders/update
+                        - bulk_operations/finish
+                        - coupons/create
+                        - coupons/update
+                        - coupons/destroy
+                        - customer_vip_level/update
+                        - menus/create
+                        - menus/update
+                        - menus/destroy
+                    embedded: true
+                    status: init
+                    scopes: public read_products write_products read_customers write_customers read_orders write_orders read_affiliates read_discounts write_discounts read_pos write_pos read_branch_stores write_branch_stores read_edms customer_notifications write_content read_content customer_oauth read_shop_points consume_shop_points read_eticket write_eticket refill_shop_points read_shop_emails pim read_shop_users
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+    put:
+      tags:
+        - app
+      summary: 更新 app 在此商店的設定
+      description: 更新 app manifest 中宣告的 `setting_fields` 值。每個 `field` 必須與申請時宣告的欄位名稱相同。
+      operationId: putSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShopAddOnSettingsUpdate'
+            example:
+              settings:
+                - field: your_field_name
+                  data: value
+      responses:
+        "200":
+          description: 更新後的 app 安裝資訊。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopAddOnUpdatedEnvelope'
+              example:
+                shop_add_on:
+                  id: 1
+                  settings:
+                    your_field_name: value
+                  vendor_type: example-app
+                  token: synthetic-token-do-not-use
+                  start_at: null
+                  end_at: null
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /shop:
+    get:
+      tags:
+        - app
+      summary: 取得商店資訊
+      description: token 所屬的商店：主網域、名稱、id、聯絡 email、Open Graph 圖片與 LINE 設定。
+      operationId: getShop
+      responses:
+        "200":
+          description: 商店。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopInfoEnvelope'
+              example:
+                shop_info:
+                  primary_domain: example.cyberbiz.co
+                  name: 王小明
+                  id: 1
+                  email: customer@example.com
+                  og_image_url: //example.cyberbiz.co/media/sample-product.jpg
+                  shop_line_chat_bot: null
+                  shop_line:
+                    login_enable: true
+                    liff_id: null
+                    liff_enable: false
+                  language: zh-TW
+                  currency: TWD
+                  sms_prefix: 【CYBERBIZ代發】
+                  merchant_location: Taiwan
+                  market_location: Taiwan
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/affiliate_vendor_orders:
+    get:
+      tags:
+        - affiliates
+      summary: 列出分潤廠商訂單
+      description: |-
+        歸屬於分潤廠商的訂單。以分潤參數（`affiliate`、`cid`、`uid`）建立的定期訂單，其子訂單也會包含在內。Notion 參考頁面顯示的是 `affiliate_vendor_orders` 封裝；實際 API 回應為裸陣列（Golden File），本文件以實際為準。
+
+        權限範圍：`read_affiliates`。
+      operationId: getV2AffiliateVendorOrders
+      parameters:
+        - name: start_time
+          in: query
+          description: 訂單建立起始時間（`YYYY-MM-DD hh:mm:ss`，Asia/Taipei）
+          schema:
+            type: string
+          example: "2026-09-01 00:00:00"
+        - name: end_time
+          in: query
+          description: 訂單建立結束時間（`YYYY-MM-DD hh:mm:ss`，Asia/Taipei）
+          schema:
+            type: string
+          example: "2026-09-30 23:59:59"
+        - name: closed_at_start_time
+          in: query
+          description: 訂單 `closed_at` 起始時間（`YYYY-MM-DD hh:mm:ss`，Asia/Taipei）
+          schema:
+            type: string
+          example: "2026-09-01 00:00:00"
+        - name: closed_at_end_time
+          in: query
+          description: 訂單 `closed_at` 結束時間（`YYYY-MM-DD hh:mm:ss`，Asia/Taipei）
+          schema:
+            type: string
+          example: "2026-09-30 23:59:59"
+        - name: statuses
+          in: query
+          description: 訂單狀態，多個以逗點分隔：`open`、`closed`、`cancelled`。
+          schema:
+            type: string
+          example: open,closed
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/offset'
+      responses:
+        "200":
+          description: 分潤訂單。
+          headers:
+            X-Page:
+              $ref: '#/components/headers/X-Page'
+            X-Per-Page:
+              $ref: '#/components/headers/X-Per-Page'
+            X-Offset:
+              $ref: '#/components/headers/X-Offset'
+            X-Total:
+              $ref: '#/components/headers/X-Total'
+            X-Total-Pages:
+              $ref: '#/components/headers/X-Total-Pages'
+            X-Next-Page:
+              $ref: '#/components/headers/X-Next-Page'
+            X-Prev-Page:
+              $ref: '#/components/headers/X-Prev-Page'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AffiliateVendorOrder'
+              example:
+                - status_code: create_succeed
+                  uid: U0000000000000000000000000000001
+                  cid: 0123456789abcdef0123456789abcdef
+                  vendor_name: example-vendor
+                  order:
+                    customer_id: 1
+                    subtotal_price: 300.0
+                    created_at: "2026-09-01 10:00:00"
+                    updated_at: "2026-09-01 10:00:00"
+                    order_number: 1001
+                    order_name: '#1001'
+                    buyer:
+                      email: customer@example.com
+                      mobile: "0912345678"
+                    line_items:
+                      - id: 2
+                        product_id: 3
+                        product_variant_id: 4
+                        title: 範例商品
+                        variant_title: ""
+                        sku: SKU-001
+                        qc: null
+                        vendor: null
+                        price: 300.0
+                        cost: null
+                        quantity: 1
+                        item_type: normal
+                        discount_name: ""
+                        discounts: []
+                        total_price_before_discounts: 300.0
+                        total_discount: 0.0
+                        total_price_after_discounts: 300.0
+                        tax_type_id: inclusive_tax
+                        bonus_redemption_price: null
+                        related_items: []
+                        created_at: "2026-09-01 10:00:00"
+                    shipping_type: cyberbiz
+                    shipping_name: 自取
+                    delivery_date: null
+                    delivery_time: 0
+                    delegate: null
+                    prices:
+                      total_line_items_price: 300.0
+                      shipping_rate_price: 10.0
+                      discounts:
+                        special_collection_discount: 0.0
+                        vip_discount: 0.0
+                        shop_discount: null
+                        coupon_discount: null
+                        coupon_discounts: []
+                        bonus_consumed: 0.0
+                        vip_shipping_discount: 0.0
+                        coupon_shipping_discount: 0.0
+                        price_discount: 0.0
+                      total_price: 310.0
+                    transaction_number: null
+                    merchant_trade_no: S1#1001
+                    statuses:
+                      order_status: open
+                      financial_status: pending
+                      fulfillment_status: unshipped
+                      return_status: no_need
+                    timings:
+                      request_return_at: null
+                      return_at: null
+                      refund_at: null
+                      closed_at: null
+                      cancelled_at: null
+                      expired_at: null
+                      confirmed_at: "2026-09-01 10:00:00"
+                    return_histories: []
+                    note: ""
+                    total_bonus_redemption_price: 0.0
+                    linked_order_info:
+                      source: 非導購訂單
+                    shipping_status: null
+                    extra_info: null
+                    from_device: 桌機
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/categories:
+    get:
+      tags:
+        - categories
+      summary: 列出分類
+      description: |-
+        多層級商品分類。`full_handle` 編碼了階層（`clothing/mens/shirts`），並組成前台網址 `https://<domain>/categories/<full_handle>`；`handle` 只是該分類自己的片段。
+
+        權限範圍：`read_products`。
+      operationId: getV2Categories
+      parameters:
+        - name: q
+          in: query
+          description: 要搜尋的分類標題（字串比對）。
+          schema:
+            type: string
+          example: 服飾
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+      responses:
+        "200":
+          description: 分類列表。
+          headers:
+            X-Page:
+              $ref: '#/components/headers/X-Page'
+            X-Per-Page:
+              $ref: '#/components/headers/X-Per-Page'
+            X-Offset:
+              $ref: '#/components/headers/X-Offset'
+            X-Total:
+              $ref: '#/components/headers/X-Total'
+            X-Total-Pages:
+              $ref: '#/components/headers/X-Total-Pages'
+            X-Next-Page:
+              $ref: '#/components/headers/X-Next-Page'
+            X-Prev-Page:
+              $ref: '#/components/headers/X-Prev-Page'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+              example:
+                - title: 範例群組
+                  handle: ecoupon
+                  full_handle: ecoupon
+                  id: 1
+                - title: 範例群組
+                  handle: entea
+                  full_handle: entea
+                  id: 2
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/custom_collections:
+    get:
+      tags:
+        - collections
+      summary: 搜尋自訂群組
+      description: |-
+        自訂群組，可依標題或 handle 搜尋。`products_order_name` 帶的是排序方式的顯示文字（如 `按標題拼音升序: A-Z`）而非代碼；代碼為 `title.asc`、`title.desc`、`created_at.desc`、`created_at.asc`、`price.desc`、`price.asc`、`manual`、`sell_weight.desc`。
+
+        權限範圍：`read_products`。
+      operationId: getV2CustomCollections
+      parameters:
+        - name: q
+          in: query
+          description: 要搜尋的標題或 handle（字串比對）。
+          schema:
+            type: string
+          example: 首頁
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+      responses:
+        "200":
+          description: 群組列表。
+          headers:
+            X-Page:
+              $ref: '#/components/headers/X-Page'
+            X-Per-Page:
+              $ref: '#/components/headers/X-Per-Page'
+            X-Offset:
+              $ref: '#/components/headers/X-Offset'
+            X-Total:
+              $ref: '#/components/headers/X-Total'
+            X-Total-Pages:
+              $ref: '#/components/headers/X-Total-Pages'
+            X-Next-Page:
+              $ref: '#/components/headers/X-Next-Page'
+            X-Prev-Page:
+              $ref: '#/components/headers/X-Prev-Page'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomCollectionV2'
+              example:
+                - title: 範例群組
+                  handle: 英茶香
+                  published: true
+                  body_html: null
+                  products_order_name: '按標題拼音升序: A-Z'
+                  position: 2
+                  id: 1
+                - title: 範例群組
+                  handle: 所有商品
+                  published: true
+                  body_html: null
+                  products_order_name: '按標題拼音升序: A-Z'
+                  position: 1
+                  id: 2
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/customer_oauth:
+    post:
+      tags:
+        - customer_oauth
+      summary: 會員 OAuth
+      description: |-
+        文件缺陷：此端點在 Notion 的段落完全複製自 `GET /v2/categories`，因此沒有公開的請求／回應規格。下方請求內容來自 CYBERBIZ Postman collection；回應未有文件。使用前請先洽 CYBERBIZ 客服。
+
+        權限範圍：`customer_oauth`。
+      operationId: postV2CustomerOauth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerOAuthRequest'
+            example:
+              uid: U0000000000000000000000000000001
+              provider: line
+      responses:
+        "200":
+          description: 未有文件說明。
+          content:
+            application/json:
+              schema:
+                description: Undocumented response body.
+              example: null
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/customers:
+    get:
+      tags:
+        - customers
+      summary: 列出會員
+      description: |-
+        會員裸陣列。實際 API 回傳範例所示的精簡結構；`include_params` 可加入選用區段（文件記載 `vip_info`；Postman collection 也送 `uid_providers,tags`）。指定 `ids` 時分頁功能失效。
+
+        權限範圍：`read_customers`。
+      operationId: getV2Customers
+      parameters:
+        - name: ids
+          in: query
+          description: 以逗點分隔的會員 id（最多 100 個）。會停用分頁。
+          schema:
+            type: string
+          example: 1,2,3
+        - name: include_params
+          in: query
+          description: 要包含的額外區段，以逗點分隔。文件記載：`vip_info`。
+          schema:
+            type: string
+          example: vip_info
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/offset'
+      responses:
+        "200":
+          description: 會員列表。
+          headers:
+            X-Page:
+              $ref: '#/components/headers/X-Page'
+            X-Per-Page:
+              $ref: '#/components/headers/X-Per-Page'
+            X-Offset:
+              $ref: '#/components/headers/X-Offset'
+            X-Total:
+              $ref: '#/components/headers/X-Total'
+            X-Total-Pages:
+              $ref: '#/components/headers/X-Total-Pages'
+            X-Next-Page:
+              $ref: '#/components/headers/X-Next-Page'
+            X-Prev-Page:
+              $ref: '#/components/headers/X-Prev-Page'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerV2'
+              example:
+                - id: 1
+                  name: 王小明
+                  status: enabled
+                  email: customer@example.com
+                  country_calling_code: null
+                  mobile: "0912345678"
+                  enable_cvs_pickup: true
+                  enable_cvs_cod: true
+                  enable_home_delivery_cod: null
+                  accepts_marketing: true
+                  gender: female
+                  birthday: null
+                  other_accumulated_consumption: 0
+                  other_accumulated_consumption_expired_at: null
+                  note: null
+                  created_at: "2023-10-03 12:04:02"
+                  updated_at: "2026-03-26 18:30:18"
+                  confirmed_at: "2023-11-30 22:30:58"
+                  mobile_sms_confirmed_at: "2023-11-30 22:30:58"
+                - id: 2
+                  name: 王小明
+                  status: enabled
+                  email: customer@example.com
+                  country_calling_code: null
+                  mobile: "0912345678"
+                  enable_cvs_pickup: true
+                  enable_cvs_cod: true
+                  enable_home_delivery_cod: null
+                  accepts_marketing: true
+                  gender: 男
+                  birthday: null
+                  other_accumulated_consumption: 0
+                  other_accumulated_consumption_expired_at: null
+                  note: null
+                  created_at: "2023-11-22 16:49:25"
+                  updated_at: "2023-11-22 16:49:25"
+                  confirmed_at: "2023-11-22 16:49:25"
+                  mobile_sms_confirmed_at: "2023-11-22 16:49:25"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/customers/by_uid_provider:
+    get:
+      tags:
+        - customers
+      summary: 依第三方登入 uid 取得會員
+      description: |-
+        依第三方登入 provider 的 uid 查詢單一會員。找不到時回應 `null`（Golden File）。參數為 `uid` 與 `provider`（已對實際 API 驗證）；Notion 參考頁面寫的 `provider_type` 是文件錯誤。
+
+        權限範圍：`read_customers`。
+      operationId: getV2CustomersByUidProvider
+      parameters:
+        - name: uid
+          in: query
+          description: provider 的使用者 id。
+          schema:
+            type: string
+          example: U0000000000000000000000000000001
+        - name: provider
+          in: query
+          description: Provider：`line`、`line_at`、`facebook` 等。
+          schema:
+            type: string
+          example: line
+      responses:
+        "200":
+          description: The customer, or `null` when not found. 資源不存在時回應 `null`。
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: '#/components/schemas/CustomerV2'
+                  - type: "null"
+              example: null
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/menus:
+    get:
+      tags:
+        - menus
+      summary: 列出選單
+      description: |-
+        前台所有選單（Linklist）。Notion 範例不是合法 JSON；實際 API 回應為裸陣列（Golden File）。
+
+        權限範圍：`read_content`。
+      operationId: getV2Menus
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+      responses:
+        "200":
+          description: 選單列表。
+          headers:
+            X-Page:
+              $ref: '#/components/headers/X-Page'
+            X-Per-Page:
+              $ref: '#/components/headers/X-Per-Page'
+            X-Offset:
+              $ref: '#/components/headers/X-Offset'
+            X-Total:
+              $ref: '#/components/headers/X-Total'
+            X-Total-Pages:
+              $ref: '#/components/headers/X-Total-Pages'
+            X-Next-Page:
+              $ref: '#/components/headers/X-Next-Page'
+            X-Prev-Page:
+              $ref: '#/components/headers/X-Prev-Page'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuSummary'
+              example:
+                - id: 1
+                  title: 範例標題
+                  system_default: true
+                - id: 2
+                  title: 範例標題
+                  system_default: true
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/menus/{menu_id}:
+    get:
+      tags:
+        - menus
+      summary: 取得選單及其項目
+      description: |-
+        單一選單及其巢狀項目；透過 `items` 遞迴巢狀。
+
+        權限範圍：`read_content`。
+      operationId: getV2MenusMenuId
+      parameters:
+        - name: menu_id
+          in: path
+          description: 選單 id。
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: 選單。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Menu'
+              example:
+                id: 1
+                title: 範例標題
+                system_default: true
+                items: []
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/orders/cvs_shipping_labels:
+    post:
+      tags:
+        - shipping
+      summary: 列印超商託運單
+      description: |-
+        回傳 zip 檔，內含一份包含所有託運單的 PDF（`seven_c2c` 以 HTML 提供）。`Content-Disposition: attachment; filename=cvs_<shipping_type>_shipping_labels_<timestamp>.zip`。
+
+        權限範圍：`write_orders`。
+      operationId: postV2OrdersCvsShippingLabels
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CvsShippingLabelsRequest'
+            example:
+              shipping_type: seven
+              fulfillment_ids:
+                - 1
+                - 2
+                - 3
+      responses:
+        "200":
+          description: 含託運單的 zip 檔。
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+              example: (binary zip archive)
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/orders/fulfillments/support_shipping_labels:
+    post:
+      tags:
+        - shipping
+      summary: 列印宅配託運單
+      description: |-
+        回傳 zip 檔，內含一份包含黑貓、順豐、宅配通或新竹物流所有託運單的 PDF。`print_type` 僅適用於新竹物流。`Content-Disposition: attachment; filename=support_<shipping_type>_shipping_labels_<timestamp>.zip`。
+
+        權限範圍：`write_orders`。
+      operationId: postV2OrdersFulfillmentsSupportShippingLabels
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportShippingLabelsRequest'
+            example:
+              shipping_type: ezcat
+              print_type: normal
+              order_ids:
+                - 1
+                - 2
+      responses:
+        "200":
+          description: 含託運單的 zip 檔。
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+              example: (binary zip archive)
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/orders/fulfillments/support_shippings:
+    post:
+      tags:
+        - shipping
+      summary: 建立宅配託運單
+      description: |-
+        一次為多筆訂單建立黑貓（`ezcat`）、順豐（`sf`）、宅配通（`pelican`）或新竹物流（`hct`）託運單。`sf` 與 `hct` 不支援 `fridge_or_frozen`、`is_fragile` 與 `use_transfer`。失敗的訂單列在 `failed_orders`；其餘會建立出貨紀錄。
+
+        權限範圍：`write_orders`。
+      operationId: postV2OrdersFulfillmentsSupportShippings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportShippingCreate'
+            example:
+              shipping_type: ezcat
+              size: 60
+              temperature: normal
+              fridge_or_frozen: none
+              use_transfer: false
+              is_fragile: true
+              shipping_orders:
+                - order_id: 1
+                  line_item_ids:
+                    - 2
+                - order_id: 3
+                  line_item_ids:
+                    - 4
+      responses:
+        "200":
+          description: 建立的出貨紀錄與失敗的訂單。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportShippingResult'
+              example:
+                failed_orders:
+                  - order_id: 1
+                    message: 訂單 id = 3 無此商品 line_item_ids = [4]
+                fulfillments:
+                  - id: 2
+                    order_id: 3
+                    tracking_number: TRK000000001
+                    tracking_company: ezcat
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/orders/{order_id}/cvs_shipping:
+    post:
+      tags:
+        - shipping
+      summary: 建立超商託運單
+      description: |-
+        為單一訂單建立超商託運單。支援：全家（含店到店與冷鏈）、萊爾富（含店到店與冷鏈）、7-11（含店到店）與黑貓快速到店（常溫、冷凍、冷藏）。只有回應中 `cvs_shipping_type` 非 null 的訂單才能接著列印託運單。
+
+        權限範圍：`write_orders`。
+      operationId: postV2OrdersOrderIdCvsShipping
+      parameters:
+        - name: order_id
+          in: path
+          description: 訂單 id。
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CvsShippingCreate'
+            example:
+              measurement: S60
+      responses:
+        "201":
+          description: 建立的出貨紀錄。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CvsFulfillment'
+              example:
+                id: 1
+                tracking_company: FAMILY_C2C
+                cvs_shipping_type: family_c2c
+                tracking_number: TRK000000001
+                fulfilled_at: "2026-09-01 10:00:00"
+                received_at: null
+                status: fulfilled
+                line_items:
+                  - id: 2
+                    product_id: 3
+                    product_variant_id: 4
+                    title: 範例商品
+                    variant_title: ""
+                    sku: SKU-001
+                    qc: null
+                    vendor: null
+                    price: 1000.0
+                    cost: 500.0
+                    quantity: 1
+                    item_type: normal
+                    discount_name: ""
+                    discounts: []
+                    total_price_before_discounts: 1000.0
+                    total_discount: 0.0
+                    total_price_after_discounts: 1000.0
+                    tax_type_id: inclusive_tax
+                    bonus_redemption_price: null
+                    related_items: []
+                    created_at: "2026-09-01 10:00:00"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/pages:
+    post:
+      tags:
+        - pages
+      summary: 建立自訂頁面
+      description: |-
+        建立含一個自訂 HTML 區塊的自訂頁面。以此方式建立的頁面無法在後台編輯（僅能預覽）；請透過 `PUT /v2/pages/{page_id}` 修改。
+
+        權限範圍：`write_content`。
+      operationId: postV2Pages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageCreate'
+            example:
+              title: 範例標題
+      responses:
+        "201":
+          description: 建立的頁面。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page'
+              example:
+                id: 1
+                title: 範例群組
+                handle: demo-page
+                status: published
+                html_infos: '{"1714492800_app_store_api":"\u003ch1\u003eDemo content\u003c/h1\u003e"}'
+                created_at: "2026-09-01 10:00:00"
+                updated_at: "2026-09-01 10:00:00"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/pages/{page_id}:
+    put:
+      tags:
+        - pages
+      summary: 更新自訂頁面
+      description: |-
+        更新由 `POST /v2/pages` 建立的頁面。要修改區塊內容需同時送出 `section_id` 與 `section_content`；`section_content` 為 JSON 字串（先將 HTML 做 unicode-escape，再 JSON 編碼）。只能修改 `POST /v2/pages` 建立的自訂 HTML 區塊。參考文件說 `page_id` 帶在 query string；Postman collection 則同時放在路徑與 query。
+
+        權限範圍：`write_content`。
+      operationId: putV2PagesPageId
+      parameters:
+        - name: page_id
+          in: path
+          description: 自訂頁面 id。
+          required: true
+          schema:
+            type: integer
+          example: 1
+        - name: page_id
+          in: query
+          description: 自訂頁面 id（參考文件將其記為 query 參數）。
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageUpdate'
+            example:
+              title: 範例群組
+              handle: new-handle
+              status: published
+              section_id: 1714492800_app_store_api
+              section_content: '"\u003ch1\u003eNew content\u003c/h1\u003e"'
+      responses:
+        "200":
+          description: 更新後的頁面。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page'
+              example:
+                id: 1
+                title: 範例群組
+                handle: demo-page
+                status: published
+                html_infos: '{"1714492800_app_store_api":"\u003ch1\u003eDemo content\u003c/h1\u003e"}'
+                created_at: "2026-09-01 10:00:00"
+                updated_at: "2026-09-01 10:00:00"
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/pos_wallets/{customer_id}/balance:
+    get:
+      tags:
+        - pos_wallets
+      summary: 取得會員 POS 儲值金餘額
+      description: |-
+        會員的儲值金餘額。僅限開通 POS 儲值金功能的商店。
+
+        權限範圍：`read_pos`。
+      operationId: getV2PosWalletsCustomerIdBalance
+      parameters:
+        - name: customer_id
+          in: path
+          description: 會員 id。
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: 餘額。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletBalance'
+              example:
+                balance: 1500.0
+                currency: TWD
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/pos_wallets/{customer_id}/transactions:
+    get:
+      tags:
+        - pos_wallets
+      summary: 列出會員 POS 儲值金交易
+      description: |-
+        儲值金交易紀錄，由新到舊，最多 1000 筆（無分頁）。`topup` 帶有 `einvoice`、`paper_invoice_no` 與 `financial_status`；`refund` 帶有 `invalid_einvoices` 與 `allowance_einvoices`；`consumption`、`cancel_order` 與 `bonus` 只有共同欄位。時間格式為 `YYYY-MM-DD HH:MM+0800`。
+
+        權限範圍：`read_pos`。
+      operationId: getV2PosWalletsCustomerIdTransactions
+      parameters:
+        - name: customer_id
+          in: path
+          description: 會員 id。
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: 交易列表。
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WalletTransaction'
+              example:
+                - type: refund
+                  amount: -500.0
+                  balance_after: 1000.0
+                  created_at: 2026-09-01 12:04+0800
+                  payment_name: 現金
+                  invalid_einvoices:
+                    - title: ""
+                      company_no: ""
+                      invoice_no: AB12345678
+                      invoice_status: issue_invalid
+                      invoice_at: 2026-09-01 12:01+0800
+                      invalid_at: 2026-09-01 12:04+0800
+                      random_num: "1234"
+                      invoice_type: default
+                      love_code: ""
+                      phone_barcode: ""
+                      nature_person: ""
+                  allowance_einvoices: []
+                - type: topup
+                  amount: 1500.0
+                  balance_after: 1500.0
+                  created_at: 2026-09-01 12:02+0800
+                  payment_name: 現金
+                  financial_status: paid
+                  einvoice:
+                    title: ""
+                    company_no: ""
+                    invoice_no: AB12345678
+                    invoice_status: issue
+                    invoice_at: 2026-09-01 12:02+0800
+                    invalid_at: null
+                    random_num: "1234"
+                    invoice_type: default
+                    love_code: ""
+                    phone_barcode: ""
+                    nature_person: ""
+                  paper_invoice_no: null
+                - type: consumption
+                  amount: -200.0
+                  balance_after: 1300.0
+                  created_at: 2026-08-12 15:42+0800
+                  payment_name: null
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/product_feeds:
+    get:
+      tags:
+        - product_feeds
+      summary: 列出商品 feed 網址
+      description: |-
+        商店提供給 facebook、google、shopdotcom 與 line 的商品 feed 網址。無參數。
+
+        權限範圍：`public`。
+      operationId: getV2ProductFeeds
+      responses:
+        "200":
+          description: feed 列表。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductFeedsEnvelope'
+              example:
+                product_feeds:
+                  - name: 範例名稱
+                    url: //example.cyberbiz.co/media/sample-product.jpg
+                    mime_type: text/csv
+                  - name: 範例名稱
+                    url: //example.cyberbiz.co/media/sample-product.jpg
+                    mime_type: text/csv
+                  - name: 範例名稱
+                    url: //example.cyberbiz.co/media/sample-product.jpg
+                    mime_type: text/xml
+                  - name: 範例名稱
+                    url: //example.cyberbiz.co/media/sample-product.jpg
+                    mime_type: application/json
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/products/batch_update_branch_store_inventory:
+    put:
+      tags:
+        - products
+      summary: 批量更新門市庫存
+      description: |-
+        排入非同步工作，依店號與 SKU 設定門市庫存；每次最多 1000 筆。需要「利用店號和 sku 批量更新門市庫存」功能（否則回 `422`）。以 `GET /v2/products/branch_store_inventory_update_status` 輪詢工作狀態。
+
+        權限範圍：`write_products`。
+      operationId: putV2ProductsBatchUpdateBranchStoreInventory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryBatchUpdate'
+            example:
+              store_number: S001
+              items:
+                - sku: SKU-001
+                  inventory_quantity: 10
+                - sku: SKU-002
+                  inventory_quantity: 5
+      responses:
+        "202":
+          description: 已排入的工作。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryJobQueued'
+              example:
+                job_id: 5f1a2b3c4d5e6f7a8b9c0d1e
+                status: QUEUED
+                message: Inventory update job has been queued
+                store_number: S001
+                total_items: 2
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/products/branch_store_inventory_update_status:
+    get:
+      tags:
+        - products
+      summary: 查詢批量庫存工作
+      description: |-
+        由 `PUT /v2/products/batch_update_branch_store_inventory` 建立的工作狀態。`status` 為 `QUEUE`（查詢）／`QUEUED`（建立）、`PROCESSING`、`SUCCESS` 或 `FAILED`；不存在的工作回 `{"error": ["job_id '...' 不存在"]}`。此處的時間帶有 `+0800` 後綴。
+
+        權限範圍：`read_products`。
+      operationId: getV2ProductsBranchStoreInventoryUpdateStatus
+      parameters:
+        - name: job_id
+          in: query
+          description: 批量更新回應中的 job id。
+          required: true
+          schema:
+            type: string
+          example: 5f1a2b3c4d5e6f7a8b9c0d1e
+      responses:
+        "200":
+          description: 工作狀態。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryJobStatus'
+              example:
+                job_id: 5f1a2b3c4d5e6f7a8b9c0d1e
+                status: SUCCESS
+                message: Inventory update completed successfully
+                created_at: 2026-09-01 10:00:00 +0800
+                completed_at: 2026-09-01 10:00:17 +0800
+                result:
+                  total: 2
+                  succeeded: 1
+                  failed: 1
+                  failed_items:
+                    - sku: SKU-001
+                      error: sku not found
+                error: null
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          description: 'Validation failed, or the feature is not enabled for the shop. The body is `{"error": [...]}` or `{"message": "..."}`.（此端點實際記錄到的訊息）'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  - 無「利用店號和 sku 批量更新門市庫存」功能，請聯絡您的開店顧問
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/products/search:
+    post:
+      tags:
+        - products
+      summary: 搜尋商品
+      description: |-
+        以 JSON body 搜尋商品。與其他列表端點不同，它在 body 以 `limit`／`offset` 分頁，並在回應中回傳 `total_count`／`total_pages` 而非 `X-*` header。`skus`、`branch_stores` 與 `store_nos` 為客製功能；請洽開店顧問。
+
+        權限範圍：`read_products`。
+      operationId: postV2ProductsSearch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductSearchRequest'
+            example:
+              q: 範例
+              limit: 50
+              offset: 0
+              filter_published: true
+              skus:
+                - SKU-001
+              store_types:
+                - 1
+      responses:
+        "200":
+          description: 符合的商品。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductSearchResult'
+              example:
+                products:
+                  - id: 1
+                    title: 範例商品
+                    handle: sample-product
+                    english_title: null
+                    product_url: //example.cyberbiz.co/products/sample-product
+                    published: true
+                    sell_from: null
+                    sell_to: null
+                    product_type: null
+                    product_type_code: null
+                    slogan: ""
+                    brief: ""
+                    brief_text: null
+                    brief_includes_html: false
+                    body_html: ""
+                    vendor: null
+                    price: 1000.0
+                    sell_weight: 0
+                    tax_type_id: inclusive_tax
+                    custom_collections:
+                      - title: 範例群組
+                        handle: frontpage
+                        published: true
+                        body_html: null
+                        products_order_name: '按標題拼音升序: A-Z'
+                        position: 0
+                        id: 1
+                    special_collection: null
+                    tags: []
+                    product_variants:
+                      - product_id: 1
+                        name: 範例款式
+                        position: 1
+                        price: 1000.0
+                        cost: null
+                        compare_at_price: 1500.0
+                        meas: 0.0
+                        max_usable_bonus: 0.0
+                        weight: 0.0
+                        option1: 大
+                        option2: 紅色
+                        option3: null
+                        inventory_management: false
+                        inventory_quantity: null
+                        sold: 0
+                        safety_inventory_quantity: null
+                        inventory_policy: deny
+                        sku: SKU-001
+                        qc: null
+                        requires_shipping: true
+                        created_at: "2026-09-01 10:00:00"
+                        updated_at: "2026-09-01 10:00:00"
+                        honeycomb_sync: true
+                        vendor: null
+                        id: 2
+                        photo_urls:
+                          - //example.cyberbiz.co/media/sample-product.jpg
+                    product_options:
+                      - name: 範例名稱
+                        position: 1
+                        types: 大,中,小
+                        id: 3
+                    pos_shop: null
+                    photo_urls:
+                      - //example.cyberbiz.co/media/sample-product.jpg
+                    related_collections: []
+                    created_at: "2026-09-01 10:00:00"
+                    updated_at: "2026-09-01 10:00:00"
+                    temperature_types:
+                      - 常溫
+                    searchable: true
+                    google_product_category_id: null
+                    seo_meta_tags:
+                      title: null
+                      description: null
+                      keywords: null
+                total_count: 1
+                total_pages: 1
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/shop_emails/shop_emails:
+    get:
+      tags:
+        - shop_emails
+      summary: 取得商店 email 與訂閱者
+      description: |-
+        商店的 email 與訂閱訂單通知的 email。無參數。
+
+        權限範圍：`read_shop_emails`。
+      operationId: getV2ShopEmailsShopEmails
+      responses:
+        "200":
+          description: email 列表。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShopEmails'
+              example:
+                shop_email: shop@example.com
+                subscribes:
+                  - customer@example.com
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+  /v2/smart_collections:
+    get:
+      tags:
+        - collections
+      summary: 搜尋智慧群組
+      description: |-
+        智慧群組（規則式）及其規則與符合的商品，可依標題或 handle 搜尋。
+
+        權限範圍：`read_products`。
+      operationId: getV2SmartCollections
+      parameters:
+        - name: q
+          in: query
+          description: 要搜尋的標題或 handle。
+          schema:
+            type: string
+          example: 千元
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+      responses:
+        "200":
+          description: 群組列表。
+          headers:
+            X-Page:
+              $ref: '#/components/headers/X-Page'
+            X-Per-Page:
+              $ref: '#/components/headers/X-Per-Page'
+            X-Offset:
+              $ref: '#/components/headers/X-Offset'
+            X-Total:
+              $ref: '#/components/headers/X-Total'
+            X-Total-Pages:
+              $ref: '#/components/headers/X-Total-Pages'
+            X-Next-Page:
+              $ref: '#/components/headers/X-Next-Page'
+            X-Prev-Page:
+              $ref: '#/components/headers/X-Prev-Page'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SmartCollectionV2'
+              example:
+                - title: 範例群組
+                  handle: within_a_thousand
+                  published: true
+                  body_html: null
+                  position: 1
+                  rules:
+                    - id: 1
+                      filter: 商品價格 小於 1000
+                  products:
+                    - id: 1
+                      title: 範例標題
+                      position: 1
+                    - id: 2
+                      title: 範例標題
+                      position: 2
+                  id: 1
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "429":
+          $ref: '#/components/responses/TooManyRequests'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: '商店的 API Token，以 `Authorization: Bearer <token>` 送出。一個 token 對應一個商店，並攜帶 app 被授予的權限範圍。'
+  parameters:
+    page:
+      name: page
+      in: query
+      description: 頁碼，從 1 起算。
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+      example: 1
+    per_page:
+      name: per_page
+      in: query
+      description: Records per page; default and maximum 50.
+      schema:
+        type: integer
+        default: 50
+        minimum: 1
+        maximum: 50
+      example: 50
+    offset:
+      name: offset
+      in: query
+      description: 分頁前略過的筆數。回傳的第一筆為第 `offset + (page - 1) * per_page + 1` 筆。
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      example: 0
+  headers:
+    X-Page:
+      description: 回傳的頁碼（同請求的 `page`）。
+      schema:
+        type: string
+      example: "1"
+    X-Per-Page:
+      description: 每頁筆數（同請求的 `per_page`）。
+      schema:
+        type: string
+      example: "50"
+    X-Offset:
+      description: 分頁前略過的筆數（同請求的 `offset`）。
+      schema:
+        type: string
+      example: ""
+    X-Total:
+      description: 符合查詢的總筆數，與分頁無關。
+      schema:
+        type: string
+      example: "92"
+    X-Total-Pages:
+      description: 總頁數：CEILING((X-Total - X-Offset) / X-Per-Page)。
+      schema:
+        type: string
+      example: "2"
+    X-Next-Page:
+      description: 下一頁頁碼；最大為 X-Total-Pages。最後一頁時為空。
+      schema:
+        type: string
+      example: "2"
+    X-Prev-Page:
+      description: 上一頁頁碼；第一頁時為空。
+      schema:
+        type: string
+      example: ""
+  responses:
+    Unauthorized:
+      description: token 缺少、無效、過期、缺少權限範圍，或商店未開通該功能（CYBERBIZ 對兩者都回 401）。
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            unauthorized:
+              $ref: '#/components/examples/unauthorized'
+    Forbidden:
+      description: '資源目前的狀態不允許此操作，或缺少必要的 plugin。body 為 `{"error": "..."}` 或 `{"messages": "..."}`。'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            forbidden:
+              $ref: '#/components/examples/forbidden'
+    NotFound:
+      description: 資源不存在。注意部分查詢會回 `200` 搭配 `null`，或 `206` 搭配 `[]`，而非 `404`。
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            notFound:
+              $ref: '#/components/examples/notFound'
+    UnprocessableEntity:
+      description: '驗證失敗，或商店未啟用該功能。body 為 `{"error": [...]}` 或 `{"message": "..."}`。'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            unprocessableEntity:
+              $ref: '#/components/examples/unprocessableEntity'
+    TooManyRequests:
+      description: 每秒送出超過 5 個請求。請退避後重試；body 格式未有文件說明。
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            tooManyRequests:
+              $ref: '#/components/examples/tooManyRequests'
+  examples:
+    unauthorized:
+      summary: 未授權
+      value:
+        error:
+          - 無權使用該 API
+    forbidden:
+      summary: 禁止
+      value:
+        error: Must have pos_shop_coupon plugin
+    notFound:
+      summary: 找不到資源
+      value:
+        error:
+          - 無此資源
+    unprocessableEntity:
+      summary: 無法處理
+      value:
+        error:
+          - custom_field_type 無效值
+    tooManyRequests:
+      summary: 請求過多
+      value:
+        error:
+          - Rate limit exceeded
+  schemas:
+    AffiliateOrder:
+      type: object
+      properties:
+        customer_id:
+          description: 會員 id。
+          type: integer
+        subtotal_price:
+          $ref: '#/components/schemas/Money'
+          description: 不含運費的小計。
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 建立時間。
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 更新時間。
+        order_number:
+          description: 訂單編號（整數）。
+          type: integer
+        order_name:
+          description: 訂單名稱，`#` 加訂單編號。
+          type: string
+        buyer:
+          $ref: '#/components/schemas/OrderBuyer'
+          description: 購買會員的聯絡資訊。
+        line_items:
+          description: 訂購的商品。
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItemV2'
+        shipping_type:
+          description: 配送方式代碼。
+          type: string
+        shipping_name:
+          description: 配送方式名稱。
+          type: string
+        delivery_date:
+          description: 指定配送日期。
+          anyOf:
+            - $ref: '#/components/schemas/Date'
+            - type: "null"
+        delivery_time:
+          description: 指定配送時段（0 = 不指定）。
+          type: integer
+        delegate:
+          description: 代客下單的操作人帳號。
+          type:
+            - string
+            - "null"
+        prices:
+          $ref: '#/components/schemas/OrderPrices'
+          description: 價格明細。
+        transaction_number:
+          description: 第三方交易編號。
+          type:
+            - string
+            - "null"
+        merchant_trade_no:
+          description: 送給金流的第三方串接編號。
+          type: string
+        statuses:
+          $ref: '#/components/schemas/OrderStatuses'
+          description: 狀態欄位；見各列舉值。
+        timings:
+          $ref: '#/components/schemas/OrderTimings'
+          description: 狀態時間。
+        return_histories:
+          description: 退款紀錄。
+          type: array
+          items:
+            type: string
+        note:
+          description: 備註。
+          type: string
+        total_bonus_redemption_price:
+          $ref: '#/components/schemas/Money'
+          description: 紅利商城紅利總使用量。
+        linked_order_info:
+          description: 導購／分潤訂單歸屬資訊。
+          type: object
+          properties:
+            source:
+              description: 導購來源。
+              type: string
+        shipping_status:
+          description: 物流送貨狀態。
+          type:
+            - string
+            - "null"
+        extra_info:
+          description: 額外資訊。
+          type:
+            - string
+            - "null"
+        from_device:
+          description: 下單裝置。
+          type: string
+    AffiliateVendorOrder:
+      type: object
+      properties:
+        status_code:
+          description: 歸屬狀態，例如 `create_succeed`。
+          type: string
+        uid:
+          description: 分潤使用者 id（前台造訪時的 `uid` 參數）。
+          type: string
+        cid:
+          description: 分潤活動 id（前台造訪時的 `cid` 參數）。
+          type: string
+        vendor_name:
+          description: 分潤廠商名稱。
+          type: string
+        order:
+          $ref: '#/components/schemas/AffiliateOrder'
+          description: 歸屬的訂單。
+    Category:
+      type: object
+      properties:
+        title:
+          description: 標題。
+          type: string
+        handle:
+          description: 網址代碼（handle）。
+          type: string
+        full_handle:
+          description: 包含所有上層 handle 的完整路徑，例如 `clothing/mens/shirts`。
+          type: string
+        id:
+          description: id。
+          type: integer
+    CollectionProductV2:
+      type: object
+      properties:
+        id:
+          description: id。
+          type: integer
+        title:
+          description: 標題。
+          type: string
+        position:
+          description: 順序（從 1 起算）。
+          type: integer
+    CustomCollectionV2:
+      type: object
+      properties:
+        title:
+          description: 標題。
+          type: string
+        handle:
+          description: 網址代碼（handle）。
+          type: string
+        published:
+          description: 是否公開。
+          type: boolean
+        body_html:
+          description: HTML 內文。
+          type:
+            - string
+            - "null"
+        products_order_name:
+          description: 前台商品排序方式的顯示文字。
+          type: string
+        position:
+          description: 順序（從 1 起算）。
+          type: integer
+        id:
+          description: id。
+          type: integer
+    CustomerAddressV2:
+      type: object
+      properties:
+        company:
+          type:
+            - string
+            - "null"
+        country_calling_code:
+          type:
+            - string
+            - "null"
+        phone:
+          type: string
+        address:
+          type: string
+        detail_address:
+          type: object
+          properties:
+            zip:
+              type: string
+            country:
+              type:
+                - string
+                - "null"
+            province:
+              type:
+                - string
+                - "null"
+            city:
+              type: string
+            district:
+              type: string
+            address1:
+              type: string
+            address2:
+              type:
+                - string
+                - "null"
+    CustomerOAuthRequest:
+      type: object
+      properties:
+        uid:
+          description: 分潤使用者 id（前台造訪時的 `uid` 參數）。
+          type: string
+        provider:
+          description: OAuth provider，例如 `line`、`facebook`。
+          type: string
+    CustomerV2:
+      type: object
+      properties:
+        id:
+          description: id。
+          type: integer
+        name:
+          description: 名稱。
+          type: string
+        status:
+          description: 狀態。
+          type: string
+        email:
+          description: Email。
+          type: string
+        country_calling_code:
+          type:
+            - string
+            - "null"
+        mobile:
+          type:
+            - string
+            - "null"
+        enable_cvs_pickup:
+          type: boolean
+        enable_cvs_cod:
+          type: boolean
+        enable_home_delivery_cod:
+          type:
+            - boolean
+            - "null"
+        accepts_marketing:
+          type: boolean
+        accepts_email_notification:
+          description: 僅在 `include_params` 要求時出現。
+          type: boolean
+        tags:
+          description: 標籤篩選。 僅在 `include_params` 要求時出現。
+          type: array
+          items:
+            type: string
+        address:
+          $ref: '#/components/schemas/CustomerAddressV2'
+          description: 僅在 `include_params` 要求時出現。
+        gender:
+          type:
+            - string
+            - "null"
+        birthday:
+          anyOf:
+            - $ref: '#/components/schemas/Date'
+            - type: "null"
+        other_accumulated_consumption:
+          $ref: '#/components/schemas/Money'
+        other_accumulated_consumption_expired_at:
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        note:
+          description: 備註。
+          type:
+            - string
+            - "null"
+        custom_fields:
+          description: 僅在 `include_params` 要求時出現。
+          type: array
+          items:
+            type: string
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 建立時間。
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 更新時間。
+        confirmed_at:
+          description: 認單時間。
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        mobile_sms_confirmed_at:
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        bonus_remain:
+          $ref: '#/components/schemas/Money'
+          description: 僅在 `include_params` 要求時出現。
+        uid_providers:
+          description: 僅在 `include_params` 要求時出現。
+          type: array
+          items:
+            $ref: '#/components/schemas/UidProvider'
+        vip_info:
+          $ref: '#/components/schemas/VipInfo'
+          description: VIP 資訊（需 `include_params=vip_info`）。 僅在 `include_params` 要求時出現。
+    CvsFulfillment:
+      type: object
+      properties:
+        id:
+          description: id。
+          type: integer
+        tracking_company:
+          description: 物流商代碼。
+          type: string
+        cvs_shipping_type:
+          description: 超商配送類型，例如 `family_c2c`；非超商配送時為 null。
+          type: string
+        tracking_number:
+          description: 物流追蹤單號。
+          type: string
+        fulfilled_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 出貨時間。
+        received_at:
+          description: 收貨時間。
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        status:
+          description: 狀態。
+          type: string
+        line_items:
+          description: 訂購的商品。
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItemV2'
+    CvsShippingCreate:
+      type: object
+      properties:
+        measurement:
+          description: 材積，`S60` 或 `S105`；萊爾富與全家冷鏈必填。
+          type: string
+          enum:
+            - S60
+            - S105
+        size:
+          description: 包裹尺寸：黑貓快速到店為 `60`／`90`／`105`；宅配為 `60`／`90`／`120`／`150`。
+          type: integer
+          enum:
+            - 60
+            - 90
+            - 105
+    CvsShippingLabelsRequest:
+      type: object
+      required:
+        - shipping_type
+        - fulfillment_ids
+      properties:
+        shipping_type:
+          description: 配送方式代碼。
+          type: string
+          enum:
+            - seven
+            - seven_c2c
+            - family
+            - family_c2c
+            - family_cold
+            - family_cold_c2c
+            - hilife
+            - hilife_cold
+            - hilife_c2c
+            - ezcat_cvs
+            - ezcat_cvs_cold
+            - ezcat_cvs_refrigerate
+        fulfillment_ids:
+          description: 要列印的出貨紀錄 id。
+          type: array
+          items:
+            type: integer
+    Date:
+      description: 日期，寫作 `YYYY-MM-DD`。
+      type: string
+      pattern: ^\d{4}-\d{2}-\d{2}$
+      examples:
+        - "1990-01-01"
+    Error:
+      description: '錯誤封裝。CYBERBIZ 有四種格式：`{"error": ["..."]}`、`{"error": "..."}`、`{"message": "..."}` 與 `{"messages": "..."}`；訊息為繁體中文或英文。'
+      type: object
+      properties:
+        error:
+          description: 一則或多則錯誤訊息。
+          anyOf:
+            - type: array
+              items:
+                type: string
+            - type: string
+        message:
+          description: 單一錯誤訊息（部分端點的 422）。
+          type: string
+        messages:
+          description: 單一錯誤訊息（部分端點的 403）。
+          type: string
+    InventoryBatchUpdate:
+      type: object
+      required:
+        - store_number
+        - items
+      properties:
+        store_number:
+          description: 門市店號。
+          type: string
+        items:
+          description: 子項目（遞迴）。
+          type: array
+          items:
+            type: object
+            required:
+              - sku
+              - inventory_quantity
+            properties:
+              sku:
+                description: SKU。
+                type: string
+              inventory_quantity:
+                description: 要設定的庫存數量。
+                type: integer
+    InventoryJobQueued:
+      type: object
+      properties:
+        job_id:
+          description: 工作 id。
+          type: string
+        status:
+          description: 狀態。
+          type: string
+        message:
+          description: 訊息。
+          type: string
+        store_number:
+          description: 門市店號。
+          type: string
+        total_items:
+          $ref: '#/components/schemas/Money'
+          description: 工作中的項目數。
+    InventoryJobStatus:
+      type: object
+      properties:
+        job_id:
+          description: 工作 id。
+          type: string
+        status:
+          description: 狀態。
+          type: string
+          enum:
+            - QUEUE
+            - QUEUED
+            - PROCESSING
+            - SUCCESS
+            - FAILED
+        message:
+          description: 訊息。
+          type: string
+        created_at:
+          description: 建立時間。格式 `YYYY-MM-DD HH:MM:SS +0800`。
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        completed_at:
+          description: 完成時間，`YYYY-MM-DD HH:MM:SS +0800`。
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        result:
+          description: 工作完成後的結果。
+          type:
+            - object
+            - "null"
+          properties:
+            total:
+              $ref: '#/components/schemas/Money'
+              description: 處理的項目數。
+            succeeded:
+              description: 更新成功的項目數。
+              type: integer
+            failed:
+              description: 失敗的項目數。
+              type: integer
+            failed_items:
+              description: 失敗的項目及原因。
+              type: array
+              items:
+                type: object
+                properties:
+                  sku:
+                    description: SKU。
+                    type: string
+                  error:
+                    description: 錯誤。
+                    type: string
+        error:
+          description: '`status` 為 `FAILED` 時的失敗原因。'
+          type:
+            - string
+            - "null"
+    LineItemV2:
+      type: object
+      properties:
+        id:
+          description: id。
+          type: integer
+        product_id:
+          description: 商品 id。
+          type: integer
+        product_variant_id:
+          description: 商品款式 id。
+          type: integer
+        title:
+          description: 標題。
+          type: string
+        variant_title:
+          description: 款式名稱。
+          type: string
+        sku:
+          description: SKU。
+          type: string
+        qc:
+          description: 廠商編號。
+          type:
+            - string
+            - "null"
+        vendor:
+          description: 廠商。
+          type:
+            - string
+            - "null"
+        price:
+          $ref: '#/components/schemas/Money'
+          description: 單價。
+        cost:
+          description: 單位成本。
+          anyOf:
+            - $ref: '#/components/schemas/Money'
+            - type: "null"
+        quantity:
+          description: 數量。
+          type: integer
+        item_type:
+          description: 項目類型，例如 `normal`。
+          type: string
+        discount_name:
+          description: 折扣名稱。
+          type: string
+        discounts:
+          description: 折扣拆項。
+          type: array
+          items:
+            $ref: '#/components/schemas/Money'
+        total_price_before_discounts:
+          $ref: '#/components/schemas/Money'
+          description: 折扣前總金額。
+        total_discount:
+          $ref: '#/components/schemas/Money'
+          description: 總折扣金額。
+        total_price_after_discounts:
+          $ref: '#/components/schemas/Money'
+          description: 折扣後總金額。
+        tax_type_id:
+          description: 課稅類別：`inclusive_tax`（應稅）、`zero_tax`（零稅率）、`exclusive_tax`（免稅）。
+          type: string
+          enum:
+            - inclusive_tax
+            - zero_tax
+            - exclusive_tax
+        bonus_redemption_price:
+          description: 此項目兌換的紅利點數；非紅利兌換時為 null。
+          anyOf:
+            - $ref: '#/components/schemas/Money'
+            - type: "null"
+        related_items:
+          description: 組合品的子商品資訊。
+          type: array
+          items:
+            type: string
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 建立時間。
+    Menu:
+      type: object
+      properties:
+        id:
+          description: id。
+          type: integer
+        title:
+          description: 標題。
+          type: string
+        system_default:
+          description: 是否為系統預設選單。
+          type: boolean
+        items:
+          description: 子項目（遞迴）。
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuItem'
+    MenuItem:
+      type: object
+      properties:
+        id:
+          description: id。
+          type: integer
+        title:
+          description: 標題。
+          type: string
+        subject_handle:
+          description: 連結對象（商品、頁面、群組）的 handle，若有。
+          type:
+            - string
+            - "null"
+        url:
+          description: 連結網址。
+          type: string
+        position:
+          description: 順序（從 1 起算）。
+          type: integer
+        subtitle:
+          description: 副標題。
+          type:
+            - string
+            - "null"
+        icon_image_url:
+          description: 圖示網址。
+          type:
+            - string
+            - "null"
+        item_type:
+          description: 項目類型；曾見的值：`frontpage`、`collections_all`、`http`、`product`、`contact`、`page`。
+          type: string
+        level:
+          description: 巢狀層級（1 = 最上層）。
+          type: integer
+        items:
+          description: 子項目（遞迴）。
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuItem'
+        end_at:
+          description: 只觀察到 null；型別不明。
+          x-cyberbiz-observed: true
+        start_at:
+          description: 實際回應中觀察到；CYBERBIZ swagger 未記載。
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+          x-cyberbiz-observed: true
+    MenuSummary:
+      type: object
+      properties:
+        id:
+          description: id。
+          type: integer
+        title:
+          description: 標題。
+          type: string
+        system_default:
+          description: 是否為系統預設選單。
+          type: boolean
+    Money:
+      description: 以商店幣別（TWD）計的金額，序列化為 JSON 數字，通常帶一位小數（`9999.0`）。部分欄位會出現整數；所有金額欄位皆應視為小數。
+      type: number
+      examples:
+        - 9999
+    OrderBuyer:
+      type: object
+      properties:
+        email:
+          description: Email。
+          type: string
+        mobile:
+          type: string
+    OrderPrices:
+      type: object
+      properties:
+        total_line_items_price:
+          $ref: '#/components/schemas/Money'
+          description: 商品總金額。
+        shipping_rate_price:
+          $ref: '#/components/schemas/Money'
+          description: 運費。
+        discounts:
+          description: 折扣拆項。
+          type: object
+          properties:
+            special_collection_discount:
+              $ref: '#/components/schemas/Money'
+              description: 行銷活動（任選折扣）折扣。
+            vip_discount:
+              $ref: '#/components/schemas/Money'
+              description: VIP 折扣。
+            shop_discount:
+              description: 全館折扣明細。
+              anyOf:
+                - $ref: '#/components/schemas/Money'
+                - type: "null"
+            coupon_discount:
+              description: 優惠券明細（單個，已棄用）。
+              anyOf:
+                - $ref: '#/components/schemas/Money'
+                - type: "null"
+            coupon_discounts:
+              description: 優惠券明細。
+              type: array
+              items:
+                $ref: '#/components/schemas/Money'
+            bonus_consumed:
+              $ref: '#/components/schemas/Money'
+              description: 紅利折抵。
+            vip_shipping_discount:
+              $ref: '#/components/schemas/Money'
+              description: VIP 運費折扣。
+            coupon_shipping_discount:
+              $ref: '#/components/schemas/Money'
+              description: 免運券運費折扣。
+            price_discount:
+              $ref: '#/components/schemas/Money'
+              description: 店長折扣。
+        total_price:
+          $ref: '#/components/schemas/Money'
+          description: 訂單總金額。
+    OrderStatuses:
+      type: object
+      properties:
+        order_status:
+          description: 訂單狀態：`open`（進行中）、`closed`（已結案）、`cancelled`（已取消）。
+          type: string
+          enum:
+            - open
+            - closed
+            - cancelled
+        financial_status:
+          description: 付款狀態：`paid`（已收到款項）、`pending`（等待付款）、`cod`（貨到付款）、`failed`（付款失敗）、`abandoned`（顧客棄單）、`refunded`（已退款）、`no_refunded`（不退款）、`pending_refund`（待退款）、`processing`（客服處理中）、`remitted`（已回填帳號未收款）、`pending_partial_refund`（待部分退款）、`partial_refunded`（部分退款）、`refunding`（退款中）、`refund_failed`（退款失敗）。篩選用的 `except_abandoned_order` 與 `all_financial_status` 只是查詢輔助值，不是狀態。
+          type: string
+          enum:
+            - paid
+            - pending
+            - cod
+            - failed
+            - abandoned
+            - refunded
+            - no_refunded
+            - pending_refund
+            - processing
+            - remitted
+            - pending_partial_refund
+            - partial_refunded
+            - refunding
+            - refund_failed
+        fulfillment_status:
+          description: 配送狀態：`unshipped`（未出貨）、`preparing`（準備出貨）、`cancel`（取消出貨）、`fulfilled`（已出貨）、`partial`（部分出貨）、`arrived`（已到店）、`received`（已收貨）、`returned`（已退貨）、`expired`（逾期未取）、`problem`（運送異常）、`no_need`（不需出貨）。
+          type: string
+          enum:
+            - unshipped
+            - preparing
+            - cancel
+            - fulfilled
+            - partial
+            - arrived
+            - received
+            - returned
+            - expired
+            - problem
+            - no_need
+        return_status:
+          description: 退貨狀態：`no_need`（不需退貨）、`request_return`（退貨申請）、`returning`（退貨中）、`checking`（退貨審查）、`returned`（已退貨）、`in_hub`（轉運中心）、`problem`（運送異常）、`processing`（客服處理中）、`in_origin_cvs`（原寄件門市）、`refused`（拒絕退貨）、`partial_return`（部分退貨）。
+          type: string
+          enum:
+            - no_need
+            - request_return
+            - returning
+            - checking
+            - returned
+            - in_hub
+            - problem
+            - processing
+            - in_origin_cvs
+            - refused
+            - partial_return
+    OrderTimings:
+      type: object
+      properties:
+        request_return_at:
+          description: 申請退貨時間。
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        return_at:
+          description: 退貨時間。
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        refund_at:
+          description: 退款時間。
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        closed_at:
+          description: 結案時間。
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        cancelled_at:
+          description: 取消時間。
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        expired_at:
+          description: 逾期未取時間。
+          anyOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: "null"
+        confirmed_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 認單時間。
+    Page:
+      type: object
+      properties:
+        id:
+          description: id。
+          type: integer
+        title:
+          description: 標題。
+          type: string
+        handle:
+          description: 網址代碼（handle）。
+          type: string
+        status:
+          description: 狀態。
+          type: string
+          enum:
+            - published
+            - unpublished
+        html_infos:
+          description: '頁面 HTML 區塊，為 section id 對應 section 內容的 JSON **字串**；解析後得到 `{section_id: section_content}`。'
+          type: string
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 建立時間。
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 更新時間。
+    PageCreate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          description: 標題。
+          type: string
+    PageUpdate:
+      type: object
+      properties:
+        title:
+          description: 標題。
+          type: string
+        handle:
+          description: 網址代碼（handle）。
+          type: string
+        status:
+          description: 狀態。
+          type: string
+          enum:
+            - published
+            - unpublished
+        section_id:
+          description: 自訂 HTML 區塊 id，例如 `1714492800_app_store_api`。
+          type: string
+        section_content:
+          description: 自訂 HTML 區塊內容，為 JSON 字串：先將 HTML 做 unicode-escape，再 JSON 編碼。
+          type: string
+    ProductFeed:
+      type: object
+      properties:
+        name:
+          description: 名稱。
+          type: string
+          enum:
+            - facebook
+            - google
+            - shopdotcom
+            - line
+        url:
+          description: 連結網址。
+          type: string
+        mime_type:
+          description: feed 的 MIME 類型（`text/csv`、`text/xml`、`application/json`）。
+          type: string
+    ProductFeedsEnvelope:
+      type: object
+      properties:
+        product_feeds:
+          description: 商品 feed，每個平台一筆。
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductFeed'
+    ProductOptionV2:
+      type: object
+      properties:
+        name:
+          description: 名稱。
+          type: string
+        position:
+          description: 順序（從 1 起算）。
+          type: integer
+        types:
+          type: string
+        id:
+          description: id。
+          type: integer
+    ProductSearchRequest:
+      type: object
+      properties:
+        q:
+          description: 搜尋文字（商品名稱模糊比對）。
+          type: string
+        limit:
+          description: 最大回傳筆數。
+          type: integer
+        offset:
+          description: 起始位置。
+          type: integer
+        filter_published:
+          description: 只回傳已上架商品（預設 true）；`false` 會包含未上架商品。
+          type: boolean
+          default: true
+        vendors:
+          description: 廠商篩選。
+          type: array
+          items:
+            type: string
+        product_types:
+          description: 商品類型篩選。
+          type: array
+          items:
+            type: string
+        tags:
+          description: 標籤篩選。
+          type: array
+          items:
+            type: string
+        store_types:
+          description: 店型篩選：`1` EC、`2` POS、`4` 門市。
+          type: array
+          items:
+            type: integer
+            enum:
+              - 1
+              - 2
+              - 4
+        filter_branch_store:
+          description: 只回傳門市商品。
+          type: boolean
+        filter_on_sell:
+          description: 只回傳販售中的商品。
+          type: boolean
+        ids:
+          description: 會員 id 列表。
+          type: array
+          items:
+            type: integer
+        exclude_tags:
+          description: 要排除的標籤。
+          type: array
+          items:
+            type: string
+        skus:
+          description: SKU 篩選（客製功能）。
+          type: array
+          items:
+            type: string
+        branch_stores:
+          description: 門市 id（客製功能）。
+          type: array
+          items:
+            type: integer
+        store_nos:
+          description: 門市店號（客製功能）。
+          type: array
+          items:
+            type: string
+    ProductSearchResult:
+      type: object
+      properties:
+        products:
+          description: 商品。
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductV2'
+        total_count:
+          description: 符合的商品總數。
+          type: integer
+        total_pages:
+          $ref: '#/components/schemas/Money'
+          description: 依指定 `limit` 計算的總頁數。
+    ProductV2:
+      type: object
+      properties:
+        id:
+          description: id。
+          type: integer
+        title:
+          description: 標題。
+          type: string
+        handle:
+          description: 網址代碼（handle）。
+          type: string
+        english_title:
+          type:
+            - string
+            - "null"
+        product_url:
+          type: string
+        published:
+          description: 是否公開。
+          type: boolean
+        sell_from:
+          type:
+            - string
+            - "null"
+        sell_to:
+          type:
+            - string
+            - "null"
+        product_type:
+          type:
+            - string
+            - "null"
+        product_type_code:
+          type:
+            - string
+            - "null"
+        slogan:
+          type: string
+        brief:
+          type: string
+        brief_text:
+          type:
+            - string
+            - "null"
+        brief_includes_html:
+          type: boolean
+        body_html:
+          description: HTML 內文。
+          type: string
+        vendor:
+          description: 廠商。
+          type:
+            - string
+            - "null"
+        price:
+          $ref: '#/components/schemas/Money'
+          description: 單價。
+        sell_weight:
+          type: integer
+        tax_type_id:
+          description: 課稅類別：`inclusive_tax`（應稅）、`zero_tax`（零稅率）、`exclusive_tax`（免稅）。
+          type: string
+          enum:
+            - inclusive_tax
+            - zero_tax
+            - exclusive_tax
+        custom_collections:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomCollectionV2'
+        special_collection:
+          type:
+            - object
+            - "null"
+          additionalProperties: true
+        tags:
+          description: 標籤篩選。
+          type: array
+          items:
+            type: string
+        product_variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductVariantV2'
+        product_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductOptionV2'
+        pos_shop:
+          type:
+            - object
+            - "null"
+          additionalProperties: true
+        photo_urls:
+          description: 照片網址。
+          type: array
+          items:
+            type: string
+        related_collections:
+          type: array
+          items:
+            type: string
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 建立時間。
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 更新時間。
+        temperature_types:
+          description: 溫層，例如 `常溫`。
+          type: array
+          items:
+            type: string
+        searchable:
+          type: boolean
+        google_product_category_id:
+          type:
+            - integer
+            - "null"
+        seo_meta_tags:
+          description: SEO 標籤。
+          type: object
+          properties:
+            title:
+              description: 標題。
+              type:
+                - string
+                - "null"
+            description:
+              type:
+                - string
+                - "null"
+            keywords:
+              type:
+                - string
+                - "null"
+    ProductVariantV2:
+      type: object
+      properties:
+        product_id:
+          description: 商品 id。
+          type: integer
+        name:
+          description: 名稱。
+          type: string
+        position:
+          description: 順序（從 1 起算）。
+          type: integer
+        price:
+          $ref: '#/components/schemas/Money'
+          description: 單價。
+        cost:
+          description: 單位成本。
+          anyOf:
+            - $ref: '#/components/schemas/Money'
+            - type: "null"
+        compare_at_price:
+          $ref: '#/components/schemas/Money'
+        meas:
+          type: number
+        max_usable_bonus:
+          $ref: '#/components/schemas/Money'
+        weight:
+          type: number
+        option1:
+          type: string
+        option2:
+          type: string
+        option3:
+          type:
+            - string
+            - "null"
+        inventory_management:
+          type: boolean
+        inventory_quantity:
+          description: 要設定的庫存數量。
+          type:
+            - integer
+            - "null"
+        sold:
+          type: integer
+        safety_inventory_quantity:
+          type:
+            - integer
+            - "null"
+        inventory_policy:
+          type: string
+        sku:
+          description: SKU。
+          type: string
+        qc:
+          description: 廠商編號。
+          type:
+            - string
+            - "null"
+        requires_shipping:
+          type: boolean
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 建立時間。
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 更新時間。
+        honeycomb_sync:
+          type: boolean
+        vendor:
+          description: 廠商。
+          type:
+            - string
+            - "null"
+        id:
+          description: id。
+          type: integer
+        photo_urls:
+          description: 照片網址。
+          type: array
+          items:
+            type: string
+    ShopAddOnEnvelope:
+      type: object
+      properties:
+        shop_add_on:
+          description: app 在此商店的安裝資訊。
+          type: object
+          properties:
+            id:
+              description: id。
+              type: integer
+            settings:
+              description: app 的設定值，以欄位名稱為 key（manifest `setting_fields` 所宣告）；`PUT /settings` 時為要設定的 `{field, data}` 列表。
+              type: object
+              additionalProperties: true
+            vendor_type:
+              description: App vendor 名稱。
+              type: string
+            token:
+              description: app 安裝的 token。
+              type: string
+            start_at:
+              anyOf:
+                - $ref: '#/components/schemas/Timestamp'
+                - type: "null"
+            end_at:
+              anyOf:
+                - $ref: '#/components/schemas/Timestamp'
+                - type: "null"
+            add_on_version:
+              description: 已安裝的 app 版本。
+              type: object
+              properties:
+                webhook_url:
+                  description: app 註冊的 webhook 網址。
+                  type: string
+                manifest:
+                  description: app manifest。
+                  type: object
+                  properties:
+                    name:
+                      description: 名稱。
+                      type: string
+                    version:
+                      description: app 版本。
+                      type: string
+                    scopes:
+                      description: 授予的權限範圍，以空格分隔。
+                      type: string
+                    manifest_version:
+                      description: manifest 版本。
+                      type: integer
+                    type:
+                      description: 交易類型：`topup`（儲值）、`consumption`（消費）、`refund`（退儲值金）、`cancel_order`（訂單取消退還）、`bonus`。
+                      type: string
+                    webhook_events:
+                      description: app 訂閱的事件。
+                      type: array
+                      items:
+                        type: string
+                embedded:
+                  description: app 是否內嵌於後台。
+                  type: boolean
+                status:
+                  description: 狀態。
+                  type: string
+                scopes:
+                  description: 授予的權限範圍，以空格分隔。
+                  type: string
+    ShopAddOnSettingsUpdate:
+      type: object
+      required:
+        - settings
+      properties:
+        settings:
+          description: app 的設定值，以欄位名稱為 key（manifest `setting_fields` 所宣告）；`PUT /settings` 時為要設定的 `{field, data}` 列表。
+          type: array
+          items:
+            type: object
+            required:
+              - field
+              - data
+            properties:
+              field:
+                description: manifest 中宣告的設定欄位名稱。
+                type: string
+              data:
+                description: 設定值。
+                type: string
+    ShopAddOnUpdatedEnvelope:
+      type: object
+      properties:
+        shop_add_on:
+          description: app 在此商店的安裝資訊。
+          type: object
+          properties:
+            id:
+              description: id。
+              type: integer
+            settings:
+              description: app 的設定值，以欄位名稱為 key（manifest `setting_fields` 所宣告）；`PUT /settings` 時為要設定的 `{field, data}` 列表。
+              type: object
+              additionalProperties: true
+            vendor_type:
+              description: App vendor 名稱。
+              type: string
+            token:
+              description: app 安裝的 token。
+              type: string
+            start_at:
+              description: 生效時間。
+              anyOf:
+                - $ref: '#/components/schemas/Timestamp'
+                - type: "null"
+            end_at:
+              description: 失效時間。
+              anyOf:
+                - $ref: '#/components/schemas/Timestamp'
+                - type: "null"
+    ShopEmails:
+      type: object
+      properties:
+        shop_email:
+          description: 商店的 email。
+          type: string
+        subscribes:
+          description: 訂閱商店通知的 email。
+          type: array
+          items:
+            type: string
+    ShopInfoEnvelope:
+      type: object
+      properties:
+        shop_info:
+          description: 商店。
+          type: object
+          properties:
+            primary_domain:
+              description: 商店的主網域。
+              type: string
+            name:
+              description: 名稱。
+              type: string
+            id:
+              description: id。
+              type: integer
+            email:
+              description: Email。
+              type: string
+            og_image_url:
+              description: Open Graph 圖片網址。
+              type: string
+            shop_line_chat_bot:
+              description: LINE 聊天機器人設定（`bot_id`），未設定時為 null。
+              type:
+                - object
+                - "null"
+              additionalProperties: true
+            shop_line:
+              description: LINE 登入／LIFF 設定。
+              type: object
+              properties:
+                login_enable:
+                  description: 是否啟用 LINE 登入。
+                  type: boolean
+                liff_id:
+                  description: LIFF app id。
+                  type:
+                    - integer
+                    - "null"
+                liff_enable:
+                  description: 是否啟用 LIFF。
+                  type: boolean
+            language:
+              description: 前台語言，例如 `zh-TW`。
+              type: string
+            currency:
+              description: 幣別；目前固定為 `TWD`。
+              type: string
+            sms_prefix:
+              description: 簡訊前綴。
+              type: string
+            merchant_location:
+              description: 商家所在地。
+              type: string
+            market_location:
+              description: 市場所在地。
+              type: string
+    SmartCollectionRuleV2:
+      type: object
+      properties:
+        id:
+          description: id。
+          type: integer
+        filter:
+          description: 可讀的規則文字，例如 `商品價格 小於 1000`。
+          type: string
+    SmartCollectionV2:
+      type: object
+      properties:
+        title:
+          description: 標題。
+          type: string
+        handle:
+          description: 網址代碼（handle）。
+          type: string
+        published:
+          description: 是否公開。
+          type: boolean
+        body_html:
+          description: HTML 內文。
+          type:
+            - string
+            - "null"
+        position:
+          description: 順序（從 1 起算）。
+          type: integer
+        rules:
+          description: 自動篩選規則。
+          type: array
+          items:
+            $ref: '#/components/schemas/SmartCollectionRuleV2'
+        products:
+          description: 商品。
+          type: array
+          items:
+            $ref: '#/components/schemas/CollectionProductV2'
+        id:
+          description: id。
+          type: integer
+    SupportShippingCreate:
+      type: object
+      required:
+        - shipping_type
+        - shipping_orders
+      properties:
+        shipping_type:
+          description: 配送方式代碼。
+          type: string
+          enum:
+            - ezcat
+            - sf
+            - pelican
+            - hct
+        size:
+          description: 包裹尺寸：黑貓快速到店為 `60`／`90`／`105`；宅配為 `60`／`90`／`120`／`150`。
+          type: integer
+          enum:
+            - 60
+            - 90
+            - 120
+            - 150
+        fridge_or_frozen:
+          description: '`none`、`fridge` 或 `frozen`；`sf` 與 `hct` 不支援。'
+          type: string
+          enum:
+            - none
+            - fridge
+            - frozen
+        is_fragile:
+          description: 易碎標記；`sf` 與 `hct` 不支援。
+          type: boolean
+        temperature:
+          description: '`normal` 或 `cold`。'
+          type: string
+          enum:
+            - normal
+            - cold
+        use_transfer:
+          description: 優先使用可轉單之單號；`sf` 與 `hct` 不支援。
+          type: boolean
+        shipping_orders:
+          description: 要出貨的訂單與商品項目。
+          type: array
+          items:
+            type: object
+            required:
+              - order_id
+              - line_item_ids
+            properties:
+              order_id:
+                description: 訂單 id。
+                type: integer
+              line_item_ids:
+                description: 要包含的訂單商品項目 id。
+                type: array
+                items:
+                  type: integer
+    SupportShippingLabelsRequest:
+      type: object
+      required:
+        - shipping_type
+        - order_ids
+      properties:
+        shipping_type:
+          description: 配送方式代碼。
+          type: string
+          enum:
+            - ezcat
+            - sf
+            - pelican
+            - hct
+        print_type:
+          description: 僅新竹物流：`normal` 或 `thermal`。
+          type: string
+          enum:
+            - normal
+            - thermal
+        order_ids:
+          description: 要列印的訂單 id（僅批次）。
+          type: array
+          items:
+            type: integer
+    SupportShippingResult:
+      type: object
+      properties:
+        failed_orders:
+          description: 無法出貨的訂單及原因。
+          type: array
+          items:
+            type: object
+            properties:
+              order_id:
+                description: 訂單 id。
+                type: integer
+              message:
+                description: 訊息。
+                type: string
+        fulfillments:
+          description: 成功訂單所建立的出貨紀錄。
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: id。
+                type: integer
+              order_id:
+                description: 訂單 id。
+                type: integer
+              tracking_number:
+                description: 物流追蹤單號。
+                type: string
+              tracking_company:
+                description: 物流商代碼。
+                type: string
+    Timestamp:
+      description: Asia/Taipei 當地時間，寫作 `YYYY-MM-DD HH:MM:SS`，不含時區（v2 端點偶爾為 `YYYY-MM-DD HH:MM:SS +0800` 或 `YYYY-MM-DD HH:MM+0800`）。請以 Asia/Taipei 解析，絕不可當作 UTC。
+      type: string
+      pattern: ^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?( ?\+0800)?$
+      examples:
+        - "2026-09-01 10:00:00"
+    UidProvider:
+      type: object
+      properties:
+        provider_type:
+          description: Provider 類型：`line`、`line_at`、`facebook` 等（`uid_providers` 項目上；查詢參數為 `provider`）。
+          type: string
+        uid:
+          description: 分潤使用者 id（前台造訪時的 `uid` 參數）。
+          type: string
+    VipInfo:
+      type: object
+      properties:
+        customer_id:
+          description: 會員 id。
+          type: integer
+        current_group:
+          description: 當前 VIP 群組。
+          type:
+            - string
+            - "null"
+        current_level:
+          description: 當前 VIP 層級。
+          type:
+            - string
+            - "null"
+        next_level:
+          description: 下一個 VIP 層級。
+          type:
+            - string
+            - "null"
+        extra_info:
+          description: 額外資訊。
+          type: object
+          properties:
+            start_at:
+              description: 生效時間。
+              anyOf:
+                - $ref: '#/components/schemas/Timestamp'
+                - type: "null"
+            end_at:
+              description: 失效時間。
+              anyOf:
+                - $ref: '#/components/schemas/Timestamp'
+                - type: "null"
+            difference_of_total_spent_in_validity_days_for_renewal:
+              description: 續會條件差額（期間內累計金額）。
+              anyOf:
+                - $ref: '#/components/schemas/Money'
+                - type: "null"
+            difference_of_total_spent_for_renewal:
+              description: 續會條件差額（單筆消費金額）。
+              anyOf:
+                - $ref: '#/components/schemas/Money'
+                - type: "null"
+            difference_of_total_spent_in_validity_days_for_upgrade:
+              description: 升等條件差額（期間內累計金額）。
+              anyOf:
+                - $ref: '#/components/schemas/Money'
+                - type: "null"
+            difference_of_total_spent_for_upgrade:
+              description: 升等條件差額（單筆消費金額）。
+              anyOf:
+                - $ref: '#/components/schemas/Money'
+                - type: "null"
+    WalletBalance:
+      type: object
+      properties:
+        balance:
+          $ref: '#/components/schemas/Money'
+          description: 儲值金餘額（TWD）。
+        currency:
+          description: 幣別；目前固定為 `TWD`。
+          type: string
+    WalletEinvoice:
+      type: object
+      properties:
+        title:
+          description: 標題。
+          type: string
+        company_no:
+          description: 發票統編。
+          type: string
+        invoice_no:
+          description: 發票號碼；紙本或未開立時為 null。
+          type: string
+        invoice_status:
+          description: 發票狀態：`null`（未開立）、`issue`（開立）、`issue_invalid`（作廢）、`allowance`（折讓）、`partial_allowance`（部分折讓）。
+          type: string
+          enum:
+            - issue
+            - issue_invalid
+            - allowance
+            - partial_allowance
+        invoice_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 開立時間。
+        invalid_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 作廢時間。
+        random_num:
+          description: 隨機碼。
+          type: string
+        invoice_type:
+          description: 發票類型：`default`（一般電子發票）、`company`（公司戶）、`phone_barcode`（手機條碼載具）、`nature_person`（自然人憑證）、`donate`（捐贈）、`paper_invoice`（紙本發票，號碼在 `paper_invoice_no`）。
+          type: string
+          enum:
+            - default
+            - company
+            - phone_barcode
+            - nature_person
+            - donate
+            - paper_invoice
+        love_code:
+          description: 捐贈碼。
+          type: string
+        phone_barcode:
+          description: 手機條碼載具。
+          type: string
+        nature_person:
+          description: 自然人憑證載具。
+          type: string
+    WalletTransaction:
+      type: object
+      properties:
+        type:
+          description: 交易類型：`topup`（儲值）、`consumption`（消費）、`refund`（退儲值金）、`cancel_order`（訂單取消退還）、`bonus`。
+          type: string
+          enum:
+            - topup
+            - consumption
+            - refund
+            - cancel_order
+            - bonus
+        amount:
+          $ref: '#/components/schemas/Money'
+          description: 金額；正數為餘額增加（儲值、訂單取消），負數為減少（消費、退儲值金）。
+        balance_after:
+          $ref: '#/components/schemas/Money'
+          description: 交易後餘額。
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: 建立時間。
+        payment_name:
+          description: 付款方式名稱（例如 `現金`）；僅 `topup` 與 `refund` 有。
+          type:
+            - string
+            - "null"
+        invalid_einvoices:
+          description: 作廢的發票（僅 `refund`）。
+          type: array
+          items:
+            $ref: '#/components/schemas/WalletEinvoice'
+        allowance_einvoices:
+          description: 折讓發票（僅 `refund`）。
+          type: array
+          items:
+            $ref: '#/components/schemas/WalletEinvoice'
+        financial_status:
+          description: 儲值付款狀態：`paid`（已付款）、`failed`（付款失敗）、`timeout`（處理中）、`pending`（待付款）。
+          type: string
+          enum:
+            - paid
+            - failed
+            - timeout
+            - pending
+        einvoice:
+          $ref: '#/components/schemas/WalletEinvoice'
+          description: 儲值的發票（僅 `topup`）。
+        paper_invoice_no:
+          description: '`invoice_type` 為 `paper_invoice` 時的紙本發票號碼。'
+          type:
+            - string
+            - "null"

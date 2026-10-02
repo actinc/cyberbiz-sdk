@@ -1,0 +1,11 @@
+{
+  "enabled": true,
+  "signup_bonus": 0.0,
+  "consumption_price": 50.0,
+  "consumption_bonus": 1.0,
+  "expire_day": 0,
+  "threshold_of_total_price": 0.0,
+  "usage_limit_type": "amount",
+  "usage_limit_value": 10.0,
+  "conversion_bonus": 1
+}

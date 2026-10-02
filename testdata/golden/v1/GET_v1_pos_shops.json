@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1446,
+    "name": "REDACTED",
+    "phone": "0912345678",
+    "county": "台北市",
+    "district": "松山區",
+    "address": "",
+    "VAT_number": "REDACTED",
+    "deadline": "2026-10-01",
+    "can_find_others_order": true,
+    "can_access_customers": true
+  },
+  {
+    "id": 1554,
+    "name": "REDACTED",
+    "phone": "",
+    "county": "台北市",
+    "district": "中正區",
+    "address": "",
+    "VAT_number": "REDACTED",
+    "deadline": "2026-12-19",
+    "can_find_others_order": true,
+    "can_access_customers": true
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "id": 750001, "product_id": 700001, "name": "Sample Product 1", "position": 1,
+  "price": 960.0, "cost": 400.0, "compare_at_price": 1200.0, "meas": 0.0, "max_usable_bonus": 50.0, "weight": 0.5,
+  "option1": "Default", "option2": null, "option3": null,
+  "inventory_management": true, "inventory_quantity": 24, "sold": 13, "safety_inventory_quantity": 5,
+  "inventory_policy": "deny", "sku": "SKU-1", "qc": "QC-1", "requires_shipping": true, "honeycomb_sync": false,
+  "vendor": null, "photo_urls": ["/media/sample-1.png"],
+  "pim_infos": [{"id": 1, "product_id": 700001, "product_variant_id": 750001, "pim_product_id": 91, "pim_variant_id": 92, "channel": 3, "channel_shop_name": "Sample Channel", "is_connected": true, "is_source": false, "shop_id": 17}],
+  "created_at": "2026-01-01 10:00:00", "updated_at": "2026-01-09 13:12:00"
+}

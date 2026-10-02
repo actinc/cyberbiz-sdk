@@ -1,0 +1,14 @@
+{
+  "customer_id": 23300813,
+  "current_group": null,
+  "current_level": null,
+  "next_level": null,
+  "extra_info": {
+    "start_at": null,
+    "end_at": null,
+    "difference_of_total_spent_in_validity_days_for_renewal": null,
+    "difference_of_total_spent_for_renewal": null,
+    "difference_of_total_spent_in_validity_days_for_upgrade": null,
+    "difference_of_total_spent_for_upgrade": null
+  }
+}

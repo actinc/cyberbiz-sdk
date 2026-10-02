@@ -1,0 +1,35 @@
+{
+  "id": 87314,
+  "pos_shop_name": "官網",
+  "source_shop_name": "商家 1",
+  "barcode": "調倉單00087314_2025年12月19日16點06分16秒",
+  "status": "done",
+  "items": [
+    {
+      "sku": "SKU-8102e6",
+      "qc": null,
+      "name": "REDACTED",
+      "quantity": 3
+    },
+    {
+      "sku": "SKU-541a0f",
+      "qc": null,
+      "name": "REDACTED",
+      "quantity": 4
+    },
+    {
+      "sku": "SKU-4ed9b6",
+      "qc": null,
+      "name": "REDACTED",
+      "quantity": 5
+    },
+    {
+      "sku": "SKU-b17d99",
+      "qc": null,
+      "name": "REDACTED",
+      "quantity": 1
+    }
+  ],
+  "created_at": "2025-12-19 16:06:16",
+  "comment": ""
+}

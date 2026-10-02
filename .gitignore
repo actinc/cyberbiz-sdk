@@ -1,0 +1,34 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Go
+bin/
+dist/
+*.test
+*.out
+coverage.*
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Local scratch
+.scratch/
+
+# Postman environments contain API keys; commit collections only
+*.postman_environment.json
+
+# Local reference material (not for the public repo)
+docs/references/
+go.work
+go.work.sum
+
+# The Go binary embeds console/internal/ui/dist, so the built UI is committed:
+# `go run ./cmd/console` must work from a fresh clone without Node.
+!console/internal/ui/dist/

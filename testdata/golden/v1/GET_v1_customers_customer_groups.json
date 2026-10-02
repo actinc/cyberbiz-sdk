@@ -1,0 +1,22 @@
+[
+  {
+    "id": 10693,
+    "name": "REDACTED",
+    "term": "",
+    "query": "rfm_recency_level_gte:4:ORFM 分數：最近購買日 (R) 大於或等於:4;rfm_recency_level_lte:5:ORFM 分數：最近購買日 (R) 小於或等於:5;rfm_frequency_level_gte:2:ORFM 分數：購買頻率 (F) 大於或等於:2;rfm_frequency_level_lte:3:ORFM 分數：購買頻率 (F) 小於或等於:3",
+    "amount": 0,
+    "group_type": "default",
+    "created_at": "2023-09-11 09:25:38",
+    "updated_at": "2024-02-19 15:52:28"
+  },
+  {
+    "id": 13217,
+    "name": "REDACTED",
+    "term": "",
+    "query": "cart_checkout_eq:3:加入購物車且未結帳天數 等於:3 天",
+    "amount": 0,
+    "group_type": "default",
+    "created_at": "2023-10-31 15:32:16",
+    "updated_at": "2024-02-19 15:53:14"
+  }
+]

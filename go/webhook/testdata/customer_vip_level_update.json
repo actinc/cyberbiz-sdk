@@ -1,0 +1,20 @@
+{
+  "customer_id": 900001,
+  "current_group": {
+    "id": 11, "name": "Sample VIP Group", "position": 1, "description_url": "https://shop.example.com/pages/vip", "customer_tags": ["vip"],
+    "vip_group_levels": [
+      {"id": 21, "position": 1, "name": "Silver", "validity_days": 365, "upgrade_condition_total_spent": 1000, "upgrade_condition_total_spent_in_validity_days": 3000, "renewal_condition_total_spent": 500, "renewal_condition_total_spent_in_validity_days": 1500, "bonus_point_enabled": true, "bonus_point_threshold": 100, "bonus_point_value": 1, "bonus_point_expiry_days": 365, "birth_gift_enabled": true, "birth_gift_name": "Birthday gift", "birth_gift_before_days": "7", "birth_gift_setting": {"bonus": {"enabled": true, "value": 100, "expiry_days": 30}, "coupon": {"enabled": false, "presets": null}}, "upgrade_gift_enabled": false, "upgrade_gift_setting": null, "order_discount_enabled": true, "order_discount_value": 95, "order_discount_setting": {}, "free_shipping_enabled": false, "free_shipping_setting": null},
+      {"id": 22, "position": 2, "name": "Gold", "validity_days": 365, "upgrade_condition_total_spent": 5000, "upgrade_condition_total_spent_in_validity_days": 10000, "renewal_condition_total_spent": 2000, "renewal_condition_total_spent_in_validity_days": 5000, "bonus_point_enabled": true, "bonus_point_threshold": 100, "bonus_point_value": 2, "bonus_point_expiry_days": 365, "birth_gift_enabled": true, "birth_gift_name": "Birthday gift", "birth_gift_before_days": "7", "birth_gift_setting": {"bonus": {"enabled": false, "value": 0, "expiry_days": 0}, "coupon": {"enabled": true, "presets": {"coupon_type_id": 1, "value": 200, "code": "GOLDBDAY", "order_price_threshold": 1000, "usable_days": 30, "usage_limit": 1, "product_tags": [], "restrict_strategy": "unrestricted", "restrict_campaigns": []}}}, "upgrade_gift_enabled": false, "upgrade_gift_setting": null, "order_discount_enabled": true, "order_discount_value": 90, "order_discount_setting": {}, "free_shipping_enabled": true, "free_shipping_setting": {}}
+    ]
+  },
+  "current_level": {"id": 21, "position": 1, "name": "Silver", "validity_days": 365, "upgrade_condition_total_spent": 1000, "upgrade_condition_total_spent_in_validity_days": 3000, "renewal_condition_total_spent": 500, "renewal_condition_total_spent_in_validity_days": 1500, "bonus_point_enabled": true, "bonus_point_threshold": 100, "bonus_point_value": 1, "bonus_point_expiry_days": 365, "birth_gift_enabled": true, "birth_gift_name": "Birthday gift", "birth_gift_before_days": "7", "birth_gift_setting": {"bonus": {"enabled": true, "value": 100, "expiry_days": 30}, "coupon": {"enabled": false, "presets": null}}, "upgrade_gift_enabled": false, "upgrade_gift_setting": null, "order_discount_enabled": true, "order_discount_value": 95, "order_discount_setting": {}, "free_shipping_enabled": false, "free_shipping_setting": null},
+  "next_level": {"id": 22, "position": 2, "name": "Gold", "validity_days": 365, "upgrade_condition_total_spent": 5000, "upgrade_condition_total_spent_in_validity_days": 10000, "renewal_condition_total_spent": 2000, "renewal_condition_total_spent_in_validity_days": 5000, "bonus_point_enabled": true, "bonus_point_threshold": 100, "bonus_point_value": 2, "bonus_point_expiry_days": 365, "birth_gift_enabled": true, "birth_gift_name": "Birthday gift", "birth_gift_before_days": "7", "birth_gift_setting": null, "upgrade_gift_enabled": false, "upgrade_gift_setting": null, "order_discount_enabled": true, "order_discount_value": 90, "order_discount_setting": {}, "free_shipping_enabled": true, "free_shipping_setting": {}},
+  "extra_info": {
+    "start_at": "2026-01-09 13:10:05",
+    "end_at": "2027-01-09 13:10:05",
+    "difference_of_total_spent_in_validity_days_for_renewal": 0,
+    "difference_of_total_spent_for_renewal": 0,
+    "difference_of_total_spent_in_validity_days_for_upgrade": 6520,
+    "difference_of_total_spent_for_upgrade": 4040
+  }
+}

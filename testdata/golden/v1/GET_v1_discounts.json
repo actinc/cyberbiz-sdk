@@ -1,0 +1,12 @@
+[
+  {
+    "name": "REDACTED",
+    "discount_type_name": "金額",
+    "discount_value": "5.0元",
+    "threshold": 10.0,
+    "start_at": null,
+    "end_at": null,
+    "sales_channel_id": 1,
+    "id": 72629
+  }
+]

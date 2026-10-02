@@ -1,0 +1,20 @@
+{
+  "shop_info": {
+    "primary_domain": "example.cyberbiz.co",
+    "name": "REDACTED",
+    "id": 26721,
+    "email": "redacted@example.com",
+    "og_image_url": "//cdn-general.cybassets.com/theme_src/beta_theme/default_img/og_image.jpg",
+    "shop_line_chat_bot": null,
+    "shop_line": {
+      "login_enable": true,
+      "liff_id": null,
+      "liff_enable": false
+    },
+    "language": "zh-TW",
+    "currency": "TWD",
+    "sms_prefix": "【CYBERBIZ代發】",
+    "merchant_location": "Taiwan",
+    "market_location": "Taiwan"
+  }
+}

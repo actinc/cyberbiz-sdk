@@ -1,0 +1,478 @@
+[
+  {
+    "id": 56943817,
+    "subtotal_price": 9999.0,
+    "created_at": "2026-09-07 12:35:05",
+    "updated_at": "2026-09-07 12:35:06",
+    "order_number": 1101,
+    "order_name": "#1101",
+    "customer": {
+      "name": "REDACTED",
+      "status": "enabled",
+      "email": "redacted@example.com",
+      "country_calling_code": null,
+      "mobile": "0912345678",
+      "enable_cvs_pickup": true,
+      "enable_cvs_cod": true,
+      "enable_home_delivery_cod": true,
+      "accepts_marketing": true,
+      "accepts_email_notification": true,
+      "tags": [],
+      "address": {
+        "company": null,
+        "country_calling_code": null,
+        "phone": "0912345678",
+        "address": "REDACTED",
+        "detail_address": {
+          "zip": "REDACTED",
+          "country": null,
+          "province": "",
+          "city": "REDACTED",
+          "district": "REDACTED",
+          "address1": "REDACTED",
+          "address2": null
+        }
+      },
+      "gender": "女",
+      "birthday": "1990-01-01",
+      "other_accumulated_consumption": 0,
+      "other_accumulated_consumption_expired_at": null,
+      "note": null,
+      "custom_fields": [],
+      "created_at": "2026-03-16 19:51:21",
+      "updated_at": "2026-09-07 12:39:06",
+      "confirmed_at": "2026-03-16 19:51:21",
+      "mobile_sms_confirmed_at": "2026-03-16 19:51:21",
+      "bonus_remain": 5000.0,
+      "uid_providers": [],
+      "id": 42058619
+    },
+    "buyer": {
+      "email": "redacted@example.com",
+      "mobile": null
+    },
+    "receiver": {
+      "name": "REDACTED",
+      "country_calling_code": null,
+      "phone": "0912345678",
+      "address": "REDACTED",
+      "detail_address": {
+        "zip": "REDACTED",
+        "country": null,
+        "province": null,
+        "city": "REDACTED",
+        "district": "REDACTED",
+        "address1": "REDACTED",
+        "address2": null
+      },
+      "cvs_store_id": null,
+      "allpay_logistics_id": null
+    },
+    "billing_address": {
+      "name": "REDACTED",
+      "country_calling_code": null,
+      "phone": "0912345678",
+      "address": "REDACTED",
+      "detail_address": {
+        "zip": "REDACTED",
+        "country": null,
+        "province": "",
+        "city": "REDACTED",
+        "district": "REDACTED",
+        "address1": "REDACTED",
+        "address2": null
+      }
+    },
+    "line_items": [
+      {
+        "id": 126360067,
+        "product_id": 68751035,
+        "product_variant_id": 83653695,
+        "title": "哥本組",
+        "variant_title": "",
+        "sku": null,
+        "qc": null,
+        "vendor": null,
+        "price": 9999.0,
+        "cost": null,
+        "quantity": 1,
+        "item_type": "normal",
+        "return_status": null,
+        "discount_name": "",
+        "discounts": [],
+        "total_price_before_discounts": 9999.0,
+        "total_discount": 0,
+        "total_price_after_discounts": 9999.0,
+        "tax_type_id": "inclusive_tax",
+        "bonus_redemption_price": null,
+        "related_items": [
+          {
+            "quantity": 1,
+            "items": [
+              {
+                "id": 83653662,
+                "product_id": 68751014,
+                "product_variant_id": 83653662,
+                "title": "哥本哈根28",
+                "variant_title": "哥本哈根28 - 人魚粉",
+                "sku": "SKU-a4eb96",
+                "qc": null,
+                "vendor": null,
+                "price": 14990.0,
+                "cost": null,
+                "quantity": 1,
+                "combo_product_price_difference": 9991,
+                "combo_product_price_diff_details": [
+                  9991
+                ]
+              },
+              {
+                "id": 83730772,
+                "product_id": 68786971,
+                "product_variant_id": 83730772,
+                "title": "哥本哈根28",
+                "variant_title": "哥本哈根28 - 杏仁奶白",
+                "sku": "SKU-d76be1",
+                "qc": null,
+                "vendor": null,
+                "price": 14990.0,
+                "cost": null,
+                "quantity": 1,
+                "combo_product_price_difference": 9990,
+                "combo_product_price_diff_details": [
+                  9990
+                ]
+              }
+            ]
+          }
+        ],
+        "created_at": "2026-09-07 12:35:06",
+        "channel": null,
+        "weight": 0.0,
+        "photo": "/media/W1siZiIsIjI2NzIxL3Byb2R1Y3RzLzY4NzUxMDM1LzE3ODEwODI3NzFfNjU3ZWFkZTY1NjE0ZWRiZTUwYzkuanBlZyJdLFsicCIsInRodW1iIiwiMzJ4MzIiXV0.jpeg?sha=4f630ab34394042e",
+        "custom_fields": []
+      }
+    ],
+    "shipping_type": "cyberbiz",
+    "shipping_name": "門市取貨",
+    "shipping_vendor": {
+      "type": "custom",
+      "name": "REDACTED"
+    },
+    "logistics_id": null,
+    "delivery_date": null,
+    "delivery_time": 0,
+    "delegate": "redacted@example.com",
+    "fulfillments": [],
+    "payment_name": "銀行轉帳",
+    "payment_method": "銀行轉帳",
+    "payment_url": "REDACTED",
+    "multiple_payment_infos": [],
+    "prices": {
+      "total_line_items_price": 9999.0,
+      "shipping_rate_price": 0.0,
+      "discounts": {
+        "special_collection_discount": 0,
+        "vip_discount": 0.0,
+        "shop_discount": null,
+        "coupon_discount": null,
+        "coupon_discounts": [],
+        "bonus_consumed": 0.0,
+        "vip_shipping_discount": 0,
+        "coupon_shipping_discount": 0,
+        "price_discount": 0,
+        "third_party_discount": 0
+      },
+      "total_price": 9999.0
+    },
+    "card4no": null,
+    "transaction_number": null,
+    "merchant_trade_no": "REDACTED",
+    "einvoice": null,
+    "paper_invoice_no": null,
+    "paper_company_no": null,
+    "statuses": {
+      "order_status": "open",
+      "financial_status": "pending",
+      "fulfillment_status": "unshipped",
+      "return_status": "no_need"
+    },
+    "timings": {
+      "request_return_at": null,
+      "return_at": null,
+      "refund_at": null,
+      "closed_at": null,
+      "cancelled_at": null,
+      "expired_at": null,
+      "confirmed_at": "2026-09-07 12:35:05"
+    },
+    "return_histories": [],
+    "note": "",
+    "branch_store": null,
+    "referral_code": null,
+    "checkout_referral_code": null,
+    "checkout_referral_user_name": null,
+    "register_referral_code": null,
+    "total_bonus_redemption_price": 0.0,
+    "pos_info": {
+      "pos_user_id": null,
+      "pos_user_email": null,
+      "pos_shop_id": null,
+      "pos_info": "",
+      "pos_id": null,
+      "pos_name": null
+    },
+    "exchange_histories": [],
+    "linked_order_info": {
+      "source": "非導購訂單"
+    },
+    "tags": [],
+    "express_delivery_branch_store": null,
+    "shipping_status": null,
+    "extra_info": null,
+    "from_device": "桌機",
+    "customer_cancel_reason_detail": null,
+    "serial_numbers": [],
+    "warehouse_type_id": null,
+    "utm_tracking": null,
+    "token": "REDACTED"
+  },
+  {
+    "id": 56944000,
+    "subtotal_price": 9999.0,
+    "created_at": "2026-09-07 12:39:33",
+    "updated_at": "2026-09-07 12:39:33",
+    "order_number": 1102,
+    "order_name": "#1102",
+    "customer": {
+      "name": "REDACTED",
+      "status": "enabled",
+      "email": "redacted@example.com",
+      "country_calling_code": null,
+      "mobile": "0912345678",
+      "enable_cvs_pickup": true,
+      "enable_cvs_cod": true,
+      "enable_home_delivery_cod": true,
+      "accepts_marketing": true,
+      "accepts_email_notification": true,
+      "tags": [],
+      "address": {
+        "company": null,
+        "country_calling_code": null,
+        "phone": "0912345678",
+        "address": "REDACTED",
+        "detail_address": {
+          "zip": "REDACTED",
+          "country": null,
+          "province": "",
+          "city": "REDACTED",
+          "district": "REDACTED",
+          "address1": "REDACTED",
+          "address2": null
+        }
+      },
+      "gender": "女",
+      "birthday": "1990-01-01",
+      "other_accumulated_consumption": 0,
+      "other_accumulated_consumption_expired_at": null,
+      "note": null,
+      "custom_fields": [],
+      "created_at": "2026-03-16 19:51:21",
+      "updated_at": "2026-09-07 12:39:06",
+      "confirmed_at": "2026-03-16 19:51:21",
+      "mobile_sms_confirmed_at": "2026-03-16 19:51:21",
+      "bonus_remain": 5000.0,
+      "uid_providers": [],
+      "id": 42058619
+    },
+    "buyer": {
+      "email": "redacted@example.com",
+      "mobile": null
+    },
+    "receiver": {
+      "name": "REDACTED",
+      "country_calling_code": null,
+      "phone": "0912345678",
+      "address": "REDACTED",
+      "detail_address": {
+        "zip": "REDACTED",
+        "country": null,
+        "province": null,
+        "city": "REDACTED",
+        "district": "REDACTED",
+        "address1": "REDACTED",
+        "address2": null
+      },
+      "cvs_store_id": null,
+      "allpay_logistics_id": null
+    },
+    "billing_address": {
+      "name": "REDACTED",
+      "country_calling_code": null,
+      "phone": "0912345678",
+      "address": "REDACTED",
+      "detail_address": {
+        "zip": "REDACTED",
+        "country": null,
+        "province": "",
+        "city": "REDACTED",
+        "district": "REDACTED",
+        "address1": "REDACTED",
+        "address2": null
+      }
+    },
+    "line_items": [
+      {
+        "id": 126360459,
+        "product_id": 68751035,
+        "product_variant_id": 83653695,
+        "title": "哥本組",
+        "variant_title": "",
+        "sku": null,
+        "qc": null,
+        "vendor": null,
+        "price": 9999.0,
+        "cost": null,
+        "quantity": 1,
+        "item_type": "normal",
+        "return_status": null,
+        "discount_name": "",
+        "discounts": [],
+        "total_price_before_discounts": 9999.0,
+        "total_discount": 0,
+        "total_price_after_discounts": 9999.0,
+        "tax_type_id": "inclusive_tax",
+        "bonus_redemption_price": null,
+        "related_items": [
+          {
+            "quantity": 1,
+            "items": [
+              {
+                "id": 83653662,
+                "product_id": 68751014,
+                "product_variant_id": 83653662,
+                "title": "哥本哈根28",
+                "variant_title": "哥本哈根28 - 人魚粉",
+                "sku": "SKU-a4eb96",
+                "qc": null,
+                "vendor": null,
+                "price": 14990.0,
+                "cost": null,
+                "quantity": 1,
+                "combo_product_price_difference": 9991,
+                "combo_product_price_diff_details": [
+                  9991
+                ]
+              },
+              {
+                "id": 83730772,
+                "product_id": 68786971,
+                "product_variant_id": 83730772,
+                "title": "哥本哈根28",
+                "variant_title": "哥本哈根28 - 杏仁奶白",
+                "sku": "SKU-d76be1",
+                "qc": null,
+                "vendor": null,
+                "price": 14990.0,
+                "cost": null,
+                "quantity": 1,
+                "combo_product_price_difference": 9990,
+                "combo_product_price_diff_details": [
+                  9990
+                ]
+              }
+            ]
+          }
+        ],
+        "created_at": "2026-09-07 12:39:33",
+        "channel": null,
+        "weight": 0.0,
+        "photo": "/media/W1siZiIsIjI2NzIxL3Byb2R1Y3RzLzY4NzUxMDM1LzE3ODEwODI3NzFfNjU3ZWFkZTY1NjE0ZWRiZTUwYzkuanBlZyJdLFsicCIsInRodW1iIiwiMzJ4MzIiXV0.jpeg?sha=4f630ab34394042e",
+        "custom_fields": []
+      }
+    ],
+    "shipping_type": "cyberbiz",
+    "shipping_name": "門市取貨",
+    "shipping_vendor": {
+      "type": "custom",
+      "name": "REDACTED"
+    },
+    "logistics_id": null,
+    "delivery_date": null,
+    "delivery_time": 0,
+    "delegate": "redacted@example.com",
+    "fulfillments": [],
+    "payment_name": "銀行轉帳",
+    "payment_method": "銀行轉帳",
+    "payment_url": "REDACTED",
+    "multiple_payment_infos": [],
+    "prices": {
+      "total_line_items_price": 9999.0,
+      "shipping_rate_price": 0.0,
+      "discounts": {
+        "special_collection_discount": 0,
+        "vip_discount": 0.0,
+        "shop_discount": null,
+        "coupon_discount": null,
+        "coupon_discounts": [],
+        "bonus_consumed": 0.0,
+        "vip_shipping_discount": 0,
+        "coupon_shipping_discount": 0,
+        "price_discount": 0,
+        "third_party_discount": 0
+      },
+      "total_price": 9999.0
+    },
+    "card4no": null,
+    "transaction_number": null,
+    "merchant_trade_no": "REDACTED",
+    "einvoice": null,
+    "paper_invoice_no": null,
+    "paper_company_no": null,
+    "statuses": {
+      "order_status": "open",
+      "financial_status": "pending",
+      "fulfillment_status": "unshipped",
+      "return_status": "no_need"
+    },
+    "timings": {
+      "request_return_at": null,
+      "return_at": null,
+      "refund_at": null,
+      "closed_at": null,
+      "cancelled_at": null,
+      "expired_at": null,
+      "confirmed_at": "2026-09-07 12:39:33"
+    },
+    "return_histories": [],
+    "note": "",
+    "branch_store": null,
+    "referral_code": null,
+    "checkout_referral_code": null,
+    "checkout_referral_user_name": null,
+    "register_referral_code": null,
+    "total_bonus_redemption_price": 0.0,
+    "pos_info": {
+      "pos_user_id": null,
+      "pos_user_email": null,
+      "pos_shop_id": null,
+      "pos_info": "",
+      "pos_id": null,
+      "pos_name": null
+    },
+    "exchange_histories": [],
+    "linked_order_info": {
+      "source": "非導購訂單"
+    },
+    "tags": [],
+    "express_delivery_branch_store": null,
+    "shipping_status": null,
+    "extra_info": null,
+    "from_device": "桌機",
+    "customer_cancel_reason_detail": null,
+    "serial_numbers": [],
+    "warehouse_type_id": null,
+    "utm_tracking": null,
+    "token": "REDACTED"
+  }
+]

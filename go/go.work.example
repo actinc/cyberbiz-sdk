@@ -1,0 +1,7 @@
+// Optional: copy to go.work to develop the SDK and the Console together.
+go 1.27
+
+use (
+	.
+	./console
+)

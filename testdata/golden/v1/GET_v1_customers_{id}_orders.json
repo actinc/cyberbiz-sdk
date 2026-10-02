@@ -1,0 +1,566 @@
+[
+  {
+    "id": 49492440,
+    "subtotal_price": 200.0,
+    "created_at": "2026-03-10 11:34:31",
+    "updated_at": "2026-03-10 11:40:30",
+    "order_number": 1068,
+    "order_name": "#1068",
+    "customer": {
+      "name": "REDACTED",
+      "status": "enabled",
+      "email": "redacted@example.com",
+      "country_calling_code": null,
+      "mobile": "0912345678",
+      "enable_cvs_pickup": true,
+      "enable_cvs_cod": true,
+      "enable_home_delivery_cod": null,
+      "accepts_marketing": true,
+      "accepts_email_notification": true,
+      "tags": [],
+      "address": {
+        "company": null,
+        "country_calling_code": null,
+        "phone": "0912345678",
+        "address": "REDACTED",
+        "detail_address": {
+          "zip": "REDACTED",
+          "country": null,
+          "province": "",
+          "city": "REDACTED",
+          "district": "REDACTED",
+          "address1": "REDACTED",
+          "address2": null
+        }
+      },
+      "gender": "female",
+      "birthday": null,
+      "other_accumulated_consumption": 0,
+      "other_accumulated_consumption_expired_at": null,
+      "note": null,
+      "custom_fields": [],
+      "created_at": "2023-10-03 12:04:02",
+      "updated_at": "2026-03-26 18:30:18",
+      "confirmed_at": "2023-11-30 22:30:58",
+      "mobile_sms_confirmed_at": "2023-11-30 22:30:58",
+      "bonus_remain": 10012.0,
+      "uid_providers": [
+        {
+          "provider_type": "line",
+          "uid": "REDACTED"
+        }
+      ],
+      "id": 23300813
+    },
+    "buyer": {
+      "email": "redacted@example.com",
+      "mobile": null
+    },
+    "receiver": {
+      "name": "REDACTED",
+      "country_calling_code": null,
+      "phone": "0912345678",
+      "address": "REDACTED",
+      "detail_address": {
+        "zip": "REDACTED",
+        "country": null,
+        "province": null,
+        "city": "REDACTED",
+        "district": "REDACTED",
+        "address1": "REDACTED",
+        "address2": null
+      },
+      "cvs_store_id": null,
+      "allpay_logistics_id": null
+    },
+    "billing_address": {
+      "name": "REDACTED",
+      "country_calling_code": null,
+      "phone": "0912345678",
+      "address": "REDACTED",
+      "detail_address": {
+        "zip": "REDACTED",
+        "country": null,
+        "province": "",
+        "city": "REDACTED",
+        "district": "REDACTED",
+        "address1": "REDACTED",
+        "address2": null
+      }
+    },
+    "line_items": [
+      {
+        "id": 109940715,
+        "product_id": 66395143,
+        "product_variant_id": 80512161,
+        "title": "女裝組合",
+        "variant_title": "",
+        "sku": "SKU-9c86d0",
+        "qc": null,
+        "vendor": null,
+        "price": 999.0,
+        "cost": null,
+        "quantity": 1,
+        "item_type": "normal",
+        "return_status": null,
+        "discount_name": "",
+        "discounts": [
+          {
+            "position": 0,
+            "id": 8,
+            "code": "bundle_discount",
+            "name": "REDACTED",
+            "discount": 866.0
+          }
+        ],
+        "total_price_before_discounts": 999.0,
+        "total_discount": 866.0,
+        "total_price_after_discounts": 133.0,
+        "tax_type_id": "inclusive_tax",
+        "bonus_redemption_price": null,
+        "related_items": [
+          {
+            "quantity": 1,
+            "items": [
+              {
+                "id": 77160567,
+                "product_id": 63560016,
+                "product_variant_id": 77160567,
+                "title": "女休閒長T",
+                "variant_title": "女休閒長T - ",
+                "sku": "SKU-5120bc",
+                "qc": null,
+                "vendor": null,
+                "price": 390.0,
+                "cost": 100.0,
+                "quantity": 1,
+                "combo_product_price_difference": 57,
+                "combo_product_price_diff_details": [
+                  57
+                ]
+              },
+              {
+                "id": 77160569,
+                "product_id": 63560016,
+                "product_variant_id": 77160569,
+                "title": "女休閒長T",
+                "variant_title": "女休閒長T - ",
+                "sku": "SKU-92c38f",
+                "qc": null,
+                "vendor": null,
+                "price": 390.0,
+                "cost": 100.0,
+                "quantity": 1,
+                "combo_product_price_difference": 57,
+                "combo_product_price_diff_details": [
+                  57
+                ]
+              },
+              {
+                "id": 77160996,
+                "product_id": 63560434,
+                "product_variant_id": 77160996,
+                "title": "女裝發熱衣",
+                "variant_title": "女裝發熱衣 - ",
+                "sku": "SKU-b3b845",
+                "qc": null,
+                "vendor": null,
+                "price": 390.0,
+                "cost": 100.0,
+                "quantity": 1,
+                "combo_product_price_difference": 57,
+                "combo_product_price_diff_details": [
+                  57
+                ]
+              }
+            ]
+          }
+        ],
+        "created_at": "2026-03-10 11:34:31",
+        "channel": null,
+        "weight": 0.0,
+        "photo": "/assets/no-image-icon-51105c8025736695fb62df5940d64e6f8f911ec321eee45f3bb5e39029c3853a.png",
+        "custom_fields": []
+      },
+      {
+        "id": 109940716,
+        "product_id": 63562054,
+        "product_variant_id": 77162801,
+        "title": "松阪豬肉B級(二層肉)",
+        "variant_title": "",
+        "sku": "SKU-541a0f",
+        "qc": null,
+        "vendor": null,
+        "price": 500.0,
+        "cost": null,
+        "quantity": 1,
+        "item_type": "normal",
+        "return_status": null,
+        "discount_name": "",
+        "discounts": [
+          {
+            "position": 0,
+            "id": 8,
+            "code": "bundle_discount",
+            "name": "REDACTED",
+            "discount": 433.0
+          }
+        ],
+        "total_price_before_discounts": 500.0,
+        "total_discount": 433.0,
+        "total_price_after_discounts": 67.0,
+        "tax_type_id": "inclusive_tax",
+        "bonus_redemption_price": null,
+        "related_items": [],
+        "created_at": "2026-03-10 11:34:31",
+        "channel": null,
+        "weight": 0.0,
+        "photo": "/assets/no-image-icon-51105c8025736695fb62df5940d64e6f8f911ec321eee45f3bb5e39029c3853a.png",
+        "custom_fields": []
+      }
+    ],
+    "shipping_type": "cyberbiz",
+    "shipping_name": "門市取貨",
+    "shipping_vendor": {
+      "type": "custom",
+      "name": "REDACTED"
+    },
+    "logistics_id": null,
+    "delivery_date": null,
+    "delivery_time": 0,
+    "delegate": null,
+    "fulfillments": [],
+    "payment_name": "銀行轉帳",
+    "payment_method": "銀行轉帳",
+    "payment_url": "REDACTED",
+    "multiple_payment_infos": [],
+    "prices": {
+      "total_line_items_price": 1499.0,
+      "shipping_rate_price": 0.0,
+      "discounts": {
+        "special_collection_discount": 0,
+        "vip_discount": 0.0,
+        "shop_discount": null,
+        "coupon_discount": null,
+        "coupon_discounts": [],
+        "bonus_consumed": 0.0,
+        "vip_shipping_discount": 0,
+        "coupon_shipping_discount": 0,
+        "price_discount": 0,
+        "third_party_discount": 0
+      },
+      "total_price": 200.0
+    },
+    "card4no": null,
+    "transaction_number": null,
+    "merchant_trade_no": "REDACTED",
+    "einvoice": null,
+    "paper_invoice_no": null,
+    "paper_company_no": null,
+    "statuses": {
+      "order_status": "open",
+      "financial_status": "paid",
+      "fulfillment_status": "unshipped",
+      "return_status": "no_need"
+    },
+    "timings": {
+      "request_return_at": null,
+      "return_at": null,
+      "refund_at": null,
+      "closed_at": null,
+      "cancelled_at": null,
+      "expired_at": null,
+      "confirmed_at": "2026-03-10 11:34:31"
+    },
+    "return_histories": [],
+    "note": "",
+    "branch_store": null,
+    "referral_code": null,
+    "checkout_referral_code": null,
+    "checkout_referral_user_name": null,
+    "register_referral_code": null,
+    "total_bonus_redemption_price": 0.0,
+    "pos_info": {
+      "pos_user_id": null,
+      "pos_user_email": null,
+      "pos_shop_id": null,
+      "pos_info": "",
+      "pos_id": null,
+      "pos_name": null
+    },
+    "exchange_histories": [],
+    "linked_order_info": {
+      "source": "非導購訂單"
+    },
+    "tags": [],
+    "express_delivery_branch_store": null,
+    "shipping_status": null,
+    "extra_info": null,
+    "from_device": "桌機",
+    "customer_cancel_reason_detail": null,
+    "serial_numbers": [],
+    "warehouse_type_id": null,
+    "utm_tracking": null,
+    "token": "REDACTED"
+  },
+  {
+    "id": 49492420,
+    "subtotal_price": 999.0,
+    "created_at": "2026-03-10 11:33:54",
+    "updated_at": "2026-03-10 11:40:40",
+    "order_number": 1067,
+    "order_name": "#1067",
+    "customer": {
+      "name": "REDACTED",
+      "status": "enabled",
+      "email": "redacted@example.com",
+      "country_calling_code": null,
+      "mobile": "0912345678",
+      "enable_cvs_pickup": true,
+      "enable_cvs_cod": true,
+      "enable_home_delivery_cod": null,
+      "accepts_marketing": true,
+      "accepts_email_notification": true,
+      "tags": [],
+      "address": {
+        "company": null,
+        "country_calling_code": null,
+        "phone": "0912345678",
+        "address": "REDACTED",
+        "detail_address": {
+          "zip": "REDACTED",
+          "country": null,
+          "province": "",
+          "city": "REDACTED",
+          "district": "REDACTED",
+          "address1": "REDACTED",
+          "address2": null
+        }
+      },
+      "gender": "female",
+      "birthday": null,
+      "other_accumulated_consumption": 0,
+      "other_accumulated_consumption_expired_at": null,
+      "note": null,
+      "custom_fields": [],
+      "created_at": "2023-10-03 12:04:02",
+      "updated_at": "2026-03-26 18:30:18",
+      "confirmed_at": "2023-11-30 22:30:58",
+      "mobile_sms_confirmed_at": "2023-11-30 22:30:58",
+      "bonus_remain": 10012.0,
+      "uid_providers": [
+        {
+          "provider_type": "line",
+          "uid": "REDACTED"
+        }
+      ],
+      "id": 23300813
+    },
+    "buyer": {
+      "email": "redacted@example.com",
+      "mobile": null
+    },
+    "receiver": {
+      "name": "REDACTED",
+      "country_calling_code": null,
+      "phone": "0912345678",
+      "address": "REDACTED",
+      "detail_address": {
+        "zip": "REDACTED",
+        "country": null,
+        "province": null,
+        "city": "REDACTED",
+        "district": "REDACTED",
+        "address1": "REDACTED",
+        "address2": null
+      },
+      "cvs_store_id": null,
+      "allpay_logistics_id": null
+    },
+    "billing_address": {
+      "name": "REDACTED",
+      "country_calling_code": null,
+      "phone": "0912345678",
+      "address": "REDACTED",
+      "detail_address": {
+        "zip": "REDACTED",
+        "country": null,
+        "province": "",
+        "city": "REDACTED",
+        "district": "REDACTED",
+        "address1": "REDACTED",
+        "address2": null
+      }
+    },
+    "line_items": [
+      {
+        "id": 109940670,
+        "product_id": 66395143,
+        "product_variant_id": 80512161,
+        "title": "女裝組合",
+        "variant_title": "",
+        "sku": "SKU-9c86d0",
+        "qc": null,
+        "vendor": null,
+        "price": 999.0,
+        "cost": null,
+        "quantity": 1,
+        "item_type": "normal",
+        "return_status": null,
+        "discount_name": "",
+        "discounts": [],
+        "total_price_before_discounts": 999.0,
+        "total_discount": 0,
+        "total_price_after_discounts": 999.0,
+        "tax_type_id": "inclusive_tax",
+        "bonus_redemption_price": null,
+        "related_items": [
+          {
+            "quantity": 1,
+            "items": [
+              {
+                "id": 77160567,
+                "product_id": 63560016,
+                "product_variant_id": 77160567,
+                "title": "女休閒長T",
+                "variant_title": "女休閒長T - ",
+                "sku": "SKU-5120bc",
+                "qc": null,
+                "vendor": null,
+                "price": 390.0,
+                "cost": 100.0,
+                "quantity": 1,
+                "combo_product_price_difference": 57,
+                "combo_product_price_diff_details": [
+                  57
+                ]
+              },
+              {
+                "id": 77160569,
+                "product_id": 63560016,
+                "product_variant_id": 77160569,
+                "title": "女休閒長T",
+                "variant_title": "女休閒長T - ",
+                "sku": "SKU-92c38f",
+                "qc": null,
+                "vendor": null,
+                "price": 390.0,
+                "cost": 100.0,
+                "quantity": 1,
+                "combo_product_price_difference": 57,
+                "combo_product_price_diff_details": [
+                  57
+                ]
+              },
+              {
+                "id": 77160996,
+                "product_id": 63560434,
+                "product_variant_id": 77160996,
+                "title": "女裝發熱衣",
+                "variant_title": "女裝發熱衣 - ",
+                "sku": "SKU-b3b845",
+                "qc": null,
+                "vendor": null,
+                "price": 390.0,
+                "cost": 100.0,
+                "quantity": 1,
+                "combo_product_price_difference": 57,
+                "combo_product_price_diff_details": [
+                  57
+                ]
+              }
+            ]
+          }
+        ],
+        "created_at": "2026-03-10 11:33:54",
+        "channel": null,
+        "weight": 0.0,
+        "photo": "/assets/no-image-icon-51105c8025736695fb62df5940d64e6f8f911ec321eee45f3bb5e39029c3853a.png",
+        "custom_fields": []
+      }
+    ],
+    "shipping_type": "cyberbiz",
+    "shipping_name": "門市取貨",
+    "shipping_vendor": {
+      "type": "custom",
+      "name": "REDACTED"
+    },
+    "logistics_id": null,
+    "delivery_date": null,
+    "delivery_time": 0,
+    "delegate": null,
+    "fulfillments": [],
+    "payment_name": "銀行轉帳",
+    "payment_method": "銀行轉帳",
+    "payment_url": "REDACTED",
+    "multiple_payment_infos": [],
+    "prices": {
+      "total_line_items_price": 999.0,
+      "shipping_rate_price": 0.0,
+      "discounts": {
+        "special_collection_discount": 0,
+        "vip_discount": 0.0,
+        "shop_discount": null,
+        "coupon_discount": null,
+        "coupon_discounts": [],
+        "bonus_consumed": 0.0,
+        "vip_shipping_discount": 0,
+        "coupon_shipping_discount": 0,
+        "price_discount": 0,
+        "third_party_discount": 0
+      },
+      "total_price": 999.0
+    },
+    "card4no": null,
+    "transaction_number": null,
+    "merchant_trade_no": "REDACTED",
+    "einvoice": null,
+    "paper_invoice_no": null,
+    "paper_company_no": null,
+    "statuses": {
+      "order_status": "open",
+      "financial_status": "paid",
+      "fulfillment_status": "unshipped",
+      "return_status": "no_need"
+    },
+    "timings": {
+      "request_return_at": null,
+      "return_at": null,
+      "refund_at": null,
+      "closed_at": null,
+      "cancelled_at": null,
+      "expired_at": null,
+      "confirmed_at": "2026-03-10 11:33:54"
+    },
+    "return_histories": [],
+    "note": "",
+    "branch_store": null,
+    "referral_code": null,
+    "checkout_referral_code": null,
+    "checkout_referral_user_name": null,
+    "register_referral_code": null,
+    "total_bonus_redemption_price": 0.0,
+    "pos_info": {
+      "pos_user_id": null,
+      "pos_user_email": null,
+      "pos_shop_id": null,
+      "pos_info": "",
+      "pos_id": null,
+      "pos_name": null
+    },
+    "exchange_histories": [],
+    "linked_order_info": {
+      "source": "非導購訂單"
+    },
+    "tags": [],
+    "express_delivery_branch_store": null,
+    "shipping_status": null,
+    "extra_info": null,
+    "from_device": "桌機",
+    "customer_cancel_reason_detail": null,
+    "serial_numbers": [],
+    "warehouse_type_id": null,
+    "utm_tracking": null,
+    "token": "REDACTED"
+  }
+]

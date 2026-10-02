@@ -1,0 +1,20 @@
+[
+  {
+    "sku": "SKU-7b5fc5",
+    "qc": null,
+    "name": "REDACTED",
+    "quantity": 0,
+    "note": null,
+    "type": "surplus",
+    "created_at": "2023-09-08 17:58:48"
+  },
+  {
+    "sku": "SKU-8514f7",
+    "qc": null,
+    "name": "REDACTED",
+    "quantity": 0,
+    "note": null,
+    "type": "surplus",
+    "created_at": "2023-09-08 17:58:48"
+  }
+]
