@@ -1,15 +1,13 @@
 # CYBERBIZ PHP SDK
 
 PHP client for the [CYBERBIZ](https://www.cyberbiz.io) e-commerce platform
-API. **In development: not yet released**, so the API below may still change.
+API. Versions before 1.0 may still change the API in a minor release.
 
 Requires PHP 8.2 or later with `ext-bcmath`. HTTP goes through any PSR-18
 client you already use (Guzzle, Symfony HttpClient, ...); the SDK does not
 pin one.
 
 ## Install
-
-Once the first version is published:
 
 ```sh
 composer require actinc/cyberbiz-sdk

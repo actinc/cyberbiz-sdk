@@ -58,6 +58,16 @@ made by pull request:
    `go/v0.3.0`, and tags the matching GitHub commit. A version that is not
    above the newest release fails the build.
 
+GitHub only changes on a release: merges that do not bump a `VERSION` file
+stay on Bitbucket until the next one. To publish `main` sooner without
+releasing (a documentation fix, say), run the `sync-github` pipeline on
+`main`.
+
+PHP releases work the same way with `php/VERSION` and plain `vX.Y.Z` tags,
+which is what Packagist reads (it ignores `go/v*`). The two SDKs are
+versioned independently. A PHP release PR also updates `Client::VERSION`
+in `php/src/Client.php`; a test fails when the two disagree.
+
 If a tag ever needs to be republished to GitHub, run the `release-tag`
-pipeline on `main` with `TAG=go/vX.Y.Z`; an existing GitHub tag is never
-moved.
+pipeline on `main` with `TAG=go/vX.Y.Z` or `TAG=vX.Y.Z`. It publishes `main`
+first; an existing GitHub tag is never moved.
