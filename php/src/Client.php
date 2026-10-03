@@ -12,7 +12,9 @@ use Actinc\Cyberbiz\Http\Clock;
 use Actinc\Cyberbiz\Http\ErrorMapper;
 use Actinc\Cyberbiz\Http\RateLimiter;
 use Actinc\Cyberbiz\Http\SystemClock;
+use Actinc\Cyberbiz\Service\CustomersService;
 use Actinc\Cyberbiz\Service\Endpoint;
+use Actinc\Cyberbiz\Service\OrdersService;
 use Actinc\Cyberbiz\Service\ProductsService;
 use Actinc\Cyberbiz\Service\ShopService;
 use Http\Discovery\Psr17FactoryDiscovery;
@@ -109,6 +111,18 @@ final class Client
     public function products(): ProductsService
     {
         return new ProductsService($this, new Endpoint($this));
+    }
+
+    /** Orders, fulfillments, payments, returns, e-tickets and shipping labels. */
+    public function orders(): OrdersService
+    {
+        return new OrdersService($this, new Endpoint($this));
+    }
+
+    /** Customers, their orders, cart, VIP state and login identities. */
+    public function customers(): CustomersService
+    {
+        return new CustomersService($this, new Endpoint($this));
     }
 
     /**

@@ -42,8 +42,10 @@ try {
 }
 ```
 
-Resources so far: `shop()` (profile and app settings) and `products()`
-(products, variants, options, tags, shipping bindings). `list()` returns one
+Resources so far: `shop()` (profile and app settings), `products()`
+(products, variants, options, tags, shipping bindings), `orders()` (orders,
+fulfillments and shipping labels, payments, returns, e-tickets) and
+`customers()` (customers, their orders, cart, VIP state, login identities). `list()` returns one
 `Page` with the pagination headers; `all()` walks every page. For an
 endpoint without a wrapper yet, `$client->send(new Request(...))` returns the
 raw response.
