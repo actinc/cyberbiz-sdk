@@ -85,6 +85,66 @@ final class Fields
         throw self::mismatch($this->at($key), 'bool', $value);
     }
 
+    /** A string, with null or absent read as $default (Go's zero value). */
+    public function stringOr(string $key, string $default = ''): string
+    {
+        return $this->stringOrNull($key) ?? $default;
+    }
+
+    /** An int, with null or absent read as $default. */
+    public function intOr(string $key, int $default = 0): int
+    {
+        return $this->intOrNull($key) ?? $default;
+    }
+
+    /** A bool, with null or absent read as $default. */
+    public function boolOr(string $key, bool $default = false): bool
+    {
+        return $this->boolOrNull($key) ?? $default;
+    }
+
+    /** A non-monetary number such as a weight; null or absent is $default. */
+    public function float(string $key, float $default = 0.0): float
+    {
+        $value = $this->raw($key);
+        if ($value === null) {
+            return $default;
+        }
+        if (\is_int($value) || (\is_string($value) && is_numeric($value))) {
+            return (float) $value;
+        }
+
+        throw self::mismatch($this->at($key), 'number', $value);
+    }
+
+    /** Money, with null, absent or "" read as zero. */
+    public function moneyOr(string $key): Money
+    {
+        return $this->moneyOrNull($key) ?? Money::zero();
+    }
+
+    /**
+     * A JSON array of strings; null or absent is an empty list.
+     *
+     * @return list<string>
+     */
+    public function strings(string $key): array
+    {
+        $value = $this->raw($key) ?? [];
+        if (!\is_array($value) || !array_is_list($value)) {
+            throw self::mismatch($this->at($key), 'array of strings', $value);
+        }
+        $out = [];
+        foreach ($value as $i => $item) {
+            if (!\is_string($item)) {
+                throw self::mismatch($this->at($key) . '[' . $i . ']', 'string', $item);
+            }
+            $out[] = $item;
+        }
+
+        return $out;
+    }
+
     public function money(string $key): Money
     {
         return $this->moneyOrNull($key) ?? throw self::mismatch($this->at($key), 'money', null);

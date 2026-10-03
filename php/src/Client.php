@@ -12,6 +12,9 @@ use Actinc\Cyberbiz\Http\Clock;
 use Actinc\Cyberbiz\Http\ErrorMapper;
 use Actinc\Cyberbiz\Http\RateLimiter;
 use Actinc\Cyberbiz\Http\SystemClock;
+use Actinc\Cyberbiz\Service\Endpoint;
+use Actinc\Cyberbiz\Service\ProductsService;
+use Actinc\Cyberbiz\Service\ShopService;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -94,6 +97,18 @@ final class Client
     public function baseUri(): string
     {
         return $this->baseUri;
+    }
+
+    /** The shop that owns the token, and this app's settings on it. */
+    public function shop(): ShopService
+    {
+        return new ShopService(new Endpoint($this));
+    }
+
+    /** Products, variants, options, tags and shipping bindings. */
+    public function products(): ProductsService
+    {
+        return new ProductsService($this, new Endpoint($this));
     }
 
     /**
@@ -235,7 +250,7 @@ final class Client
             ->withHeader('Accept', 'application/json')
             ->withHeader('User-Agent', $this->userAgent);
         if ($request->body !== null) {
-            $json = \is_string($request->body) ? $request->body : json_encode($request->body, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+            $json = \is_string($request->body) ? $request->body : Json::encode($request->body);
             $psr = $psr->withHeader('Content-Type', 'application/json')->withBody($this->streams->createStream($json));
         }
         foreach ($request->headers as $name => $value) {

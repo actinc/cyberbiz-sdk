@@ -17,6 +17,45 @@ final class Json
     /** A JSON string literal, or a number token that is not a plain integer. */
     private const TOKEN = '/"(?:[^"\\\\]|\\\\.)*+"|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/';
 
+    /**
+     * Encodes a request body: Money becomes an exact JSON number and dates
+     * become CYBERBIZ timestamps in Asia/Taipei.
+     *
+     * @throws \JsonException
+     */
+    public static function encode(mixed $value): string
+    {
+        $amounts = [];
+        $prepared = self::prepare($value, $amounts);
+        $json = json_encode($prepared, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES | \JSON_PRESERVE_ZERO_FRACTION);
+
+        return $amounts === [] ? $json : strtr($json, $amounts);
+    }
+
+    /** @param array<string, string> $amounts placeholder => JSON number */
+    private static function prepare(mixed $value, array &$amounts): mixed
+    {
+        if ($value instanceof Money) {
+            $token = "\u{E000}money" . \count($amounts) . "\u{E000}";
+            $amounts['"' . $token . '"'] = $value->amount;
+
+            return $token;
+        }
+        if ($value instanceof \DateTimeInterface) {
+            return Time::format($value);
+        }
+        if (\is_array($value)) {
+            $prepared = [];
+            foreach ($value as $key => $item) {
+                $prepared[$key] = self::prepare($item, $amounts);
+            }
+
+            return $prepared;
+        }
+
+        return $value;
+    }
+
     /** @throws DecodeException for malformed JSON */
     public static function decode(string $json): mixed
     {

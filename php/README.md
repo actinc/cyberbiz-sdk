@@ -20,17 +20,33 @@ composer require actinc/cyberbiz-sdk
 ```php
 use Actinc\Cyberbiz\Client;
 use Actinc\Cyberbiz\Exception\ApiException;
-use Actinc\Cyberbiz\Request;
+use Actinc\Cyberbiz\Money;
 
 $client = new Client(getenv('CYBERBIZ_API_TOKEN'));
 
 try {
-    $response = $client->send(new Request('GET', '/v1/products', ['page' => 1]));
-    $products = json_decode($response->body, true);
+    $shop = $client->shop()->info();
+
+    foreach ($client->products()->all() as $product) {
+        echo $product->title, ' ', $product->price, PHP_EOL; // Money: exact decimal
+    }
+
+    $product = $client->products()->create([
+        'title' => 'Synthetic Tea',
+        'handle' => 'synthetic-tea',
+        'published' => false,
+        'price' => Money::of('120'),
+    ]);
 } catch (ApiException $e) {
     // $e->statusCode, $e->requestId and $e->messages describe the failure.
 }
 ```
+
+Resources so far: `shop()` (profile and app settings) and `products()`
+(products, variants, options, tags, shipping bindings). `list()` returns one
+`Page` with the pagination headers; `all()` walks every page. For an
+endpoint without a wrapper yet, `$client->send(new Request(...))` returns the
+raw response.
 
 The client keeps to the platform limit of 5 requests per second, retries
 429/502/503/504 (honouring `Retry-After`) up to 3 times, and throws a typed
