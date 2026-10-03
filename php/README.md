@@ -40,6 +40,36 @@ exception per status: `AuthenticationException` (401),
 `ServerException` (5xx), all extending `ApiException`. Network failures
 throw `TransportException`.
 
+## Webhooks
+
+```php
+use Actinc\Cyberbiz\Exception\WebhookException;
+use Actinc\Cyberbiz\Webhook\EventType;
+use Actinc\Cyberbiz\Webhook\Parser;
+use Actinc\Cyberbiz\Webhook\StaticSecret;
+
+$parser = new Parser(new StaticSecret(getenv('CYBERBIZ_APP_SECRET')));
+
+try {
+    // Any framework: the raw body and $_SERVER-style or plain headers.
+    $event = $parser->parseRaw(file_get_contents('php://input'), $_SERVER);
+    // With PSR-7: $event = $parser->parse($serverRequest);
+} catch (WebhookException $e) {
+    http_response_code(401); // MissingHeader: 400, BodyTooLarge: 413
+    exit;
+}
+
+if ($event->eventType() === EventType::OrdersPaid) {
+    $order = $event->fields(); // typed reads, amounts exact
+}
+```
+
+The signature (`X-Cyberbiz-Hmac-Sha256`) is verified as hex, which CYBERBIZ
+sends, or base64, which its documentation describes, in constant time; the
+Domain Signature is checked when present. Multi-shop integrations pass a
+`SecretMap` or their own `SecretResolver`. CYBERBIZ retries deliveries, so
+handlers must be idempotent.
+
 ## Development
 
 The package's `composer.json` is at the repository root, so run Composer
