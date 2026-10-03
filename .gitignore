@@ -33,3 +33,9 @@ go.work.sum
 # The Go binary embeds console/internal/ui/dist, so the built UI is committed:
 # `go run ./cmd/console` must work from a fresh clone without Node.
 !console/internal/ui/dist/
+
+# PHP
+/vendor/
+/composer.lock
+/.phpunit.cache/
+/.php-cs-fixer.cache
