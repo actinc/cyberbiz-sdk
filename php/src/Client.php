@@ -4,41 +4,89 @@ declare(strict_types=1);
 
 namespace Actinc\Cyberbiz;
 
+use Actinc\Cyberbiz\Exception\ApiException;
+use Actinc\Cyberbiz\Exception\TransportException;
+use Actinc\Cyberbiz\Http\Backoff;
+use Actinc\Cyberbiz\Http\Clock;
+use Actinc\Cyberbiz\Http\ErrorMapper;
+use Actinc\Cyberbiz\Http\RateLimiter;
+use Actinc\Cyberbiz\Http\SystemClock;
+use Http\Discovery\Psr17FactoryDiscovery;
+use Http\Discovery\Psr18ClientDiscovery;
+use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+
 /**
- * Client is the entry point to the CYBERBIZ API for one Shop.
- *
- * It holds the configuration every request needs. Sending requests, rate
- * limiting and retries are added on top of it.
+ * Client talks to the CYBERBIZ API on behalf of exactly one Shop. It applies
+ * the platform's rate limit, retries 429 and gateway errors, and turns error
+ * responses into typed exceptions.
  */
 final class Client
 {
+    public const VERSION = '0.1.0';
+
     /** The CYBERBIZ API host shared by every shop. */
     public const DEFAULT_BASE_URI = 'https://app-store-api.cyberbiz.io/';
+
+    /** The platform limit of requests per second. */
+    public const DEFAULT_RATE_LIMIT = 5.0;
+
+    /** Retries after a 429 or a transient 5xx. */
+    public const DEFAULT_MAX_RETRIES = 3;
+
+    private const RETRYABLE_STATUS = [429, 502, 503, 504];
 
     private readonly string $token;
 
     private readonly string $baseUri;
 
-    /**
-     * @param string $token   the Shop's API token (a Bearer JWT)
-     * @param string $baseUri the API host; override it only in tests
-     *
-     * @throws \InvalidArgumentException when the token is empty or the base
-     *                                   URI is not an absolute http(s) URL
-     */
-    public function __construct(string $token, string $baseUri = self::DEFAULT_BASE_URI)
-    {
-        if (trim($token) === '') {
-            throw new \InvalidArgumentException('cyberbiz: token must not be empty');
-        }
-        $scheme = parse_url($baseUri, PHP_URL_SCHEME);
-        $host = parse_url($baseUri, PHP_URL_HOST);
-        if (!\in_array($scheme, ['http', 'https'], true) || !\is_string($host) || $host === '') {
-            throw new \InvalidArgumentException(\sprintf('cyberbiz: base URI must be an absolute http(s) URL, got "%s"', $baseUri));
-        }
+    private readonly ClientInterface $http;
 
-        $this->token = $token;
-        $this->baseUri = rtrim($baseUri, '/') . '/';
+    private readonly RequestFactoryInterface $requests;
+
+    private readonly StreamFactoryInterface $streams;
+
+    private readonly ?RateLimiter $limiter;
+
+    private readonly Clock $clock;
+
+    private readonly Backoff $backoff;
+
+    /**
+     * @param string                       $token      the Shop's API token (a Bearer JWT)
+     * @param string                       $baseUri    the API host; override it only in tests or behind a proxy
+     * @param ClientInterface|null         $httpClient any PSR-18 client; discovered when null
+     * @param float                        $rateLimit  requests per second; 0 disables limiting
+     * @param int                          $maxRetries retries after 429/502/503/504 or a network error
+     *
+     * @throws \InvalidArgumentException for an empty token, a bad base URI or negative limits
+     * @throws \LogicException           when no PSR-18 client or PSR-17 factory can be discovered
+     */
+    public function __construct(
+        string $token,
+        string $baseUri = self::DEFAULT_BASE_URI,
+        ?ClientInterface $httpClient = null,
+        ?RequestFactoryInterface $requestFactory = null,
+        ?StreamFactoryInterface $streamFactory = null,
+        float $rateLimit = self::DEFAULT_RATE_LIMIT,
+        private readonly int $maxRetries = self::DEFAULT_MAX_RETRIES,
+        ?Backoff $backoff = null,
+        ?Clock $clock = null,
+        private readonly string $userAgent = 'cyberbiz-sdk-php/' . self::VERSION,
+    ) {
+        $this->token = self::validToken($token);
+        $this->baseUri = self::validBaseUri($baseUri);
+        if ($rateLimit < 0 || $maxRetries < 0) {
+            throw new \InvalidArgumentException('cyberbiz: rate limit and max retries must not be negative');
+        }
+        [$this->http, $this->requests, $this->streams] = self::transport($httpClient, $requestFactory, $streamFactory);
+        $this->clock = $clock ?? new SystemClock();
+        $this->limiter = $rateLimit > 0 ? new RateLimiter($rateLimit, $this->clock) : null;
+        $this->backoff = $backoff ?? new Backoff();
     }
 
     /** The API host requests are sent to, always ending in "/". */
@@ -48,13 +96,29 @@ final class Client
     }
 
     /**
-     * The Authorization header value for this Shop's requests.
+     * Sends a request, retrying 429/502/503/504 (and network errors for
+     * idempotent methods), and returns the 2xx response.
      *
-     * @internal used by the request pipeline; never log it
+     * @throws ApiException       for an error response that survived every retry
+     * @throws TransportException when the last attempt failed before a response
+     * @throws \JsonException     when the request body cannot be encoded
      */
-    public function authorization(): string
+    public function send(Request $request): Response
     {
-        return 'Bearer ' . $this->token;
+        $psr = $this->build($request);
+        for ($attempt = 0; ; ++$attempt) {
+            [$response, $error] = $this->attempt($psr);
+            if (!$this->shouldRetry($request, $response, $attempt)) {
+                break;
+            }
+            $this->clock->sleep($this->retryDelay($response, $attempt + 1));
+        }
+        if ($response === null) {
+            throw $error ?? new TransportException('cyberbiz: no response');
+        }
+        ErrorMapper::check($request, $response);
+
+        return $response;
     }
 
     /**
@@ -65,5 +129,108 @@ final class Client
     public function __debugInfo(): array
     {
         return ['baseUri' => $this->baseUri, 'token' => '***'];
+    }
+
+    /** @return array{0: ?Response, 1: ?TransportException} */
+    private function attempt(RequestInterface $psr): array
+    {
+        $this->limiter?->wait();
+        try {
+            $reply = $this->http->sendRequest($psr);
+        } catch (ClientExceptionInterface $e) {
+            return [null, new TransportException('cyberbiz: ' . $e->getMessage(), 0, $e)];
+        }
+
+        return [new Response($reply->getStatusCode(), self::headers($reply), (string) $reply->getBody()), null];
+    }
+
+    /** @return array<string, list<string>> */
+    private static function headers(ResponseInterface $reply): array
+    {
+        $out = [];
+        foreach ($reply->getHeaders() as $name => $values) {
+            $out[(string) $name] = array_values($values);
+        }
+
+        return $out;
+    }
+
+    private function shouldRetry(Request $request, ?Response $response, int $attempt): bool
+    {
+        if ($attempt >= $this->maxRetries) {
+            return false;
+        }
+        if ($response === null) {
+            return $request->isIdempotent();
+        }
+
+        return \in_array($response->statusCode, self::RETRYABLE_STATUS, true);
+    }
+
+    private function retryDelay(?Response $response, int $attempt): float
+    {
+        $retryAfter = $response === null ? null : Backoff::retryAfter($response->header('Retry-After'), time());
+
+        return $retryAfter ?? $this->backoff->delay($attempt);
+    }
+
+    /** @throws \JsonException */
+    private function build(Request $request): RequestInterface
+    {
+        $psr = $this->requests->createRequest(strtoupper($request->method), $this->uri($request))
+            ->withHeader('Authorization', 'Bearer ' . $this->token)
+            ->withHeader('Accept', 'application/json')
+            ->withHeader('User-Agent', $this->userAgent);
+        if ($request->body !== null) {
+            $json = \is_string($request->body) ? $request->body : json_encode($request->body, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+            $psr = $psr->withHeader('Content-Type', 'application/json')->withBody($this->streams->createStream($json));
+        }
+        foreach ($request->headers as $name => $value) {
+            $psr = $psr->withHeader($name, $value);
+        }
+
+        return $psr;
+    }
+
+    private function uri(Request $request): string
+    {
+        $uri = $this->baseUri . ltrim($request->path, '/');
+        $query = Query::encode($request->query);
+
+        return $query === '' ? $uri : $uri . (str_contains($uri, '?') ? '&' : '?') . $query;
+    }
+
+    private static function validToken(string $token): string
+    {
+        if (trim($token) === '') {
+            throw new \InvalidArgumentException('cyberbiz: token must not be empty');
+        }
+
+        return $token;
+    }
+
+    private static function validBaseUri(string $baseUri): string
+    {
+        $scheme = parse_url($baseUri, \PHP_URL_SCHEME);
+        $host = parse_url($baseUri, \PHP_URL_HOST);
+        if (!\in_array($scheme, ['http', 'https'], true) || !\is_string($host) || $host === '') {
+            throw new \InvalidArgumentException(\sprintf('cyberbiz: base URI must be an absolute http(s) URL, got "%s"', $baseUri));
+        }
+
+        return rtrim($baseUri, '/') . '/';
+    }
+
+    /** @return array{0: ClientInterface, 1: RequestFactoryInterface, 2: StreamFactoryInterface} */
+    private static function transport(?ClientInterface $http, ?RequestFactoryInterface $requests, ?StreamFactoryInterface $streams): array
+    {
+        try {
+            return [
+                $http ?? Psr18ClientDiscovery::find(),
+                $requests ?? Psr17FactoryDiscovery::findRequestFactory(),
+                $streams ?? Psr17FactoryDiscovery::findStreamFactory(),
+            ];
+        } catch (\Http\Discovery\Exception $e) {
+            throw new \LogicException('cyberbiz: install a PSR-18 HTTP client and PSR-17 factories (e.g. guzzlehttp/guzzle), or pass them to Client: ' . $e->getMessage(), 0, $e);
+        }
     }
 }

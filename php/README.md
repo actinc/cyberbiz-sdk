@@ -19,9 +19,26 @@ composer require actinc/cyberbiz-sdk
 
 ```php
 use Actinc\Cyberbiz\Client;
+use Actinc\Cyberbiz\Exception\ApiException;
+use Actinc\Cyberbiz\Request;
 
 $client = new Client(getenv('CYBERBIZ_API_TOKEN'));
+
+try {
+    $response = $client->send(new Request('GET', '/v1/products', ['page' => 1]));
+    $products = json_decode($response->body, true);
+} catch (ApiException $e) {
+    // $e->statusCode, $e->requestId and $e->messages describe the failure.
+}
 ```
+
+The client keeps to the platform limit of 5 requests per second, retries
+429/502/503/504 (honouring `Retry-After`) up to 3 times, and throws a typed
+exception per status: `AuthenticationException` (401),
+`ForbiddenException` (403), `NotFoundException` (404),
+`ValidationException` (422), `RateLimitException` (429) and
+`ServerException` (5xx), all extending `ApiException`. Network failures
+throw `TransportException`.
 
 ## Development
 
