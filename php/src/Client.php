@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Actinc\Cyberbiz;
 
 use Actinc\Cyberbiz\Exception\ApiException;
+use Actinc\Cyberbiz\Exception\DecodeException;
 use Actinc\Cyberbiz\Exception\TransportException;
 use Actinc\Cyberbiz\Http\Backoff;
 use Actinc\Cyberbiz\Http\Clock;
@@ -122,6 +123,58 @@ final class Client
     }
 
     /**
+     * Fetches one page of a list endpoint: the decoded JSON array, mapped
+     * item by item, plus the pagination headers.
+     *
+     * @template T
+     *
+     * @param (callable(mixed): T)|null $map converts each decoded item; identity when null
+     *
+     * @return Page<($map is null ? mixed : T)>
+     *
+     * @throws ApiException|TransportException|DecodeException|\JsonException
+     */
+    public function page(Request $request, ?callable $map = null): Page
+    {
+        $response = $this->send($request);
+        $decoded = $response->isNull() || trim($response->body) === '' ? [] : Json::decode($response->body);
+        if (!\is_array($decoded) || !array_is_list($decoded)) {
+            throw new DecodeException(\sprintf('cyberbiz: %s %s: expected a JSON array', strtoupper($request->method), $request->path));
+        }
+        $items = $map === null ? $decoded : array_map($map, $decoded);
+
+        return new Page($items, Pagination::fromResponse($response), $response);
+    }
+
+    /**
+     * Walks every page of a list endpoint, starting at the request's "page"
+     * (default 1, per_page default 50), and yields each item. It follows
+     * X-Next-Page and stops at the last page or an empty page, so it sends
+     * exactly one request per page.
+     *
+     * @template T
+     *
+     * @param (callable(mixed): T)|null $map
+     *
+     * @return \Generator<int, ($map is null ? mixed : T)>
+     *
+     * @throws ApiException|TransportException|DecodeException|\JsonException
+     */
+    public function each(Request $request, ?callable $map = null): \Generator
+    {
+        $start = $request->query['page'] ?? 1;
+        $page = max(1, \is_numeric($start) ? (int) $start : 1);
+        while (true) {
+            $result = $this->page(self::withPage($request, $page), $map);
+            yield from $result->items;
+            if (!$result->pagination->hasNext() || $result->items === []) {
+                return;
+            }
+            $page = $result->pagination->nextPage;
+        }
+    }
+
+    /**
      * Keeps the token out of var_dump() and print_r() output.
      *
      * @return array{baseUri: string, token: string}
@@ -198,6 +251,15 @@ final class Client
         $query = Query::encode($request->query);
 
         return $query === '' ? $uri : $uri . (str_contains($uri, '?') ? '&' : '?') . $query;
+    }
+
+    private static function withPage(Request $request, int $page): Request
+    {
+        $query = ['page' => $page] + $request->query;
+        $query['page'] = $page;
+        $query['per_page'] ??= Pagination::MAX_PER_PAGE;
+
+        return new Request($request->method, $request->path, $query, $request->body, $request->headers);
     }
 
     private static function validToken(string $token): string
