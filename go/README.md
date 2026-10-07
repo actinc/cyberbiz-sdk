@@ -80,7 +80,7 @@ func main() {
 ```go
 client, err := cyberbiz.New(token,
 	cyberbiz.WithRateLimit(5),                 // requests per second; 0 disables
-	cyberbiz.WithMaxRetries(3),                // on 429, 502, 503, 504; 0 disables
+	cyberbiz.WithMaxRetries(3),                // see below; 0 disables
 	cyberbiz.WithBackoff(cyberbiz.ExponentialBackoff(500*time.Millisecond, 8*time.Second)),
 	cyberbiz.WithHTTPClient(&http.Client{Timeout: 30 * time.Second}),
 	cyberbiz.WithTransport(myRoundTripper),   // logging, tracing, mocking
@@ -89,6 +89,11 @@ client, err := cyberbiz.New(token,
 	cyberbiz.WithBaseURL("http://localhost:8080/"), // tests and proxies
 )
 ```
+
+Retries: a 429 is retried for every method (honouring `Retry-After`); 502,
+503, 504 and network errors are retried only for idempotent methods (GET,
+HEAD, PUT, DELETE, OPTIONS). POST and PATCH are retried only on 429, so a
+write is never sent twice after the server may have acted on it.
 
 A client belongs to exactly one shop (one token). For several shops, create
 several clients.

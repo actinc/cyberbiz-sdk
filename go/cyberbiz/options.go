@@ -89,8 +89,9 @@ func WithRateLimit(requestsPerSecond float64) Option {
 	}
 }
 
-// WithMaxRetries sets how many times a request is retried after a 429 or a
-// transient 5xx response. Zero disables retries.
+// WithMaxRetries sets how many times a request is retried after a 429 (any
+// method) or a 502/503/504 or network failure (idempotent methods only; POST
+// and PATCH are never repeated after a gateway error). Zero disables retries.
 func WithMaxRetries(n int) Option {
 	return func(c *config) error {
 		if n < 0 {

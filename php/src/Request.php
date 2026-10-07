@@ -20,7 +20,7 @@ final class Request
         public readonly array $headers = [],
     ) {}
 
-    /** Whether repeating the request after a network failure is safe. */
+    /** Whether repeating the request after a network failure or a 502/503/504 is safe. */
     public function isIdempotent(): bool
     {
         return \in_array(strtoupper($this->method), ['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'], true);

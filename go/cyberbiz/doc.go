@@ -26,7 +26,8 @@
 //	}
 //
 // The client enforces the platform's 5 requests/second limit and retries
-// rate-limited and transient server failures with exponential backoff; both
+// rate-limited requests (any method) and transient server failures
+// (idempotent methods only) with exponential backoff; both
 // behaviours are configurable through [Option] values passed to [New].
 //
 // Errors returned by the API are *[APIError] values that also match the

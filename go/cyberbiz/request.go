@@ -45,13 +45,16 @@ func (r *Response) IsNull() bool {
 	return bytes.Equal(bytes.TrimSpace(r.Body), []byte("null"))
 }
 
-// retryableStatus lists the responses worth retrying: the platform's rate
-// limit and the gateway errors in front of it.
-func retryableStatus(code int) bool {
+// retryableStatus reports whether a response to method is worth retrying. A
+// 429 is rejected before the platform acts on the request, so it is repeated
+// for every method. A 502/503/504 may arrive after the server already acted
+// (an order created, say), so it is repeated only for idempotent methods.
+func retryableStatus(method string, code int) bool {
 	switch code {
-	case http.StatusTooManyRequests, http.StatusBadGateway,
-		http.StatusServiceUnavailable, http.StatusGatewayTimeout:
+	case http.StatusTooManyRequests:
 		return true
+	case http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout:
+		return idempotent(method)
 	}
 	return false
 }
@@ -85,7 +88,7 @@ func (c *Client) Do(ctx context.Context, req *Request, out any) (*Response, erro
 	var resp *Response
 	for attempt := 0; ; attempt++ {
 		resp, err = c.send(ctx, req, u, body)
-		if err == nil && !retryableStatus(resp.StatusCode) {
+		if err == nil && !retryableStatus(req.Method, resp.StatusCode) {
 			break
 		}
 		if attempt >= c.maxRetries || (err != nil && !idempotent(req.Method)) {

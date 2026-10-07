@@ -3,6 +3,7 @@ package cyberbiz
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"sync/atomic"
@@ -238,6 +239,63 @@ func TestDoDoesNotRetryPostOnTransportError(t *testing.T) {
 	}
 	if calls.Load() != 0 {
 		t.Errorf("calls = %d", calls.Load())
+	}
+}
+
+func TestDoDoesNotRepeatAWriteAfterAGatewayError(t *testing.T) {
+	cases := []struct {
+		method string
+		status int
+	}{
+		{http.MethodPost, http.StatusBadGateway},
+		{http.MethodPost, http.StatusServiceUnavailable},
+		{http.MethodPost, http.StatusGatewayTimeout},
+		{http.MethodPatch, http.StatusBadGateway},
+	}
+	for _, tc := range cases {
+		t.Run(fmt.Sprintf("%s %d", tc.method, tc.status), func(t *testing.T) {
+			var calls, sleeps atomic.Int32
+			c, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+				calls.Add(1)
+				w.WriteHeader(tc.status)
+			})
+			c.sleep = func(time.Duration) { sleeps.Add(1) }
+			req := &Request{Method: tc.method, Path: "v1/orders", Body: map[string]int{"a": 1}}
+			_, err := c.Do(context.Background(), req, nil)
+			var apiErr *APIError
+			if !errors.Is(err, ErrServer) || !errors.As(err, &apiErr) || apiErr.StatusCode != tc.status {
+				t.Fatalf("got %v, want APIError %d", err, tc.status)
+			}
+			if calls.Load() != 1 || sleeps.Load() != 0 {
+				t.Errorf("calls = %d, sleeps = %d, want 1 and 0", calls.Load(), sleeps.Load())
+			}
+		})
+	}
+}
+
+func TestDoRepeatsAWriteRejectedBy429(t *testing.T) {
+	var calls atomic.Int32
+	var waits []time.Duration
+	c, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if calls.Add(1) == 1 {
+			w.Header().Set("Retry-After", "2")
+			w.WriteHeader(http.StatusTooManyRequests)
+			return
+		}
+		_, _ = w.Write([]byte(`{"id":7}`))
+	})
+	c.sleep = func(d time.Duration) { waits = append(waits, d) }
+	var out struct {
+		ID int `json:"id"`
+	}
+	if _, err := c.post(context.Background(), "v1/orders", map[string]int{"a": 1}, &out); err != nil {
+		t.Fatal(err)
+	}
+	if calls.Load() != 2 || out.ID != 7 {
+		t.Errorf("calls = %d, out = %+v", calls.Load(), out)
+	}
+	if len(waits) != 1 || waits[0] != 2*time.Second {
+		t.Errorf("waits = %v, want [2s] from Retry-After", waits)
 	}
 }
 

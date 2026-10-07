@@ -39,3 +39,6 @@ go.work.sum
 /composer.lock
 /.phpunit.cache/
 /.php-cs-fixer.cache
+
+# Java
+java/target/

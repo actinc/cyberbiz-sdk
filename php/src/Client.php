@@ -126,8 +126,8 @@ final class Client
     }
 
     /**
-     * Sends a request, retrying 429/502/503/504 (and network errors for
-     * idempotent methods), and returns the 2xx response.
+     * Sends a request, retrying 429 for every method and 502/503/504 and
+     * network errors for idempotent methods only, and returns the 2xx response.
      *
      * @throws ApiException       for an error response that survived every retry
      * @throws TransportException when the last attempt failed before a response
@@ -246,7 +246,11 @@ final class Client
             return $request->isIdempotent();
         }
 
-        return \in_array($response->statusCode, self::RETRYABLE_STATUS, true);
+        // A 502/503/504 may arrive after the server already acted on the request, so only a 429
+        // (rejected before processing) is safe to repeat for POST and PATCH.
+        return $request->isIdempotent()
+            ? \in_array($response->statusCode, self::RETRYABLE_STATUS, true)
+            : $response->statusCode === 429;
     }
 
     private function retryDelay(?Response $response, int $attempt): float

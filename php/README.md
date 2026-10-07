@@ -48,8 +48,11 @@ fulfillments and shipping labels, payments, returns, e-tickets) and
 endpoint without a wrapper yet, `$client->send(new Request(...))` returns the
 raw response.
 
-The client keeps to the platform limit of 5 requests per second, retries
-429/502/503/504 (honouring `Retry-After`) up to 3 times, and throws a typed
+The client keeps to the platform limit of 5 requests per second, retries up
+to 3 times (429 for every method, honouring `Retry-After`; 502/503/504 and
+network errors only for idempotent methods, so POST and PATCH are retried
+only on 429 and never sent twice after the server may have acted on them),
+and throws a typed
 exception per status: `AuthenticationException` (401),
 `ForbiddenException` (403), `NotFoundException` (404),
 `ValidationException` (422), `RateLimitException` (429) and

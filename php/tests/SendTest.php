@@ -152,6 +152,40 @@ final class SendTest extends TestCase
         $client->send(new Request('POST', '/v1/orders', body: ['x' => 1]));
     }
 
+    #[DataProvider('writeGatewayErrors')]
+    public function testDoesNotRepeatAWriteAfterAGatewayError(string $method, int $status): void
+    {
+        $failed = FakeHttpClient::json($status, '{"error":"gateway"}');
+        $client = $this->client(0, $failed, FakeHttpClient::json(201, '{"id":7}'));
+
+        try {
+            $client->send(new Request($method, '/v1/orders', body: ['x' => 1]));
+            self::fail('expected ServerException');
+        } catch (ServerException $e) {
+            self::assertSame($status, $e->statusCode);
+        }
+        self::assertCount(1, $this->http->requests);
+        self::assertSame([], $this->clock->sleeps);
+    }
+
+    /** @return iterable<string, array{string, int}> */
+    public static function writeGatewayErrors(): iterable
+    {
+        yield 'POST 502' => ['POST', 502];
+        yield 'POST 503' => ['POST', 503];
+        yield 'POST 504' => ['POST', 504];
+        yield 'PATCH 502' => ['PATCH', 502];
+    }
+
+    public function testRepeatsAWriteRejectedBy429(): void
+    {
+        $client = $this->client(0, FakeHttpClient::json(429, '{}', ['Retry-After' => '2']), FakeHttpClient::json(201, '{"id":7}'));
+
+        self::assertSame('{"id":7}', $client->send(new Request('POST', '/v1/orders', body: ['x' => 1]))->body);
+        self::assertSame([2.0], $this->clock->sleeps);
+        self::assertCount(2, $this->http->requests);
+    }
+
     public function testNeverStartsMoreThanFiveRequestsPerSecond(): void
     {
         $client = $this->client(Client::DEFAULT_RATE_LIMIT);
