@@ -11,6 +11,14 @@
             <directory>tests</directory>
         </testsuite>
     </testsuites>
+    <!-- tests/Live/LiveTest.php calls the real API (CBSDK-42). Only the
+         main pipeline runs it, by passing the group option for "live";
+         see the live stage of bitbucket-pipelines.yml. -->
+    <groups>
+        <exclude>
+            <group>live</group>
+        </exclude>
+    </groups>
     <source>
         <include>
             <directory>src</directory>

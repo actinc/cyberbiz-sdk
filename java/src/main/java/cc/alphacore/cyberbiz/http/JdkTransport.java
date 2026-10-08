@@ -22,11 +22,21 @@ public final class JdkTransport implements Transport {
   private final HttpClient http;
   private final Duration requestTimeout;
 
-  /** Creates a transport with the default timeouts. */
+  /** Creates a transport with the default timeouts, speaking HTTP/1.1. */
   public JdkTransport() {
-    this(
-        HttpClient.newBuilder().connectTimeout(DEFAULT_CONNECT_TIMEOUT).build(),
-        DEFAULT_REQUEST_TIMEOUT);
+    this(defaultClient(), DEFAULT_REQUEST_TIMEOUT);
+  }
+
+  /**
+   * The client {@link #JdkTransport()} uses. It is pinned to HTTP/1.1: over HTTP/2 the JDK client
+   * fails every request to the CYBERBIZ API host with "EOF reached while reading" (found by the
+   * live tests, CBSDK-42), while HTTP/1.1, curl and the Go and PHP SDKs work.
+   */
+  static HttpClient defaultClient() {
+    return HttpClient.newBuilder()
+        .version(HttpClient.Version.HTTP_1_1)
+        .connectTimeout(DEFAULT_CONNECT_TIMEOUT)
+        .build();
   }
 
   /**

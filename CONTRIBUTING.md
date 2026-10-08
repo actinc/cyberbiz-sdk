@@ -40,9 +40,11 @@ the detailed rules live in the files it points to.
    matches CI's, otherwise CI's Docker image, so Docker is required. Use
    `git push --no-verify` to skip it for one push.
 4. Open a pull request. CI runs formatting, vet, golangci-lint, and the unit
-   tests for the SDK and the Console. Live tests against the CYBERBIZ API run
-   only after a maintainer merges to `main`; they are read-only and need a
-   token that pull requests never receive.
+   tests for the SDK and the Console. Live tests against the CYBERBIZ API
+   (Go `TestLive*` with `-tags integration`, the PHP `live` group, the Java
+   `live` tag) run only after a maintainer merges to `main`; they are
+   read-only, need a token that pull requests never receive, and are left
+   out of `composer test`, `mvn verify` and `scripts/ci-local.sh`.
 5. Use Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `chore:`,
    `ci:`), scoped when useful (`feat(sdk):`, `feat(console):`).
 

@@ -42,3 +42,6 @@ go.work.sum
 
 # Java
 java/target/
+
+# Ids written by go/console/cmd/seed; they name records in a real shop.
+seed-s*.json

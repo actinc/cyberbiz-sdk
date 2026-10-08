@@ -7,7 +7,7 @@
 
   <groupId>cc.alphacore</groupId>
   <artifactId>cyberbiz-sdk</artifactId>
-  <version>0.2.0-SNAPSHOT</version>
+  <version>0.1.1</version>
   <packaging>jar</packaging>
 
   <name>CYBERBIZ Java SDK</name>
@@ -50,6 +50,7 @@
     <errorprone.version>2.42.0</errorprone.version>
     <!-- The newest release Spotless allows on JDK 17. -->
     <google-java-format.version>1.28.0</google-java-format.version>
+    <live.excludedGroups>live</live.excludedGroups>
   </properties>
 
   <dependencies>
@@ -129,6 +130,9 @@
           <systemPropertyVariables>
             <project.version>${project.version}</project.version>
           </systemPropertyVariables>
+          <!-- Live tests (@Tag("live"), CBSDK-42) call the real API; only
+               the "live" profile below runs them. -->
+          <excludedGroups>${live.excludedGroups}</excludedGroups>
         </configuration>
       </plugin>
 
@@ -157,6 +161,18 @@
   </build>
 
   <profiles>
+    <!-- Read-only tests against the live CYBERBIZ API (CBSDK-42):
+         `mvn -Plive test` runs only the tests tagged "live", with the token
+         in CYBERBIZ_API_TOKEN; they skip without one. The main pipeline's
+         "integration (live, read-only)" stage runs this. -->
+    <profile>
+      <id>live</id>
+      <properties>
+        <groups>live</groups>
+        <live.excludedGroups></live.excludedGroups>
+      </properties>
+    </profile>
+
     <!-- Maven Central (CBSDK-37). Only scripts/publish-java.sh turns this on,
          with `-Prelease deploy`: it adds the -sources and -javadoc jars,
          signs every artifact with GPG and uploads the bundle to the Central
