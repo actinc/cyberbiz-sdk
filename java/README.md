@@ -9,8 +9,8 @@ the only dependency is Gson.
 
 ## Install
 
-From Maven Central, once `0.1.0` is published (releases are signed; the
-sources and Javadoc jars are published alongside):
+From Maven Central (releases are signed; the sources and Javadoc jars are
+published alongside):
 
 ```xml
 <dependency>
