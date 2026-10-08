@@ -13,6 +13,10 @@ import cc.alphacore.cyberbiz.json.Json;
 import cc.alphacore.cyberbiz.pagination.Page;
 import cc.alphacore.cyberbiz.pagination.PageIterable;
 import cc.alphacore.cyberbiz.pagination.Pagination;
+import cc.alphacore.cyberbiz.resource.CustomerService;
+import cc.alphacore.cyberbiz.resource.OrderService;
+import cc.alphacore.cyberbiz.resource.ProductService;
+import cc.alphacore.cyberbiz.resource.ShopService;
 import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
@@ -35,7 +39,7 @@ import java.util.Set;
 public final class CyberbizClient {
 
   /** The SDK version; equal to {@code java/VERSION} and the Maven artifact version. */
-  public static final String VERSION = "0.1.0-SNAPSHOT";
+  public static final String VERSION = "0.1.0";
 
   /** The CYBERBIZ API host shared by every Shop, used when the builder sets none. */
   public static final URI DEFAULT_BASE_URL = URI.create("https://app-store-api.cyberbiz.io/");
@@ -80,6 +84,16 @@ public final class CyberbizClient {
   /** Returns the base URL every request is sent to; it always ends in "/". */
   public URI baseUrl() {
     return baseUrl;
+  }
+
+  /** Returns the Shop profile and this App's settings on it. */
+  public ShopService shop() {
+    return new ShopService(this);
+  }
+
+  /** Returns products, their variants, options, tags and shipping bindings. */
+  public ProductService products() {
+    return new ProductService(this);
   }
 
   /**
@@ -242,6 +256,24 @@ public final class CyberbizClient {
 
   private static String describe(Request request) {
     return "cyberbiz: " + request.method() + " /" + request.path().replaceFirst("^/+", "");
+  }
+
+  /**
+   * Orders, their fulfillments, payments, returns and e-tickets, and shipping labels.
+   *
+   * @return the order service
+   */
+  public OrderService orders() {
+    return new OrderService(this);
+  }
+
+  /**
+   * Customers, their orders, service threads, VIP state and login identities.
+   *
+   * @return the customer service
+   */
+  public CustomerService customers() {
+    return new CustomerService(this);
   }
 
   /** Describes the client without the token, so it is safe to log. */

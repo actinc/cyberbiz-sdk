@@ -21,7 +21,11 @@ public abstract class WebhookException extends CyberbizException {
     this.httpStatus = httpStatus;
   }
 
-  /** Returns the HTTP status to answer the request with: 400, 401 or 413. */
+  /**
+   * Returns the HTTP status to answer the request with: 400, 401 or 413 for a bad request, 500 for
+   * a configuration error on the receiver ({@link AmbiguousSecretException}, {@link
+   * TooManyCredentialsException}).
+   */
   public int httpStatus() {
     return httpStatus;
   }

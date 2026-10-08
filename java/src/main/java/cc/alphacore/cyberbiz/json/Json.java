@@ -1,5 +1,6 @@
 package cc.alphacore.cyberbiz.json;
 
+import cc.alphacore.cyberbiz.Money;
 import cc.alphacore.cyberbiz.exception.DecodeException;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -39,6 +40,7 @@ public final class Json {
       new GsonBuilder()
           .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
           .registerTypeAdapter(BigDecimal.class, new BigDecimalAdapter())
+          .registerTypeAdapter(Money.class, new MoneyAdapter())
           .registerTypeAdapter(OffsetDateTime.class, new OffsetDateTimeAdapter())
           .setObjectToNumberStrategy(Decimals.STRATEGY)
           .setNumberToNumberStrategy(Decimals.STRATEGY)
@@ -47,6 +49,22 @@ public final class Json {
           .create();
 
   private Json() {}
+
+  /**
+   * Parses decimal text with the same bounds as decoding: plain notation (no exponent), at most 64
+   * characters, 40 significant digits and 32 decimal places.
+   *
+   * @param text the decimal text, already stripped
+   * @return the exact value
+   * @throws DecodeException when the text is not a plain decimal within the limits
+   */
+  public static BigDecimal decimal(String text) {
+    try {
+      return Decimals.parse(Objects.requireNonNull(text, "text"));
+    } catch (NumberFormatException e) {
+      throw new DecodeException("cyberbiz: " + e.getMessage(), e);
+    }
+  }
 
   /**
    * Returns the shared, thread-safe Gson instance with the SDK's configuration.

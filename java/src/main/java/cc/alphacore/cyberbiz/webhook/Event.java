@@ -21,6 +21,9 @@ import java.util.Optional;
  * @param domainSignature the X-Cyberbiz-Domain-Hmac-Sha256 value, "" when absent
  * @param headers the request headers, names lower-cased, repeated values joined with ", "
  * @param body the raw body decoded as UTF-8; the signature was verified over the original bytes
+ * @param appId the App whose secret verified the body, as named by {@link
+ *     SecretResolver#credentialsFor}; "" for a resolver that only implements {@link
+ *     SecretResolver#secretFor}
  */
 public record Event(
     String type,
@@ -29,7 +32,8 @@ public record Event(
     String signature,
     String domainSignature,
     Map<String, String> headers,
-    String body) {
+    String body,
+    String appId) {
 
   private static final Gson GSON = new Gson();
 
@@ -42,6 +46,29 @@ public record Event(
     Objects.requireNonNull(domainSignature, "domainSignature");
     headers = Map.copyOf(headers);
     Objects.requireNonNull(body, "body");
+    Objects.requireNonNull(appId, "appId");
+  }
+
+  /**
+   * Creates an Event without an App ID, as before App IDs existed.
+   *
+   * @param type the X-Cyberbiz-Event value
+   * @param shopDomain the Shop Domain
+   * @param customDomain the merchant's storefront hostname, "" when absent
+   * @param signature the verified body Signature
+   * @param domainSignature the Domain Signature, "" when absent
+   * @param headers the request headers, names lower-cased
+   * @param body the raw body decoded as UTF-8
+   */
+  public Event(
+      String type,
+      String shopDomain,
+      String customDomain,
+      String signature,
+      String domainSignature,
+      Map<String, String> headers,
+      String body) {
+    this(type, shopDomain, customDomain, signature, domainSignature, headers, body, "");
   }
 
   /** Returns the documented Event, or empty for one this SDK does not know yet. */

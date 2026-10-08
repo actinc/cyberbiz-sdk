@@ -92,6 +92,24 @@ public final class Golden {
   }
 
   /**
+   * Decodes the object under {@code envelope} in a Golden File, e.g. {@code shop_info}.
+   *
+   * @throws DecodeException naming the file and the field
+   */
+  public static <T> T wrapped(String name, String envelope, Class<T> type) {
+    try {
+      JsonElement inner =
+          Json.decode(body(name), JsonElement.class).getAsJsonObject().get(envelope);
+      if (inner == null) {
+        throw new DecodeException("cyberbiz: no \"" + envelope + "\" object");
+      }
+      return Json.decode(inner.toString(), type);
+    } catch (DecodeException e) {
+      throw named(name, e);
+    }
+  }
+
+  /**
    * Decodes a Golden File holding a JSON array, as a list endpoint returns it.
    *
    * @throws DecodeException naming the file and the field

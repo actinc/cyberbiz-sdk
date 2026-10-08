@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Maven settings for uploading to Maven Central (CBSDK-37), passed with
+     `-s .mvn/central-settings.xml` by scripts/publish-java.sh. The server id
+     matches <publishingServerId> of central-publishing-maven-plugin in
+     pom.xml. The Central Portal user token comes from the environment
+     (secured variables of the main-only "maven-central" deployment), never
+     from this file. -->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
+  <servers>
+    <server>
+      <id>central</id>
+      <username>${env.MAVEN_CENTRAL_USERNAME}</username>
+      <password>${env.MAVEN_CENTRAL_PASSWORD}</password>
+    </server>
+  </servers>
+</settings>

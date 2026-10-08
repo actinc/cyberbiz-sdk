@@ -155,6 +155,43 @@ both are accepted. For several shops, implement
 header. CYBERBIZ retries deliveries and can send several events for one
 customer within the same second, so handlers must be idempotent.
 
+### Several Apps on one Shop
+
+One receiver can serve several Apps installed on the same Shop. CYBERBIZ
+sends no App identifier header, so the App is the one whose secret verifies
+the body; `Event.AppID` reports it.
+
+```go
+secrets := webhook.AppSecrets(map[string]map[string]string{
+	"shop-a.cyberbiz.co": {
+		"app-a": os.Getenv("CYBERBIZ_APP_A_SECRET"),
+		"app-b": os.Getenv("CYBERBIZ_APP_B_SECRET"),
+	},
+})
+
+http.Handle("/webhooks/cyberbiz", webhook.Handler(secrets,
+	func(ctx context.Context, e *webhook.Event) error {
+		switch e.AppID {
+		case "app-a":
+			return handleAppA(ctx, e)
+		case "app-b":
+			return handleAppB(ctx, e)
+		}
+		return nil
+	},
+))
+```
+
+To look the secrets up in your own store, pass a
+`webhook.CredentialResolverFunc` that returns `[]webhook.Credential` (each an
+`AppID` and a `Secret`) for the Shop Domain. Every candidate is checked in
+constant time and exactly one must verify: two Apps sharing a secret fail
+with `webhook.ErrAmbiguousSecret`, more than `webhook.MaxCredentials` (16)
+candidates with `webhook.ErrTooManyCredentials`, and `Handler` answers both
+with 500 because they are configuration errors. The Domain Signature, when
+present, is verified with the matched secret. A plain `SecretResolver` (such
+as `StaticSecret`) keeps working and leaves `AppID` empty.
+
 To exercise your receiver without waiting for real traffic, import
 `docs/api/en/cyberbiz-webhooks.postman_collection.json` into Postman: it has
 one request per event with the full sample payload, and a pre-request script

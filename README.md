@@ -8,7 +8,7 @@ and verified against the same Golden Files.
 |----------|-----------|--------|
 | Go       | [go/](go/README.md)   | v0.x, covers the whole API, plus the Console |
 | PHP      | [php/](php/README.md) | v0.x: shop, products, orders, customers, webhooks; `composer require actinc/cyberbiz-sdk` |
-| Java     | [java/](java/README.md) | In development, not yet published (Maven Central `cc.alphacore:cyberbiz-sdk`) |
+| Java     | [java/](java/README.md) | v0.x: shop, products, orders, customers, webhooks; Maven Central `cc.alphacore:cyberbiz-sdk` |
 
 ## Shared by every SDK
 

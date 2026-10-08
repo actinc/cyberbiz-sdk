@@ -73,6 +73,10 @@ func StaticSecret(secret string) SecretResolver {
 type Event struct {
 	// Type is the Event from X-Cyberbiz-Event, e.g. "orders/paid".
 	Type EventType
+	// AppID identifies the App whose secret verified the body Signature, as
+	// returned by a [CredentialResolver]. It is empty when the resolver is a
+	// plain [SecretResolver].
+	AppID string
 	// ShopDomain is the Shop Domain from X-Cyberbiz-Domain, e.g.
 	// "example.cyberbiz.co". It identifies the Shop.
 	ShopDomain string
@@ -133,6 +137,13 @@ func applyOptions(opts []Option) options {
 // Shop Domain, verifies the body Signature, and verifies the Domain
 // Signature when its header is present.
 //
+// When secrets also implements [CredentialResolver], every candidate secret
+// is tried: exactly one must verify the body, and its AppID is reported on
+// the Event. No match is [ErrInvalidSignature]; several matches are
+// [ErrAmbiguousSecret]; more than [MaxCredentials] candidates are
+// [ErrTooManyCredentials]. The Domain Signature is verified with the
+// matched secret.
+//
 // r.Body is replaced with a reader that yields the same bytes again, so
 // middleware or handlers running after Parse can still read it. Parse never
 // closes the original body.
@@ -160,24 +171,22 @@ func Parse(ctx context.Context, r *http.Request, secrets SecretResolver, opts ..
 		return nil, err
 	}
 
-	secret, err := secrets.WebhookSecret(ctx, shopDomain)
+	creds, err := resolveCredentials(ctx, secrets, shopDomain)
 	if err != nil {
-		return nil, fmt.Errorf("%w %q: %w", ErrUnknownShop, shopDomain, err)
+		return nil, err
 	}
-	if secret == "" {
-		return nil, fmt.Errorf("%w %q: resolver returned no secret", ErrUnknownShop, shopDomain)
-	}
-
-	if !Verify(body, signature, secret) {
-		return nil, fmt.Errorf("%w for %s from %q", ErrInvalidSignature, eventType, shopDomain)
+	cred, err := matchCredential(body, signature, creds)
+	if err != nil {
+		return nil, fmt.Errorf("%w for %s from %q", err, eventType, shopDomain)
 	}
 	domainSignature := r.Header.Get(HeaderDomainHMAC)
-	if o.domainCheck && domainSignature != "" && !VerifyDomain(shopDomain, domainSignature, secret) {
+	if o.domainCheck && domainSignature != "" && !VerifyDomain(shopDomain, domainSignature, cred.Secret) {
 		return nil, fmt.Errorf("%w for %q", ErrInvalidDomainSignature, shopDomain)
 	}
 
 	return &Event{
 		Type:            EventType(eventType),
+		AppID:           cred.AppID,
 		ShopDomain:      shopDomain,
 		CustomDomain:    r.Header.Get(HeaderShopDomain),
 		Signature:       signature,
@@ -228,8 +237,9 @@ type restoredBody struct {
 // Handler returns an http.Handler that parses each Inbound with [Parse] and
 // passes the Event to fn. It responds 200 when fn returns nil, 401 for a
 // bad signature or unknown Shop, 413 for an oversize body, 405 for a
-// non-POST method, 400 for any other parse failure, and 500 when fn
-// returns an error (which makes CYBERBIZ retry). The response body is only
+// non-POST method, 500 for a configuration error ([ErrAmbiguousSecret],
+// [ErrTooManyCredentials]), 400 for any other parse failure, and 500 when
+// fn returns an error (which makes CYBERBIZ retry). The response body is only
 // the status text; the request body is never echoed.
 func Handler(secrets SecretResolver, fn func(ctx context.Context, e *Event) error, opts ...Option) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -258,6 +268,9 @@ func statusFor(err error) int {
 		return http.StatusUnauthorized
 	case errors.Is(err, ErrBodyTooLarge):
 		return http.StatusRequestEntityTooLarge
+	case errors.Is(err, ErrAmbiguousSecret),
+		errors.Is(err, ErrTooManyCredentials):
+		return http.StatusInternalServerError
 	}
 	return http.StatusBadRequest
 }

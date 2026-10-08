@@ -28,6 +28,9 @@ _Avoid_: Custom domain (that is the merchant's own storefront hostname, sent as
 **App**:
 The CYBERBIZ app installation that grants access to a Shop. Its credentials are
 the App Name, App ID, and App Secret; the App Secret signs Inbound webhooks.
+No two Shops share an App Secret, but one Shop can install several Apps. An
+Inbound carries no App identifier, so its App is the one whose App Secret
+verifies the Signature (ADR-0008).
 _Avoid_: Integration, connector
 
 **API Token**:

@@ -18,6 +18,8 @@ final class Event
      * @param string                $domainSignature empty when the header was absent
      * @param array<string, string> $headers         lower-cased header names
      * @param string                $body            the raw body, byte for byte
+     * @param string                $appId           the App whose secret verified the body, as named by a
+     *                                               CredentialResolver; empty with a SecretResolver
      */
     public function __construct(
         public readonly string $type,
@@ -27,6 +29,7 @@ final class Event
         public readonly string $domainSignature,
         public readonly array $headers,
         public readonly string $body,
+        public readonly string $appId = '',
     ) {}
 
     /** The documented event, or null for an event this SDK does not know yet. */

@@ -1,16 +1,16 @@
 # CYBERBIZ Java SDK
 
 Java client for the [CYBERBIZ](https://www.cyberbiz.io) e-commerce platform
-API. In development: the version is `0.1.0-SNAPSHOT`, nothing is published
-to Maven Central yet, and versions before 1.0 may still change the API in a
-minor release.
+API, published on Maven Central as `cc.alphacore:cyberbiz-sdk`. Versions
+before 1.0 may still change the API in a minor release.
 
 Requires Java 17 or later. HTTP uses the JDK's `java.net.http.HttpClient`;
 the only dependency is Gson.
 
 ## Install
 
-Once published:
+From Maven Central, once `0.1.0` is published (releases are signed; the
+sources and Javadoc jars are published alongside):
 
 ```xml
 <dependency>
@@ -43,9 +43,38 @@ try {
 ```
 
 One client per Shop token; it is immutable and safe to share between
-threads. Typed resources (shop, products, orders, customers) and webhook
-verification are being added; until then `send(Request)` calls any endpoint
-and returns the raw response.
+threads. Typed resources return records from `cc.alphacore.cyberbiz.model`;
+`send(Request)` calls any endpoint without a wrapper and returns the raw
+response.
+
+### Shop and products
+
+```java
+ShopInfo shop = client.shop().info();               // GET /shop
+AppSettings app = client.shop().settings();         // GET /settings
+client.shop().updateSettings(Map.of("greeting", "hello"));
+
+Page<Product> page = client.products().list(Map.of("page", 2));
+for (Product p : client.products().all()) { ... }    // every page, lazily
+Product tea = client.products().get(42);
+Product created = client.products().create(Map.of(
+    "title", "Green Tea", "handle", "green-tea", "published", true,
+    "price", Money.of("120.50")));               // sent as 120.50, exactly
+client.products().update(42, Map.of("title", "Oolong Tea"));
+client.products().delete(42);
+```
+
+`client.products()` also covers search (`search`, `searchCollection`),
+variants (`listVariants`, `getVariant`, `createVariant`, `updateVariant`,
+`deleteVariant`, `listVariantsBySku`, `allVariantsBySku`), options
+(`listOptions`, `getOption`, `createOption`, `updateOption`, `deleteOption`),
+tags (`listTags`, `addTags`, `removeTags`), shipping bindings
+(`listBindableShippings`, `getBindShippings`, `bindShippings`), SEO fields
+(`updateSeoMetaTags`), `createForPosShops` and `listDescriptionSettingNames`.
+Request bodies and query parameters are maps shaped like the API's JSON
+(`docs/api/en/cyberbiz-openapi-v1.yaml`). A read by id whose response is
+`null` throws `NotFoundException`; reads and updates by id set the record's
+`id`, which the API leaves out of detail responses.
 
 The client keeps to the platform limit of 5 requests per second (across
 threads) and retries up to 3 times: 429 for every method (honouring
@@ -60,6 +89,51 @@ include the token.
 
 HTTP goes through `java.net.http.HttpClient` by default; pass your own
 `Transport` to the builder to use another HTTP library or a proxy.
+
+`Response` keeps the body as the raw bytes the server sent (`bytes()`, a
+copy) next to its UTF-8 text (`body()`).
+
+> **Custom transports**: `new Response(status, headers, text)` still compiles
+> and behaves as before, so existing `Transport` implementations keep working
+> for JSON. To pass binary replies such as label zips through intact, read the
+> body as bytes and return `Response.ofBytes(status, headers, bytes)` instead.
+> `Response` is now a final class rather than a record; its accessors
+> (`statusCode()`, `headers()`, `body()`), `equals` and `hashCode` are kept,
+> and `toString()` no longer prints the body.
+
+### Orders and customers
+
+`client.orders()` and `client.customers()` wrap the same endpoints as the
+PHP SDK's `orders()` and `customers()` and decode into the records in
+`cc.alphacore.cyberbiz.model` (`Order`, `Fulfillment`, `Customer`, ...).
+Queries and bodies are maps shaped like the API's JSON (a `LinkedHashMap`
+keeps their order); a collection is sent comma-separated in a query and an
+`OffsetDateTime` as a timestamp in Asia/Taipei.
+
+```java
+import cc.alphacore.cyberbiz.model.Order;
+import java.util.Map;
+
+Page<Order> open = client.orders().list(Map.of("statuses", List.of("open"), "per_page", 50));
+Order order = client.orders().get(56943817);   // NotFoundException when missing
+client.orders().updateTags(order.id(), List.of("vip"));
+for (Order o : client.customers().allOrders(42)) { ... }
+```
+
+Writes that answer with the changed order (`updateStatus`, `markPreparing`,
+shipping bookings, ...) return `Optional`, empty when the platform sends no
+body or, for a booking, a 202 while the carrier is still assigning a number.
+
+`printCvsShippingLabels` and `printSupportShippingLabels` return the raw
+`Response`, its body a zip archive, as the PHP SDK does. Read the archive with
+`bytes()`, never `body()` (the UTF-8 text view, for JSON):
+
+```java
+Response labels = client.orders().printCvsShippingLabels(
+    Map.of("shipping_type", "seven", "fulfillment_ids", List.of(101, 102)));
+Files.write(Path.of(labels.filename().orElse("labels.zip")), labels.bytes());
+labels.contentType();   // e.g. "application/zip", or "" when not sent
+```
 
 ### Pagination
 
@@ -102,10 +176,12 @@ timestamps are `OffsetDateTime` in Asia/Taipei, with or without a zone in the
 input (`Times` in the same package parses and formats the platform layout,
 `2026-07-10 20:22:05`). A body that does not fit throws `DecodeException`.
 
-An amount keeps the exact scale the API sent, so `200.0` arrives with one
-decimal place and `200.00` with two. Compare amounts with
-`compareTo(other) == 0`, not `equals`, which also compares the scale. The
-PHP and Go SDKs normalise to two decimal places instead.
+Model amounts are `cc.alphacore.cyberbiz.Money`, as in the PHP and Go SDKs:
+an exact value with two decimal places (more round half away from zero), so
+`Money.of("200.0").equals(Money.of("200"))` holds and `200.0` prints as
+`200.00`. `amount()` gives the `BigDecimal`; `add`, `subtract`, `compareTo`
+and `isNegative` cover the usual arithmetic. Unlike PHP, exponent notation
+(`1e3`) is rejected, for the same safety reason as above.
 
 ## Webhooks
 
@@ -130,7 +206,7 @@ try {
   }
   // answer 200
 } catch (WebhookException e) {
-  // answer e.httpStatus() (400, 401 or 413) and ignore the body
+  // answer e.httpStatus() (400, 401, 413, or 500 for a configuration error) and ignore the body
 }
 ```
 
@@ -148,6 +224,38 @@ or a lambda `shopDomain -> Optional.ofNullable(lookup(shopDomain))`.
 `event.decode(MyPayload.class)` decodes the body into your own class with
 Gson. Payloads and signed samples of every Event are in
 [`docs/api/en/webhooks.md`](../docs/api/en/webhooks.md).
+
+### Several Apps on one Shop
+
+One receiver can serve several Apps installed on the same Shop. CYBERBIZ
+sends no App identifier header, so the App is the one whose secret verifies
+the body; `event.appId()` names it.
+
+```java
+import cc.alphacore.cyberbiz.webhook.AppSecrets;
+
+WebhookParser webhooks = new WebhookParser(new AppSecrets(Map.of(
+    "shop-a.cyberbiz.co", Map.of(
+        "app-a", System.getenv("CYBERBIZ_APP_A_SECRET"),
+        "app-b", System.getenv("CYBERBIZ_APP_B_SECRET")))));
+
+Event event = webhooks.parse(headers, body);
+switch (event.appId()) {
+  case "app-a" -> handleAppA(event);
+  case "app-b" -> handleAppB(event);
+  default -> { }
+}
+```
+
+To look the secrets up in your own store, use
+`SecretResolver.ofCredentials(shopDomain -> List.of(new Credential("app-a", secretA), ...))`
+or override `SecretResolver.credentialsFor`. Every candidate is checked in
+constant time and exactly one must verify: two Apps sharing a secret throw
+`AmbiguousSecretException`, more than `WebhookParser.MAX_CREDENTIALS` (16)
+candidates `TooManyCredentialsException`. Both are `WebhookException`s with
+`httpStatus()` 500, because the receiver is misconfigured. The Domain
+Signature, when present, is verified with the matched secret. `StaticSecret`,
+`SecretMap` and `secretFor` lambdas keep working and leave `appId()` empty.
 
 
 ## Development

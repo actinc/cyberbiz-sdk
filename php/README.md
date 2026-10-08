@@ -89,6 +89,52 @@ Domain Signature is checked when present. Multi-shop integrations pass a
 `SecretMap` or their own `SecretResolver`. CYBERBIZ retries deliveries, so
 handlers must be idempotent.
 
+### Several Apps on one Shop
+
+One receiver can serve several Apps installed on the same Shop. CYBERBIZ
+sends no App identifier header, so the App is the one whose secret verifies
+the body; `$event->appId` names it.
+
+```php
+use Actinc\Cyberbiz\Exception\WebhookConfigurationException;
+use Actinc\Cyberbiz\Exception\WebhookException;
+use Actinc\Cyberbiz\Webhook\AppSecrets;
+use Actinc\Cyberbiz\Webhook\Parser;
+
+$parser = new Parser(new AppSecrets([
+    'shop-a.cyberbiz.co' => [
+        'app-a' => getenv('CYBERBIZ_APP_A_SECRET'),
+        'app-b' => getenv('CYBERBIZ_APP_B_SECRET'),
+    ],
+]));
+
+try {
+    $event = $parser->parseRaw(file_get_contents('php://input'), $_SERVER);
+} catch (WebhookException $e) {
+    http_response_code(401);
+    exit;
+} catch (WebhookConfigurationException $e) {
+    error_log($e->getMessage());
+    http_response_code(500); // fix the secrets; CYBERBIZ retries
+    exit;
+}
+
+match ($event->appId) {
+    'app-a' => handleAppA($event),
+    'app-b' => handleAppB($event),
+};
+```
+
+To look the secrets up in your own store, implement `CredentialResolver`
+and return a list of `Credential(appId, secret)` for the Shop Domain. Every
+candidate is checked in constant time and exactly one must verify: two Apps
+sharing a secret throw `AmbiguousSecretException`, more than
+`Parser::MAX_CREDENTIALS` (16) candidates `TooManyCredentialsException`.
+Both extend `WebhookConfigurationException`, not `WebhookException`, because
+the receiver is misconfigured; answer them with 500. The Domain Signature,
+when present, is verified with the matched secret. A `SecretResolver` (such as
+`StaticSecret` or `SecretMap`) keeps working and leaves `appId` empty.
+
 ## Development
 
 The package's `composer.json` is at the repository root, so run Composer

@@ -97,3 +97,40 @@ func ExampleParse() {
 	// Output:
 	// apps/uninstall from example.cyberbiz.co: client sample-client-id
 }
+
+// ExampleAppSecrets serves several Apps installed on the same Shop from one
+// endpoint. CYBERBIZ sends no App identifier, so the App is the one whose
+// secret verifies the body; Event.AppID reports it.
+func ExampleAppSecrets() {
+	secrets := webhook.AppSecrets(map[string]map[string]string{
+		"shop-a.cyberbiz.co": {
+			"app-a": "app-a-secret-from-config",
+			"app-b": "app-b-secret-from-config",
+		},
+	})
+
+	handler := webhook.Handler(secrets, func(ctx context.Context, e *webhook.Event) error {
+		switch e.AppID {
+		case "app-a":
+			fmt.Printf("app-a handles %s\n", e.Type)
+		case "app-b":
+			fmt.Printf("app-b handles %s\n", e.Type)
+		}
+		return nil
+	})
+
+	// Simulate one delivery signed by App B.
+	body := []byte(`{"id":1001}`)
+	req := httptest.NewRequest(http.MethodPost, "/webhooks/cyberbiz", bytes.NewReader(body))
+	req.Header.Set(webhook.HeaderDomain, "shop-a.cyberbiz.co")
+	req.Header.Set(webhook.HeaderEvent, string(webhook.EventOrdersPaid))
+	req.Header.Set(webhook.HeaderSignature, webhook.Sign(body, "app-b-secret-from-config"))
+
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+	fmt.Println("status:", rec.Code)
+
+	// Output:
+	// app-b handles orders/paid
+	// status: 200
+}

@@ -52,9 +52,10 @@ public final class JdkTransport implements Transport {
             .method(request.method(), body);
     request.headers().forEach(builder::header);
     try {
-      HttpResponse<String> reply =
-          http.send(builder.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-      return new Response(reply.statusCode(), reply.headers().map(), reply.body());
+      // Bytes, not a String: binary replies such as label zips must arrive intact.
+      HttpResponse<byte[]> reply =
+          http.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
+      return Response.ofBytes(reply.statusCode(), reply.headers().map(), reply.body());
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       InterruptedIOException io = new InterruptedIOException("interrupted while sending");

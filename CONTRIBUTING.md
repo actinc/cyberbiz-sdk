@@ -81,8 +81,12 @@ Java releases work the same way with `java/VERSION` and `java/vX.Y.Z` tags.
 A version ending in `-SNAPSHOT` (as `java/VERSION` does until the first Java
 release) is skipped, so the SDK can sit in `main` unreleased.
 A Java release PR also updates the version in `java/pom.xml` and
-`CyberbizClient.VERSION`; a test fails when they disagree. The Java SDK is
-not published to Maven Central yet.
+`CyberbizClient.VERSION`; a test fails when they disagree. After the tag,
+the `main` build signs the release and uploads it to Maven Central
+(`cc.alphacore:cyberbiz-sdk`), where it waits, validated, until a maintainer
+publishes it from the Central Portal; a missing tag means no upload. The
+`publish-java` pipeline retries a failed upload. A version on Maven Central
+can never be replaced, so a fix is always a new version.
 
 If a tag ever needs to be republished to GitHub, run the `release-tag`
 pipeline on `main` with `TAG=go/vX.Y.Z`, `TAG=vX.Y.Z` or `TAG=java/vX.Y.Z`.

@@ -114,6 +114,55 @@ final class WebhookTest extends TestCase
         (new Parser(new SecretMap(['other.cyberbiz.co' => 'other-secret'])))->parseRaw($s['body'], $s['headers']);
     }
 
+    /**
+     * Cross-shop replay (CBSDK-39): every shop has its own App Secret, so shop A's delivery resent
+     * with shop B's X-Cyberbiz-Domain fails the body Signature under B's secret, whatever Domain
+     * Signature it carries. The Domain Signature stays optional (checked only when present).
+     *
+     * @return iterable<string, array{?string}>
+     */
+    public static function crossShopDomainSignatures(): iterable
+    {
+        yield 'no domain signature' => [null];
+        yield "shop B's domain signature" => [Signature::signDomain('shop-b.cyberbiz.co', 'shop-b-test-secret')];
+        yield "shop A's domain signature" => [Signature::signDomain('shop-a.cyberbiz.co', 'shop-a-test-secret')];
+    }
+
+    #[DataProvider('crossShopDomainSignatures')]
+    public function testRejectsACrossShopReplay(?string $domainSignature): void
+    {
+        $this->expectException(InvalidSignatureException::class);
+        self::crossShopParser()->parseRaw(...self::shopADelivery('shop-b.cyberbiz.co', $domainSignature));
+    }
+
+    public function testAcceptsShopADeliveryUnderPerShopSecrets(): void
+    {
+        $delivery = self::shopADelivery('shop-a.cyberbiz.co', Signature::signDomain('shop-a.cyberbiz.co', 'shop-a-test-secret'));
+
+        self::assertSame('shop-a.cyberbiz.co', self::crossShopParser()->parseRaw(...$delivery)->shopDomain);
+    }
+
+    private static function crossShopParser(): Parser
+    {
+        return new Parser(new SecretMap(['shop-a.cyberbiz.co' => 'shop-a-test-secret', 'shop-b.cyberbiz.co' => 'shop-b-test-secret']));
+    }
+
+    /** @return array{string, array<string, string>} shop A's body and body Signature, labelled with $domain */
+    private static function shopADelivery(string $domain, ?string $domainSignature): array
+    {
+        $body = '{"id":1001,"name":"#1001"}';
+        $headers = [
+            'X-Cyberbiz-Event' => 'orders/paid',
+            'X-Cyberbiz-Domain' => $domain,
+            'X-Cyberbiz-Hmac-Sha256' => Signature::sign($body, 'shop-a-test-secret'),
+        ];
+        if ($domainSignature !== null) {
+            $headers['X-Cyberbiz-Domain-Hmac-Sha256'] = $domainSignature;
+        }
+
+        return [$body, $headers];
+    }
+
     public function testRequiresTheCyberbizHeaders(): void
     {
         $s = self::sample();

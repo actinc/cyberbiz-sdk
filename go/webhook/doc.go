@@ -46,6 +46,19 @@
 // status codes. Multi-shop integrations implement [SecretResolver] to map a
 // Shop Domain to its App Secret.
 //
+// # Several Apps on one Shop
+//
+// A Shop can install several Apps, each with its own App Secret, and one
+// receiver can serve all of them. CYBERBIZ sends no App identifier header,
+// so the App is identified by which secret verifies the body Signature.
+// Pass a [CredentialResolver] (for example [AppSecrets] or a
+// [CredentialResolverFunc]) that returns every [Credential] of the Shop;
+// [Event.AppID] reports the App that matched. Exactly one candidate must
+// verify: two Apps configured with the same secret are rejected with
+// [ErrAmbiguousSecret], and more than [MaxCredentials] candidates with
+// [ErrTooManyCredentials]. [Handler] answers both with 500, since they are
+// configuration errors on the receiver.
+//
 // The typed accessors ([Event.Order], [Event.Customer], ...) decode the body
 // into the payload types in this package; [Event.Decode] decodes into any
 // value, and [Event.Raw] is the untouched body for storage or forwarding.
