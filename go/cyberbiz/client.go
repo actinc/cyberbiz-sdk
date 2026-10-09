@@ -12,7 +12,7 @@ import (
 )
 
 // Version is the SDK version reported in the User-Agent header.
-const Version = "0.1.0"
+const Version = "0.3.0"
 
 const (
 	// DefaultBaseURL is the CYBERBIZ API host shared by every shop.
