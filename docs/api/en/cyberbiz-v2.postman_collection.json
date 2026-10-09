@@ -2,8 +2,8 @@
   "info": {
     "_postman_id": "8445a9af-81a7-4b10-8aaf-a496d78149c3",
     "name": "CYBERBIZ API v2",
-    "description": "CYBERBIZ API v2 and app endpoints\n\nGenerated from the CYBERBIZ API documentation and checked against real API responses.\n\nSet `CyberbizToken` in an environment (never commit *.postman_environment.json).\n\n## Release Notes\n\n### 1.0.1 (2026-10-02)\n\n- Postman collection descriptions no longer point to repository-internal files.\n\n### 1.0.0 (2026-09-08)\n\n- Initial generation from the CYBERBIZ v1 swagger, the v1/v2 Postman collections, the Notion v2 reference and the webhook reference.\n- Observed corrections applied: nullable fields, money as float, order_number as integer, arrays documented as objects, fields missing from the swagger, Bearer authentication.\n- Synthetic samples derived from the Golden Files for every operation and event.",
-    "version": "1.0.1",
+    "description": "CYBERBIZ API v2 and app endpoints\n\nGenerated from the CYBERBIZ API documentation and checked against real API responses.\n\nSet `CyberbizToken` in an environment (never commit *.postman_environment.json).\n\n## Release Notes\n\n### 2.0.0 (2026-10-09)\n\n- Removed the /v1/limit_collections endpoints: the platform does not serve them on app-store-api.cyberbiz.io.\n\n### 1.1.0 (2026-10-09)\n\n- Product create and POS batch create document the sku request parameter, which the platform requires for shops with the POS feature.\n\n### 1.0.1 (2026-10-02)\n\n- Postman collection descriptions no longer point to repository-internal files.\n\n### 1.0.0 (2026-09-08)\n\n- Initial generation from the CYBERBIZ v1 swagger, the v1/v2 Postman collections, the Notion v2 reference and the webhook reference.\n- Observed corrections applied: nullable fields, money as float, order_number as integer, arrays documented as objects, fields missing from the swagger, Bearer authentication.\n- Synthetic samples derived from the Golden Files for every operation and event.",
+    "version": "2.0.0",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {

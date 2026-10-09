@@ -7,7 +7,7 @@ import (
 
 // Response models and enums for every collection kind. Custom and smart
 // collections are verified against Golden Files; special, add-buy and
-// variant-discount lists were recorded empty on the test shop; limit and VIP
+// variant-discount lists were recorded empty on the test shop; VIP
 // collections returned 401 "feature not licensed" there, so those models are
 // modelled from the swagger and Postman examples only.
 
@@ -182,63 +182,6 @@ type AddBuyCollection struct {
 	Products  []CollectionProductRef `json:"products"`
 }
 
-// LimitPeriodType is how often a limit collection's purchase cap resets.
-type LimitPeriodType string
-
-// Known LimitPeriodType values (period_type of a limit collection).
-const (
-	LimitPeriodAllTheTime LimitPeriodType = "all_the_time" // cap never resets
-	LimitPeriodMonthly    LimitPeriodType = "monthly"      // cap resets every month
-	LimitPeriodYearly     LimitPeriodType = "yearly"       // cap resets every year
-	LimitPeriodEach       LimitPeriodType = "each"         // cap applies per order
-)
-
-// LimitCalculationType is whether a limit collection counts purchases per
-// collection or per product. The swagger documents the response value as an
-// integer while requests take these codes; a numeric response decodes to
-// its decimal text so callers can still inspect it.
-type LimitCalculationType string
-
-// Known LimitCalculationType values (calculation_type of a limit collection).
-const (
-	LimitCalculationByCollection LimitCalculationType = "by_collection" // cap counts all products in the collection together
-	LimitCalculationByProduct    LimitCalculationType = "by_product"    // cap counts each product separately
-)
-
-// UnmarshalJSONFrom accepts a string, a number, or null.
-func (t *LimitCalculationType) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
-	tok, err := dec.ReadToken()
-	if err != nil {
-		return err
-	}
-	switch tok.Kind() {
-	case 'n':
-		*t = ""
-	case '"', '0':
-		*t = LimitCalculationType(tok.String())
-	default:
-		return errors.New("cyberbiz: LimitCalculationType must be a JSON string, number or null")
-	}
-	return nil
-}
-
-// LimitCollection is a purchase-limit group (GET /v1/limit_collections).
-// Not verified against a Golden File: the test shop has not licensed the
-// feature (401 "無權使用該 API"); the shape follows the swagger and Postman.
-type LimitCollection struct {
-	ID              int64                  `json:"id"`
-	Title           string                 `json:"title"`
-	Handle          string                 `json:"handle"`
-	Published       bool                   `json:"published"`
-	Position        int                    `json:"position"`
-	CalculationType LimitCalculationType   `json:"calculation_type"`
-	PeriodType      LimitPeriodType        `json:"period_type"`
-	LimitCount      int                    `json:"limit_count"` // maximum quantity per period
-	MinCount        int                    `json:"min_count"`   // minimum quantity (enterprise plans)
-	ProductsOrder   string                 `json:"products_order"`
-	Products        []CollectionProductRef `json:"products"`
-}
-
 // VariantDiscountType is the pricing rule of a variant-discount collection.
 type VariantDiscountType string
 
@@ -290,6 +233,69 @@ const (
 	VIPPromotionDiscount     VIPPromotionType = "discount"      // order discount for members of the level
 	VIPPromotionFreeShipping VIPPromotionType = "free_shipping" // free shipping for members of the level
 )
+
+// vipRuleLabels maps the Chinese labels the platform sends in responses to
+// the codes requests use.
+var vipRuleLabels = map[string]VIPRuleType{
+	"訂單數量": VIPRuleOrderCount,
+	"金額累積": VIPRuleTotalPrice,
+	"顧客標籤": VIPRuleCustomersTag,
+}
+
+// UnmarshalJSONFrom implements json.UnmarshalerFrom (encoding/json/v2).
+// Responses carry the Chinese label (訂單數量) rather than the code; known
+// labels are mapped to their code so the constants compare equal. Unknown
+// values are kept as sent.
+func (t *VIPRuleType) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
+	s, err := decodeLabel(dec, "VIPRuleType")
+	if err != nil {
+		return err
+	}
+	if code, ok := vipRuleLabels[s]; ok {
+		*t = code
+		return nil
+	}
+	*t = VIPRuleType(s)
+	return nil
+}
+
+// vipPromotionLabels maps the Chinese labels the platform sends in responses
+// to the codes requests use.
+var vipPromotionLabels = map[string]VIPPromotionType{
+	"享優惠":   VIPPromotionDiscount,
+	"訂單免運費": VIPPromotionFreeShipping,
+}
+
+// UnmarshalJSONFrom implements json.UnmarshalerFrom (encoding/json/v2).
+// Responses carry the Chinese label (享優惠) rather than the code; known
+// labels are mapped to their code. Unknown values are kept as sent.
+func (t *VIPPromotionType) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
+	s, err := decodeLabel(dec, "VIPPromotionType")
+	if err != nil {
+		return err
+	}
+	if code, ok := vipPromotionLabels[s]; ok {
+		*t = code
+		return nil
+	}
+	*t = VIPPromotionType(s)
+	return nil
+}
+
+// decodeLabel reads a JSON string or null for an enum named name.
+func decodeLabel(dec *jsontext.Decoder, name string) (string, error) {
+	tok, err := dec.ReadToken()
+	if err != nil {
+		return "", err
+	}
+	switch tok.Kind() {
+	case 'n':
+		return "", nil
+	case '"':
+		return tok.String(), nil
+	}
+	return "", errors.New("cyberbiz: " + name + " must be a JSON string or null")
+}
 
 // VIPCollection is a VIP level definition (GET /v1/vip_collections). Not
 // verified against a Golden File: the test shop has not licensed the

@@ -345,19 +345,19 @@ type ReturnHistory struct {
 // OrderBranchStore is the branch store attached to an order for pickup or
 // express delivery. See the BranchStores service for the full model.
 type OrderBranchStore struct {
-	StoreNo      string  `json:"store_no"`
-	Name         string  `json:"name"`
-	Phone        string  `json:"phone"`
-	County       string  `json:"county"`
-	District     string  `json:"district"`
-	Address      string  `json:"address"`
-	Zip          string  `json:"zip"`
-	OpeningHours string  `json:"opening_hours"`
-	Lat          float64 `json:"lat"`
-	Lng          float64 `json:"lng"`
-	Enabled      bool    `json:"enabled"`
-	SourceType   string  `json:"source_type"` // BranchStore or PosShop
-	SourceID     int64   `json:"source_id"`
+	StoreNo      string     `json:"store_no"`
+	Name         string     `json:"name"`
+	Phone        string     `json:"phone"`
+	County       string     `json:"county"`
+	District     string     `json:"district"`
+	Address      string     `json:"address"`
+	Zip          string     `json:"zip"`
+	OpeningHours string     `json:"opening_hours"`
+	Lat          Coordinate `json:"lat"`
+	Lng          Coordinate `json:"lng"`
+	Enabled      bool       `json:"enabled"`
+	SourceType   string     `json:"source_type"` // BranchStore or PosShop
+	SourceID     int64      `json:"source_id"`
 }
 
 // PosInfo identifies the POS terminal and salesperson of a POS order.

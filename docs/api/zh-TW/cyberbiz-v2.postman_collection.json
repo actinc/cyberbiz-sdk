@@ -2,8 +2,8 @@
   "info": {
     "_postman_id": "8445a9af-81a7-4b10-8aaf-a496d78149c3",
     "name": "CYBERBIZ API v2",
-    "description": "CYBERBIZ API v2 and app endpoints\n\n根據 CYBERBIZ API 文件產生，並以實際 API 回應校正。\n\n請在環境變數中設定 `CyberbizToken`（切勿提交 *.postman_environment.json）。\n\n## Release Notes\n\n### 1.0.1 (2026-10-02)\n\n- Postman collection 說明不再指向 repository 內部的檔案。\n\n### 1.0.0 (2026-09-08)\n\n- 初版：由 CYBERBIZ v1 swagger、v1/v2 Postman collection、Notion v2 參考頁面與 webhook 參考文件產生。\n- 套用實際觀察的修正：可為 null 的欄位、金額為浮點數、order_number 為整數、文件記為物件的陣列、swagger 缺少的欄位、Bearer 驗證。\n- 每個操作與事件皆附有由 Golden File 衍生的合成範例。",
-    "version": "1.0.1",
+    "description": "CYBERBIZ API v2 and app endpoints\n\n根據 CYBERBIZ API 文件產生，並以實際 API 回應校正。\n\n請在環境變數中設定 `CyberbizToken`（切勿提交 *.postman_environment.json）。\n\n## Release Notes\n\n### 2.0.0 (2026-10-09)\n\n- 移除 /v1/limit_collections 端點：平台並未在 app-store-api.cyberbiz.io 提供這些端點。\n\n### 1.1.0 (2026-10-09)\n\n- 新增商品與 POS 批次新增商品補上 sku 請求參數；有 POS 功能的商店必須提供。\n\n### 1.0.1 (2026-10-02)\n\n- Postman collection 說明不再指向 repository 內部的檔案。\n\n### 1.0.0 (2026-09-08)\n\n- 初版：由 CYBERBIZ v1 swagger、v1/v2 Postman collection、Notion v2 參考頁面與 webhook 參考文件產生。\n- 套用實際觀察的修正：可為 null 的欄位、金額為浮點數、order_number 為整數、文件記為物件的陣列、swagger 缺少的欄位、Bearer 驗證。\n- 每個操作與事件皆附有由 Golden File 衍生的合成範例。",
+    "version": "2.0.0",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {

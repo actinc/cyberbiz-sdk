@@ -2,6 +2,8 @@ package gendocs
 
 import (
 	"regexp"
+	"slices"
+	"strings"
 )
 
 // correctionRule is one entry of the corrections table: a fix the generator
@@ -34,6 +36,8 @@ var correctionsTable = []correctionRule{
 	{"error-responses", "Every operation declares the shared 401 / 403 / 404 / 422 / 429 responses; 401 also means the feature is not licensed for the shop."},
 	{"not-found-null", "Lookups whose Golden File is a bare JSON null document that the platform answers 200 null when the resource does not exist."},
 	{"enum-docs", "Status-like fields (order/financial/fulfillment/return status, coupon_status and gift_order_status with their combination rule, invoice status/type, tax type) get the documented enum values and an English description."},
+	{"unreachable-paths", "Paths the app-store-api host does not serve are removed (/v1/limit_collections: the platform mounts it only on its internal API host)."},
+	{"source-params", "Request parameters the platform declares but the swagger omits are added (sku on product create and POS batch create, required for shops with the POS feature)."},
 	{"translate", "Descriptions are translated from zh-TW to English through the embedded glossary; untranslated strings pass through unchanged."},
 }
 
@@ -52,10 +56,95 @@ func isMoneyKey(key string) bool {
 
 // applyCorrections runs every content fix on a converted document.
 func applyCorrections(doc *Document, obs *observedDoc, log *report) {
+	removeUnreachablePaths(doc, log)
 	fixTagDescriptions(doc, log)
 	applyObserved(doc, obs, log)
 	applyNameRules(doc, log)
 	applyEnumDocs(doc, log)
+	applySourceParams(doc, log)
+}
+
+// unreachablePrefixes are path prefixes the swagger documents but the
+// app-store-api host does not serve, with the tag and schemas only they use.
+var unreachablePrefixes = []struct {
+	Prefix, Tag string
+	Schemas     []string
+}{
+	{"/v1/limit_collections", "limit_collections", []string{"LimitCollection", "LimitCollections"}},
+}
+
+// removeUnreachablePaths drops the paths and tags of unreachablePrefixes.
+func removeUnreachablePaths(doc *Document, log *report) {
+	for _, u := range unreachablePrefixes {
+		for _, path := range doc.Paths.Keys() {
+			if path == u.Prefix || strings.HasPrefix(path, u.Prefix+"/") {
+				doc.Paths.Delete(path)
+				log.count("unreachable-paths")
+			}
+		}
+		doc.Tags = slices.DeleteFunc(doc.Tags, func(t *Tag) bool { return t.Name == u.Tag })
+		if doc.Components != nil && doc.Components.Schemas != nil {
+			for _, name := range u.Schemas {
+				doc.Components.Schemas.Delete(name)
+			}
+		}
+	}
+}
+
+// skuParamDescription documents the sku request parameter of product
+// creation, which the swagger omits.
+const skuParamDescription = "SKU of the product's first variant. Required for shops with the POS feature (422 otherwise)."
+
+// sourceParams lists request-body parameters the platform declares but the
+// swagger omits, by "METHOD path".
+var sourceParams = map[string]map[string]*Schema{
+	"post /v1/products":                {"sku": {Type: "string", Description: skuParamDescription}},
+	"post /v1/products/pos_shop_batch": {"sku": {Type: "string", Description: skuParamDescription}},
+}
+
+// applySourceParams adds the parameters of sourceParams to the JSON request
+// body of their operation.
+func applySourceParams(doc *Document, log *report) {
+	for _, key := range sortedKeys(sourceParams) {
+		params := sourceParams[key]
+		method, path, _ := strings.Cut(key, " ")
+		item, ok := doc.Paths.Get(path)
+		if !ok {
+			log.warnf("source-params: path %s not found", path)
+			continue
+		}
+		schema := requestBodySchema(item.(*PathItem).Operation(method))
+		if schema == nil {
+			log.warnf("source-params: %s has no JSON request body", key)
+			continue
+		}
+		if schema.Properties == nil {
+			schema.Properties = &OMap{}
+		}
+		for _, name := range sortedKeys(params) {
+			if schema.Properties.Has(name) {
+				continue
+			}
+			schema.Properties.Set(name, params[name])
+			log.count("source-params")
+		}
+	}
+}
+
+// requestBodySchema returns the application/json body schema of op, or nil.
+func requestBodySchema(op *Operation) *Schema {
+	if op == nil || op.RequestBody == nil || op.RequestBody.Content == nil {
+		return nil
+	}
+	mt, ok := op.RequestBody.Content.Get("application/json")
+	if !ok {
+		return nil
+	}
+	media, ok := mt.(*MediaType)
+	if !ok {
+		return nil
+	}
+	return media.Schema
 }
 
 // fixTagDescriptions replaces the swagger tag descriptions with English ones.
@@ -239,7 +328,6 @@ var tagDescriptions = map[string]string{
 	"order_etickets":               "Electronic tickets (e-tickets) attached to orders.",
 	"periodic_orders":              "Periodic (subscription) orders.",
 	"bonus_rule":                   "Bonus point earning rules.",
-	"limit_collections":            "Purchase-limit collections.",
 	"variant_discount_collections": "Per-variant discount collections.",
 	"custom_fields":                "Custom fields (newer model).",
 	"blogs":                        "Blogs, articles, article tags and SEO meta tags.",

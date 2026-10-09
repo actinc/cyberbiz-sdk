@@ -130,7 +130,10 @@ payload 為與 webhooks.md 同源產生的合成範例；不含任何變數，�
 	whPostmanText:    "本檔案旁的 collection `cyberbiz-webhooks.postman_collection.json` 會將下列所有事件重放到你自己的接收端：在 Postman 環境中設定 `webhookUrl`、`shopDomain`、`customDomain` 與 `appSecret`（絕不提交），其 pre-request script 會以 CYBERBIZ 相同的方式為每個請求簽章（`signatureEncoding` 選擇 hex（正式環境形式）或 base64（文件形式））。",
 
 	// --- release notes 1.0.1 ---
-	"Postman collection descriptions no longer point to repository-internal files.": "Postman collection 說明不再指向 repository 內部的檔案。",
+	"Postman collection descriptions no longer point to repository-internal files.":                                                       "Postman collection 說明不再指向 repository 內部的檔案。",
+	"Product create and POS batch create document the sku request parameter, which the platform requires for shops with the POS feature.": "新增商品與 POS 批次新增商品補上 sku 請求參數；有 POS 功能的商店必須提供。",
+	"Removed the /v1/limit_collections endpoints: the platform does not serve them on app-store-api.cyberbiz.io.":                         "移除 /v1/limit_collections 端點：平台並未在 app-store-api.cyberbiz.io 提供這些端點。",
+	skuParamDescription: "商品第一個款式的 SKU。有 POS 功能的商店必填（否則回應 422）。",
 
 	// --- release notes ---
 	"Initial generation from the CYBERBIZ v1 swagger, the v1/v2 Postman collections, the Notion v2 reference and the webhook reference.":                                            "初版：由 CYBERBIZ v1 swagger、v1/v2 Postman collection、Notion v2 參考頁面與 webhook 參考文件產生。",

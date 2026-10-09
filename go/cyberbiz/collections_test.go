@@ -75,10 +75,6 @@ func TestCollectionGoldenErrors(t *testing.T) {
 		msg    string
 		call   func(c *Client) error
 	}{
-		{"errors/GET_v1_limit_collections.json", 401, ErrUnauthorized, "無權使用該 API",
-			func(c *Client) error { _, err := c.Collections.ListLimit(testCtx, nil); return err }},
-		{"errors/GET_v1_limit_collections_{id}.json", 401, ErrUnauthorized, "無權使用該 API",
-			func(c *Client) error { _, _, err := c.Collections.GetLimit(testCtx, 1); return err }},
 		{"errors/GET_v1_vip_collections.json", 401, ErrUnauthorized, "無權使用該 API",
 			func(c *Client) error { _, err := c.Collections.ListVIP(testCtx, nil); return err }},
 		{"errors/GET_v1_vip_collections_{id}.json", 401, ErrUnauthorized, "無權使用該 API",
@@ -135,24 +131,6 @@ func TestSpecialCollectionDecodesRulesAndType(t *testing.T) {
 	}
 	if out.Products[0].Position != 0 || out.Products[0].Title != "A" {
 		t.Errorf("products = %+v", out.Products)
-	}
-}
-
-func TestLimitCollectionDecodesNumericCalculationType(t *testing.T) {
-	var out LimitCollection
-	src := `{"calculation_type":1,"handle":"limit","limit_count":5,"min_count":null,"period_type":"monthly",
-	  "position":1,"products_order":"title.asc","published":true,"title":"限購","products":[],"id":9}`
-	if err := json.Unmarshal([]byte(src), &out); err != nil {
-		t.Fatal(err)
-	}
-	if out.CalculationType != "1" || out.PeriodType != LimitPeriodMonthly || out.LimitCount != 5 || out.ID != 9 {
-		t.Errorf("limit = %+v", out)
-	}
-	if err := json.Unmarshal([]byte(`{"calculation_type":"by_product"}`), &out); err != nil {
-		t.Fatal(err)
-	}
-	if out.CalculationType != LimitCalculationByProduct {
-		t.Errorf("calculation_type = %q", out.CalculationType)
 	}
 }
 
@@ -379,7 +357,7 @@ func collectionsSpecialShapeCases() []collectionsShapeCase {
 		{"CreateSpecialRule", func(s *CollectionsService) error {
 			_, _, err := s.CreateSpecialRule(collectionsCtx, 5, &SpecialCollectionRuleRequest{Quantity: collectionsInt(3), Price: collectionsMoney(MoneyFromInt(999))})
 			return err
-		}, "POST", "/v1/special_collections/5/rules", "", `{"quantity":3,"price":999}`},
+		}, "POST", "/v1/special_collections/5/rules", "", `{"quantity":3,"price":999,"percentage":0}`},
 		{"UpdateSpecialRule", func(s *CollectionsService) error {
 			_, _, err := s.UpdateSpecialRule(collectionsCtx, 5, 6, &SpecialCollectionRuleRequest{Percentage: collectionsFloat(0)})
 			return err
@@ -424,43 +402,6 @@ func collectionsAddBuyShapeCases() []collectionsShapeCase {
 			_, _, err := s.ReorderAddBuyProducts(collectionsCtx, 3, IDList{2, 1})
 			return err
 		}, "PUT", "/v1/add_buy_collections/3/products/manual_order", "", `{"product_ids":"2,1"}`},
-	}
-}
-
-func collectionsLimitShapeCases() []collectionsShapeCase {
-	return []collectionsShapeCase{
-		{"ListLimit", func(s *CollectionsService) error { _, err := s.ListLimit(collectionsCtx, nil); return err },
-			"GET", "/v1/limit_collections", "", ""},
-		{"GetLimit", func(s *CollectionsService) error { _, _, err := s.GetLimit(collectionsCtx, 4); return err },
-			"GET", "/v1/limit_collections/4", "", ""},
-		{"CreateLimit", func(s *CollectionsService) error {
-			_, _, err := s.CreateLimit(collectionsCtx, &LimitCollectionCreateRequest{Title: "L", Published: collectionsBool(true),
-				PeriodType: LimitPeriodEach, CalculationType: LimitCalculationByProduct, LimitCount: collectionsInt(2), ProductIDs: IDList{1, 2}})
-			return err
-		}, "POST", "/v1/limit_collections", "",
-			`{"title":"L","published":true,"period_type":"each","calculation_type":"by_product","limit_count":2,"product_ids":"1,2"}`},
-		{"UpdateLimit", func(s *CollectionsService) error {
-			_, _, err := s.UpdateLimit(collectionsCtx, 4, &LimitCollectionUpdateRequest{MinCount: collectionsInt(0), ProductsOrder: ProductsOrderSellWeightDesc})
-			return err
-		}, "PUT", "/v1/limit_collections/4", "", `{"min_count":0,"products_order":"sell_weight.desc"}`},
-		{"DeleteLimit", func(s *CollectionsService) error { _, err := s.DeleteLimit(collectionsCtx, 4); return err },
-			"DELETE", "/v1/limit_collections/4", "", ""},
-		{"AddLimitProducts", func(s *CollectionsService) error {
-			_, _, err := s.AddLimitProducts(collectionsCtx, 4, IDList{9})
-			return err
-		}, "POST", "/v1/limit_collections/4/products", "", `{"product_ids":"9"}`},
-		{"ReplaceLimitProducts", func(s *CollectionsService) error {
-			_, _, err := s.ReplaceLimitProducts(collectionsCtx, 4, IDList{9, 8})
-			return err
-		}, "PUT", "/v1/limit_collections/4/products", "", `{"product_ids":"9,8"}`},
-		{"RemoveLimitProducts", func(s *CollectionsService) error {
-			_, _, err := s.RemoveLimitProducts(collectionsCtx, 4, IDList{9})
-			return err
-		}, "DELETE", "/v1/limit_collections/4/products", "product_ids=9", ""},
-		{"ReorderLimitProducts", func(s *CollectionsService) error {
-			_, _, err := s.ReorderLimitProducts(collectionsCtx, 4, IDList{8, 9})
-			return err
-		}, "PUT", "/v1/limit_collections/4/products/manual_order", "", `{"product_ids":"8,9"}`},
 	}
 }
 
@@ -530,7 +471,7 @@ func collectionsVipShapeCases() []collectionsShapeCase {
 func TestCollectionsRequestShapes(t *testing.T) {
 	var cases []collectionsShapeCase
 	for _, group := range [][]collectionsShapeCase{collectionsCustomShapeCases(), collectionsSmartShapeCases(), collectionsSpecialShapeCases(),
-		collectionsAddBuyShapeCases(), collectionsLimitShapeCases(), collectionsVariantDiscountShapeCases(), collectionsVipShapeCases()} {
+		collectionsAddBuyShapeCases(), collectionsVariantDiscountShapeCases(), collectionsVipShapeCases()} {
 		cases = append(cases, group...)
 	}
 	for _, tc := range cases {

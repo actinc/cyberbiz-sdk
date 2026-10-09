@@ -1,6 +1,6 @@
 # CYBERBIZ Webhooks
 
-Version: 1.0.1
+Version: 2.0.0
 
 CYBERBIZ posts an HTTP request to the HTTPS URL an app registers (`webhook_url` in the app
 manifest) whenever a subscribed Event happens in a Shop. This document lists every Event, the
@@ -8286,6 +8286,14 @@ Base64 form of the same signature (as the CYBERBIZ documentation describes it): 
 ```
 
 ## Release Notes
+
+### 2.0.0 (2026-10-09)
+
+- Removed the /v1/limit_collections endpoints: the platform does not serve them on app-store-api.cyberbiz.io.
+
+### 1.1.0 (2026-10-09)
+
+- Product create and POS batch create document the sku request parameter, which the platform requires for shops with the POS feature.
 
 ### 1.0.1 (2026-10-02)
 

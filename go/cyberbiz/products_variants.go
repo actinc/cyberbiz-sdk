@@ -95,7 +95,9 @@ func (s *ProductsService) GetVariant(ctx context.Context, productID, variantID i
 	return &out, resp, nil
 }
 
-// CreateVariant adds a variant to a product (POST /v1/products/{id}/product_variants).
+// CreateVariant adds a variant to a product. Shops with the POS feature
+// must set SKU (the platform answers 422 otherwise)
+// (POST /v1/products/{id}/product_variants).
 func (s *ProductsService) CreateVariant(ctx context.Context, productID int64, req *ProductVariantCreateRequest) (*ProductVariant, *Response, error) {
 	var out ProductVariant
 	resp, err := s.client.post(ctx, fmt.Sprintf("v1/products/%d/product_variants", productID), req, &out)

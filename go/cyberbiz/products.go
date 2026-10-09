@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"iter"
+	"slices"
 	"strings"
 
 	"github.com/actinc/cyberbiz-sdk/go/internal/query"
@@ -76,6 +77,9 @@ type ProductCreateRequest struct {
 	Searchable              *bool             `json:"searchable,omitzero"`
 	GoogleProductCategoryID *int64            `json:"google_product_category_id,omitzero"`
 	RequiredCustomerTags    *string           `json:"required_customer_tags,omitzero"` // comma-separated, custom feature
+	// SKU is the SKU of the first variant the platform creates with the
+	// product. Required for shops with the POS feature (422 otherwise).
+	SKU *string `json:"sku,omitzero"`
 }
 
 // ProductUpdateRequest is the body of Update. Every field is optional; only
@@ -126,6 +130,9 @@ type ProductPosShopBatchCreateRequest struct {
 	Price               *Money  `json:"price,omitzero"`
 	SpecialCollectionID *int64  `json:"special_collection_id,omitzero"`
 	CustomCollectionIDs *string `json:"custom_collection_ids,omitzero"`
+	// SKU is the SKU of the first variant of each created product. The
+	// endpoint is POS-only and the platform requires it (422 otherwise).
+	SKU *string `json:"sku,omitzero"`
 }
 
 // ProductSEOMetaTagsUpdateRequest is the body of UpdateSEOMetaTags.
@@ -175,14 +182,48 @@ func (s *ProductsService) Create(ctx context.Context, req *ProductCreateRequest)
 }
 
 // Update changes a product (PUT /v1/products/{id}).
+//
+// The platform fills tax_type_id and temperature_types with defaults
+// (inclusive_tax, 常溫) when a request leaves them out, which would silently
+// reset a zero-rated, tax-exempt, refrigerated or frozen product. When
+// TaxTypeID or TemperatureTypes is unset, Update therefore first reads the
+// product (GET /v1/products/{id}) and sends its current values. Set both to
+// skip that extra request. req itself is not modified.
 func (s *ProductsService) Update(ctx context.Context, id int64, req *ProductUpdateRequest) (*Product, *Response, error) {
+	body, resp, err := s.withCurrentTaxAndTemperature(ctx, id, req)
+	if err != nil {
+		return nil, resp, err
+	}
 	var out Product
-	resp, err := s.client.put(ctx, fmt.Sprintf("v1/products/%d", id), req, &out)
+	resp, err = s.client.put(ctx, fmt.Sprintf("v1/products/%d", id), body, &out)
 	if err != nil {
 		return nil, resp, err
 	}
 	out.ID = id
 	return &out, resp, nil
+}
+
+// withCurrentTaxAndTemperature returns a copy of req whose TaxTypeID and
+// TemperatureTypes are filled from the stored product when unset.
+func (s *ProductsService) withCurrentTaxAndTemperature(ctx context.Context, id int64, req *ProductUpdateRequest) (*ProductUpdateRequest, *Response, error) {
+	body := ProductUpdateRequest{}
+	if req != nil {
+		body = *req
+	}
+	if body.TaxTypeID != "" && len(body.TemperatureTypes) > 0 {
+		return &body, nil, nil
+	}
+	current, resp, err := s.Get(ctx, id)
+	if err != nil {
+		return nil, resp, fmt.Errorf("cyberbiz: read product %d before update: %w", id, err)
+	}
+	if body.TaxTypeID == "" {
+		body.TaxTypeID = current.TaxTypeID
+	}
+	if len(body.TemperatureTypes) == 0 {
+		body.TemperatureTypes = slices.Clone(current.TemperatureTypes)
+	}
+	return &body, resp, nil
 }
 
 // Delete removes a product (DELETE /v1/products/{id}).

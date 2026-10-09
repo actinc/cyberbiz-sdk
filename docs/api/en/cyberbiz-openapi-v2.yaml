@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: CYBERBIZ API v2 and app endpoints
-  version: 1.0.1
+  version: 2.0.0
   description: |-
     # CYBERBIZ API v2 and app endpoints
 
@@ -25,6 +25,14 @@ info:
     - **Samples** in this document are synthetic: their shape comes from recorded responses, their values are fake.
 
     ## Release Notes
+
+    ### 2.0.0 (2026-10-09)
+
+    - Removed the /v1/limit_collections endpoints: the platform does not serve them on app-store-api.cyberbiz.io.
+
+    ### 1.1.0 (2026-10-09)
+
+    - Product create and POS batch create document the sku request parameter, which the platform requires for shops with the POS feature.
 
     ### 1.0.1 (2026-10-02)
 

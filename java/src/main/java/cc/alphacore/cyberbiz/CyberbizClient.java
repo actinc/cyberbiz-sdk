@@ -39,7 +39,7 @@ import java.util.Set;
 public final class CyberbizClient {
 
   /** The SDK version; equal to {@code java/VERSION} and the Maven artifact version. */
-  public static final String VERSION = "0.1.1";
+  public static final String VERSION = "0.2.0-SNAPSHOT";
 
   /** The CYBERBIZ API host shared by every Shop, used when the builder sets none. */
   public static final URI DEFAULT_BASE_URL = URI.create("https://app-store-api.cyberbiz.io/");

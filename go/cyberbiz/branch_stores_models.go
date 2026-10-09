@@ -1,5 +1,41 @@
 package cyberbiz
 
+import (
+	"encoding/json/jsontext"
+	"errors"
+	"strconv"
+)
+
+// Coordinate is a latitude or longitude in decimal degrees. The platform
+// stores coordinates as decimal(10,7) and encodes decimals as JSON strings
+// ("25.0330000"), so Coordinate accepts a string, a number, or null.
+type Coordinate float64
+
+// UnmarshalJSONFrom implements json.UnmarshalerFrom (encoding/json/v2).
+func (c *Coordinate) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
+	tok, err := dec.ReadToken()
+	if err != nil {
+		return err
+	}
+	switch tok.Kind() {
+	case 'n':
+		*c = 0
+		return nil
+	case '0', '"':
+		if tok.String() == "" {
+			*c = 0
+			return nil
+		}
+		f, err := strconv.ParseFloat(tok.String(), 64)
+		if err != nil {
+			return errors.New("cyberbiz: invalid coordinate " + strconv.Quote(tok.String()))
+		}
+		*c = Coordinate(f)
+		return nil
+	}
+	return errors.New("cyberbiz: Coordinate must be a JSON number, string or null")
+}
+
 // BranchStoreSourceType says what a branch store was created from.
 type BranchStoreSourceType string
 
@@ -25,9 +61,9 @@ type BranchStore struct {
 	// OpeningHours is free text shown to customers.
 	OpeningHours string `json:"opening_hours"`
 	// Lat and Lng are the map coordinates in decimal degrees.
-	Lat     float64 `json:"lat"`
-	Lng     float64 `json:"lng"`
-	Enabled bool    `json:"enabled"`
+	Lat     Coordinate `json:"lat"`
+	Lng     Coordinate `json:"lng"`
+	Enabled bool       `json:"enabled"`
 	// ShippingRates are the delivery fees offered from this store.
 	ShippingRates []BranchStoreShippingRate `json:"shipping_rates"`
 	// SourceType and SourceID say which POS shop the store mirrors, if any.

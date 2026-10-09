@@ -1,10 +1,12 @@
 package cyberbiz
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 )
 
 // customersRecorded is what the test server saw on the last request.
@@ -281,15 +283,43 @@ func TestCustomersV2Requests(t *testing.T) {
 	if err != nil || cu.ID != 1 || cu.UIDProviders[0].UID != "U1" {
 		t.Fatalf("cu=%+v err=%v", cu, err)
 	}
-	rec.expect(t, "GET", "/v2/customers/by_uid_provider", "provider=line&uid=U1")
+	// The platform filters on provider_type; provider is kept for older
+	// deployments.
+	rec.expect(t, "GET", "/v2/customers/by_uid_provider", "provider=line&provider_type=line&uid=U1")
 
-	rec = customersRecorder(t, 200, `{"id":1}`)
-	cu, _, err = rec.client.Customers.OAuth(testCtx, &CustomerOAuthRequest{UID: "U1", Provider: CustomerUIDProviderLine})
-	if err != nil || cu.ID != 1 {
-		t.Fatalf("cu=%+v err=%v", cu, err)
+	rec = customersRecorder(t, 201, `{"client_id":"cid","client_secret":"sec"}`)
+	app, _, err := rec.client.Customers.CreateOAuthApp(testCtx, &CustomerOAuthAppRequest{
+		AppName: "會員登入", ScopesDescription: "讀取會員資料", Description: "d", RedirectURI: "https://example.com/cb",
+	})
+	if err != nil || app.ClientID != "cid" || app.ClientSecret != "sec" {
+		t.Fatalf("app=%+v err=%v", app, err)
 	}
 	rec.expect(t, "POST", "/v2/customer_oauth", "")
-	rec.expectBody(t, `{"uid":"U1","provider":"line"}`)
+	rec.expectBody(t, `{"app_name":"會員登入","scopes_description":"讀取會員資料","description":"d","redirect_uri":"https://example.com/cb"}`)
+
+	rec = customersRecorder(t, 200, `{"success":false,"errors":["redirect uri invalid"]}`)
+	_, _, err = rec.client.Customers.CreateOAuthApp(testCtx, &CustomerOAuthAppRequest{AppName: "a", DisplayShopName: customersPtr(false)})
+	var apiErr *APIError
+	if !errors.As(err, &apiErr) || apiErr.Messages[0] != "redirect uri invalid" {
+		t.Fatalf("err = %v", err)
+	}
+	rec.expectBody(t, `{"app_name":"a","scopes_description":"","description":"","redirect_uri":"","display_shop_name":false}`)
+}
+
+func TestCustomersConfirmedAtIsRFC3339(t *testing.T) {
+	at := NewTime(time.Date(2026, 1, 2, 3, 4, 5, 0, Taipei))
+	rec := customersRecorder(t, 201, `{"id":1}`)
+	if _, _, err := rec.client.Customers.Create(testCtx, &CustomerCreateRequest{Name: "n", ConfirmedAt: &at}); err != nil {
+		t.Fatal(err)
+	}
+	rec.expectBody(t, `{"name":"n","confirmed_at":"2026-01-02T03:04:05+08:00"}`)
+
+	rec = customersRecorder(t, 200, `{"id":1}`)
+	zero := Time{}
+	if _, _, err := rec.client.Customers.Update(testCtx, 1, &CustomerUpdateRequest{MobileSMSConfirmedAt: &at, ConfirmedAt: &zero}); err != nil {
+		t.Fatal(err)
+	}
+	rec.expectBody(t, `{"confirmed_at":null,"mobile_sms_confirmed_at":"2026-01-02T03:04:05+08:00"}`)
 }
 
 func TestCustomersBonusPointRequests(t *testing.T) {

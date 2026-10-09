@@ -245,12 +245,13 @@ type SupportShippingBatchResult struct {
 
 // SupportShippingTask is the outcome for one order of a batch booking.
 type SupportShippingTask struct {
-	OrderID           int64                          `json:"order_id"`
-	FulfillmentStatus FulfillmentStatus              `json:"fulfillment_status"`
-	TrackingNumbers   *SupportShippingTrackingNumber `json:"tracking_numbers"`
-	Message           string                         `json:"message"` // error or warning
-	Status            string                         `json:"status"`
-	LineItems         string                         `json:"line_items"` // comma-separated ids
+	OrderID           int64             `json:"order_id"`
+	FulfillmentStatus FulfillmentStatus `json:"fulfillment_status"`
+	// TrackingNumbers lists the order's fulfillments with carrier and number.
+	TrackingNumbers []SupportShippingTrackingNumber `json:"tracking_numbers"`
+	Message         string                          `json:"message"` // error or warning
+	Status          string                          `json:"status"`
+	LineItems       string                          `json:"line_items"` // comma-separated ids
 }
 
 // SupportShippingTrackingNumber is the booked carrier and number.

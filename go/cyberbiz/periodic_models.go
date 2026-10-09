@@ -1,6 +1,10 @@
 package cyberbiz
 
-import "encoding/json/jsontext"
+import (
+	"encoding/json/jsontext"
+	"errors"
+	"strconv"
+)
 
 // PeriodicType is the cadence of a periodic order.
 type PeriodicType string
@@ -18,8 +22,9 @@ const (
 type PeriodicOrder struct {
 	ID         int64 `json:"id"`
 	CustomerID int64 `json:"customer_id"`
-	// Number is the parent order number, e.g. "P0001".
-	Number    string             `json:"number"`
+	// Number is the parent order number. The platform stores a sequence
+	// integer and sends a JSON number; older examples show a string.
+	Number    PeriodicNumber     `json:"number"`
 	SalesPage *PeriodicSalesPage `json:"sales_page"`
 	// RecentPreorderID is the most recent child pre-order.
 	RecentPreorderID int64 `json:"recent_preorder_id"`
@@ -40,6 +45,27 @@ type PeriodicOrder struct {
 	AffiliateVendor *PeriodicAffiliateVendor `json:"affiliate_vendor"`
 }
 
+// PeriodicNumber is the number of a periodic order as text. It accepts a
+// JSON number (what the platform sends), a string, or null.
+type PeriodicNumber string
+
+// UnmarshalJSONFrom implements json.UnmarshalerFrom (encoding/json/v2).
+func (n *PeriodicNumber) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
+	tok, err := dec.ReadToken()
+	if err != nil {
+		return err
+	}
+	switch tok.Kind() {
+	case 'n':
+		*n = ""
+	case '"', '0':
+		*n = PeriodicNumber(tok.String())
+	default:
+		return errors.New("cyberbiz: PeriodicNumber must be a JSON number, string or null")
+	}
+	return nil
+}
+
 // PeriodicSalesPage is the sales page a periodic order was placed from.
 type PeriodicSalesPage struct {
 	ID    int64  `json:"id"`
@@ -49,12 +75,43 @@ type PeriodicSalesPage struct {
 // PeriodicSchedule is the cadence of a periodic order. Which of Month, Week
 // and Day are meaningful depends on Type: monthly uses Month (1-4) and Week
 // or Day (0-6), weekly uses Week (1-8) and Day (0-6), day_of_month uses
-// Month (1-12) and Day (1-31).
+// Month (1-12) and Day (1-31). The platform stores the schedule as a raw
+// hash: values written through the API come back as strings ("3"), others
+// as numbers, so each is a PeriodicValue.
 type PeriodicSchedule struct {
-	Type  PeriodicType `json:"type"`
-	Month int          `json:"month"`
-	Week  int          `json:"week"`
-	Day   int          `json:"day"`
+	Type  PeriodicType  `json:"type"`
+	Month PeriodicValue `json:"month"`
+	Week  PeriodicValue `json:"week"`
+	Day   PeriodicValue `json:"day"`
+}
+
+// PeriodicValue is one number of a periodic schedule. It accepts a JSON
+// number, a numeric string, or null.
+type PeriodicValue int
+
+// UnmarshalJSONFrom implements json.UnmarshalerFrom (encoding/json/v2).
+func (v *PeriodicValue) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
+	tok, err := dec.ReadToken()
+	if err != nil {
+		return err
+	}
+	switch tok.Kind() {
+	case 'n':
+		*v = 0
+		return nil
+	case '0', '"':
+		if tok.String() == "" {
+			*v = 0
+			return nil
+		}
+		n, err := strconv.Atoi(tok.String())
+		if err != nil {
+			return errors.New("cyberbiz: invalid periodic value " + strconv.Quote(tok.String()))
+		}
+		*v = PeriodicValue(n)
+		return nil
+	}
+	return errors.New("cyberbiz: PeriodicValue must be a JSON number, string or null")
 }
 
 // PeriodicBillingAddress is the billing contact of a periodic order. The

@@ -78,10 +78,12 @@ type AffiliateLineItem struct {
 	TotalDiscount             Money                       `json:"total_discount"`
 	TotalPriceAfterDiscounts  Money                       `json:"total_price_after_discounts"`
 	// TaxTypeID is the tax treatment, e.g. "inclusive_tax".
-	TaxTypeID            string              `json:"tax_type_id"`
-	BonusRedemptionPrice Money               `json:"bonus_redemption_price"`
-	RelatedItems         []AffiliateLineItem `json:"related_items"`
-	CreatedAt            Time                `json:"created_at"`
+	TaxTypeID            string `json:"tax_type_id"`
+	BonusRedemptionPrice Money  `json:"bonus_redemption_price"`
+	// RelatedItems are the component groups of a combo product, as on a v1
+	// order line item.
+	RelatedItems []RelatedItems `json:"related_items"`
+	CreatedAt    Time           `json:"created_at"`
 }
 
 // AffiliateLineItemDiscount is one discount applied to a line item.

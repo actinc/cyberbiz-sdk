@@ -6,7 +6,9 @@ import (
 	"encoding/json/v2"
 	"fmt"
 	"iter"
+	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/actinc/cyberbiz-sdk/go/internal/query"
 )
@@ -57,9 +59,9 @@ type CustomerAddressRequest struct {
 	Phone              string `json:"phone,omitzero"`
 }
 
-// CustomerCreateRequest is the body of POST /v1/customers. ConfirmedAt and
-// MobileSMSConfirmedAt are documented as ISO 8601; the SDK sends the
-// platform's "YYYY-MM-DD hh:mm:ss" form.
+// CustomerCreateRequest is the body of POST /v1/customers. The platform
+// parses ConfirmedAt and MobileSMSConfirmedAt as strict ISO 8601, so the SDK
+// sends them as RFC 3339 ("2006-01-02T15:04:05+08:00").
 type CustomerCreateRequest struct {
 	Name                                 string                  `json:"name,omitzero"`
 	Status                               CustomerStatus          `json:"status,omitzero"`
@@ -84,9 +86,9 @@ type CustomerCreateRequest struct {
 	Address                              *CustomerAddressRequest `json:"address,omitzero"`
 }
 
-// CustomerUpdateRequest is the body of PUT /v1/customers/{id}. A non-nil
-// pointer to a zero Time in ConfirmedAt or MobileSMSConfirmedAt sends null,
-// which clears the verification timestamp.
+// CustomerUpdateRequest is the body of PUT /v1/customers/{id}. ConfirmedAt
+// and MobileSMSConfirmedAt are sent as RFC 3339, which the platform requires;
+// a non-nil pointer to a zero Time sends null, which clears the timestamp.
 type CustomerUpdateRequest struct {
 	Name                                 string                  `json:"name,omitzero"`
 	Status                               CustomerStatus          `json:"status,omitzero"`
@@ -131,11 +133,22 @@ type CustomerRegisterCodeRequest struct {
 	AcceptsMarketing *bool  `json:"accepts_marketing,omitzero"`
 }
 
-// CustomerOAuthRequest is the body of POST /v2/customer_oauth: the external
-// identity to authorise.
-type CustomerOAuthRequest struct {
-	UID      string                  `json:"uid"`
-	Provider CustomerUIDProviderType `json:"provider"`
+// CustomerOAuthAppRequest is the body of POST /v2/customer_oauth: the
+// customer-login OAuth application to register for the shop.
+type CustomerOAuthAppRequest struct {
+	AppName           string `json:"app_name"`
+	ScopesDescription string `json:"scopes_description"` // shown to customers on the consent page
+	Description       string `json:"description"`
+	RedirectURI       string `json:"redirect_uri"`
+	// DisplayShopName shows the shop name in the consent page title.
+	DisplayShopName *bool `json:"display_shop_name,omitzero"`
+}
+
+// CustomerOAuthApp is the credential pair of a registered customer-login
+// OAuth application.
+type CustomerOAuthApp struct {
+	ClientID     string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
 }
 
 // List returns one page of customers (GET /v1/customers).
@@ -169,8 +182,12 @@ func (s *CustomersService) Get(ctx context.Context, id int64) (*Customer, *Respo
 
 // Create creates a customer (POST /v1/customers).
 func (s *CustomersService) Create(ctx context.Context, req *CustomerCreateRequest) (*Customer, *Response, error) {
+	body, err := req.wire()
+	if err != nil {
+		return nil, nil, fmt.Errorf("cyberbiz: encoding customer: %w", err)
+	}
 	var out Customer
-	resp, err := s.client.post(ctx, "v1/customers", req, &out)
+	resp, err := s.client.post(ctx, "v1/customers", body, &out)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -185,8 +202,32 @@ type customerUpdateWire struct {
 	MobileSMSConfirmedAt jsontext.Value `json:"mobile_sms_confirmed_at,omitzero"`
 }
 
-// customersNullableTime encodes a *Time as omitted (nil), null (zero) or a
-// timestamp string.
+// customerCreateWire shadows the two verification timestamps so they are
+// sent as RFC 3339.
+type customerCreateWire struct {
+	*CustomerCreateRequest
+	ConfirmedAt          jsontext.Value `json:"confirmed_at,omitzero"`
+	MobileSMSConfirmedAt jsontext.Value `json:"mobile_sms_confirmed_at,omitzero"`
+}
+
+func (r *CustomerCreateRequest) wire() (*customerCreateWire, error) {
+	if r == nil {
+		return nil, nil
+	}
+	confirmed, err := customersNullableTime(r.ConfirmedAt)
+	if err != nil {
+		return nil, err
+	}
+	mobile, err := customersNullableTime(r.MobileSMSConfirmedAt)
+	if err != nil {
+		return nil, err
+	}
+	return &customerCreateWire{CustomerCreateRequest: r, ConfirmedAt: confirmed, MobileSMSConfirmedAt: mobile}, nil
+}
+
+// customersNullableTime encodes a *Time as omitted (nil), null (zero) or an
+// RFC 3339 string: the platform parses these fields with Ruby's
+// Time.iso8601, which rejects the space-separated API layout.
 func customersNullableTime(t *Time) (jsontext.Value, error) {
 	if t == nil {
 		return nil, nil
@@ -194,10 +235,13 @@ func customersNullableTime(t *Time) (jsontext.Value, error) {
 	if t.IsZero() {
 		return jsontext.Value("null"), nil
 	}
-	return json.Marshal(*t)
+	return json.Marshal(t.Format(time.RFC3339))
 }
 
 func (r *CustomerUpdateRequest) wire() (*customerUpdateWire, error) {
+	if r == nil {
+		return nil, nil
+	}
 	confirmed, err := customersNullableTime(r.ConfirmedAt)
 	if err != nil {
 		return nil, err
@@ -397,11 +441,14 @@ func (s *CustomersService) AllV2(ctx context.Context, opts *CustomerListV2Option
 }
 
 // GetByUIDProvider finds the customer linked to an external identity. The
-// query parameter is "provider" (verified against the live API; the Notion
-// reference says "provider_type"). The platform replies "200 null" for an
-// unknown uid, which becomes ErrNotFound (GET /v2/customers/by_uid_provider).
+// platform declares and filters on "provider_type"; "provider" is sent too
+// for compatibility with deployments the SDK was first tested against, where
+// the lookup appeared to work with it (the platform ignores undeclared
+// parameters, so that call matched the uid under any provider). The
+// platform replies "200 null" for an unknown uid, which becomes ErrNotFound
+// (GET /v2/customers/by_uid_provider).
 func (s *CustomersService) GetByUIDProvider(ctx context.Context, providerType CustomerUIDProviderType, uid string) (*Customer, *Response, error) {
-	q := url.Values{"uid": {uid}, "provider": {string(providerType)}}
+	q := url.Values{"uid": {uid}, "provider_type": {string(providerType)}, "provider": {string(providerType)}}
 	var out Customer
 	resp, err := s.client.getOne(ctx, "v2/customers/by_uid_provider", q, &out)
 	if err != nil {
@@ -410,14 +457,24 @@ func (s *CustomersService) GetByUIDProvider(ctx context.Context, providerType Cu
 	return &out, resp, nil
 }
 
-// OAuth authorises a customer through an external identity and returns the
-// matching customer. The published contract is defective; the request and
-// response shapes follow the v2 Postman collection (POST /v2/customer_oauth).
-func (s *CustomersService) OAuth(ctx context.Context, req *CustomerOAuthRequest) (*Customer, *Response, error) {
-	var out Customer
-	resp, err := s.client.post(ctx, "v2/customer_oauth", req, &out)
+// CreateOAuthApp registers a customer-login OAuth application for the shop
+// and returns its client id and secret. It needs the customer_oauth scope.
+// A failure the platform reports as {"success":false,"errors":[...]} is
+// returned as an *APIError (POST /v2/customer_oauth).
+func (s *CustomersService) CreateOAuthApp(ctx context.Context, req *CustomerOAuthAppRequest) (*CustomerOAuthApp, *Response, error) {
+	const path = "v2/customer_oauth"
+	var out struct {
+		CustomerOAuthApp
+		Success *bool    `json:"success"`
+		Errors  []string `json:"errors"`
+	}
+	resp, err := s.client.post(ctx, path, req, &out)
 	if err != nil {
 		return nil, resp, err
 	}
-	return &out, resp, nil
+	if out.ClientID == "" && out.Success != nil && !*out.Success {
+		return nil, resp, &APIError{StatusCode: resp.StatusCode, Method: http.MethodPost, Path: path,
+			RequestID: resp.RequestID, Messages: out.Errors, Body: resp.Body}
+	}
+	return &out.CustomerOAuthApp, resp, nil
 }

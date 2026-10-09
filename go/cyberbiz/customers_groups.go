@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/actinc/cyberbiz-sdk/go/internal/query"
@@ -90,15 +91,27 @@ func (s *CustomersService) ScheduleGroupFilter(ctx context.Context, groupID int6
 	return &out, resp, nil
 }
 
-// UpdateGroupAmounts starts the job that recounts every group's members
+// UpdateGroupAmounts starts the job that recounts every group's members.
+// While a recount is already running the platform answers 200 with
+// {"success":false,"errors":[...]} instead of a job id; that is returned as
+// an *APIError carrying the messages
 // (PUT /v1/customers/customer_groups/update_customer_group_amounts).
 func (s *CustomersService) UpdateGroupAmounts(ctx context.Context) (*CustomerGroupJob, *Response, error) {
-	var out CustomerGroupJob
-	resp, err := s.client.put(ctx, "v1/customers/customer_groups/update_customer_group_amounts", nil, &out)
+	const path = "v1/customers/customer_groups/update_customer_group_amounts"
+	var out struct {
+		JobID   string   `json:"job_id"`
+		Success *bool    `json:"success"`
+		Errors  []string `json:"errors"`
+	}
+	resp, err := s.client.put(ctx, path, nil, &out)
 	if err != nil {
 		return nil, resp, err
 	}
-	return &out, resp, nil
+	if out.JobID == "" && out.Success != nil && !*out.Success {
+		return nil, resp, &APIError{StatusCode: resp.StatusCode, Method: http.MethodPut, Path: path,
+			RequestID: resp.RequestID, Messages: out.Errors, Body: resp.Body}
+	}
+	return &CustomerGroupJob{JobID: out.JobID}, resp, nil
 }
 
 // CheckGroupStatus polls a filter job. Until the job finishes the result

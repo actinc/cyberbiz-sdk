@@ -96,9 +96,27 @@ func (s *CollectionsService) CreateVariantDiscount(ctx context.Context, req *Var
 
 // UpdateVariantDiscount changes a variant-discount collection
 // (PUT /v1/variant_discount_collections/{id}).
+//
+// The platform overwrites the collection type with whatever the request
+// carries, so a request without VariantDiscountCollectionType clears it and
+// then fails with a 500 after the update is saved. When the type is unset,
+// UpdateVariantDiscount therefore first reads the collection
+// (GET /v1/variant_discount_collections/{id}) and resends its current type.
+// req itself is not modified.
 func (s *CollectionsService) UpdateVariantDiscount(ctx context.Context, id int64, req *VariantDiscountCollectionUpdateRequest) (*VariantDiscountCollection, *Response, error) {
+	body := VariantDiscountCollectionUpdateRequest{}
+	if req != nil {
+		body = *req
+	}
+	if body.VariantDiscountCollectionType == "" {
+		current, resp, err := s.GetVariantDiscount(ctx, id)
+		if err != nil {
+			return nil, resp, fmt.Errorf("cyberbiz: read variant-discount collection %d before update: %w", id, err)
+		}
+		body.VariantDiscountCollectionType = current.VariantDiscountCollectionTypeCode
+	}
 	return collectionsWrite[VariantDiscountCollection](ctx, s.client, http.MethodPut,
-		fmt.Sprintf("v1/variant_discount_collections/%d", id), req)
+		fmt.Sprintf("v1/variant_discount_collections/%d", id), &body)
 }
 
 // DeleteVariantDiscount removes a variant-discount collection

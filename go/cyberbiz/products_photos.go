@@ -55,10 +55,12 @@ func (s *ProductsService) ListPhotos(ctx context.Context, productID int64) ([]Pr
 	return out, resp, nil
 }
 
-// CreatePhoto uploads a photo to a product (POST /v1/products/{id}/product_photos).
-func (s *ProductsService) CreatePhoto(ctx context.Context, productID int64, req *ProductPhotoUploadRequest) (*ProductPhoto, *Response, error) {
+// CreatePhoto uploads a photo to a product. The platform stores the photo
+// in a background job and answers {"success":true} without the photo; call
+// ListPhotos afterwards to read it (POST /v1/products/{id}/product_photos).
+func (s *ProductsService) CreatePhoto(ctx context.Context, productID int64, req *ProductPhotoUploadRequest) (*Response, error) {
 	if req == nil || req.Photo == nil {
-		return nil, nil, errors.New("cyberbiz: photo must not be nil")
+		return nil, errors.New("cyberbiz: photo must not be nil")
 	}
 	fields := map[string]string{}
 	if req.Position != nil {
@@ -69,19 +71,14 @@ func (s *ProductsService) CreatePhoto(ctx context.Context, productID int64, req 
 	}
 	body, contentType, err := productsMultipartBody(req.Photo, req.Filename, fields)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	var out ProductPhoto
-	resp, err := s.client.Do(ctx, &Request{
+	return s.client.Do(ctx, &Request{
 		Method: http.MethodPost,
 		Path:   fmt.Sprintf("v1/products/%d/product_photos", productID),
 		Body:   body,
 		Header: http.Header{"Content-Type": {contentType}},
-	}, &out)
-	if err != nil {
-		return nil, resp, err
-	}
-	return &out, resp, nil
+	}, nil)
 }
 
 // DeletePhoto removes a photo (DELETE /v1/products/{id}/product_photos/{id}).

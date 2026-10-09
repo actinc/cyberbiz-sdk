@@ -61,8 +61,10 @@ func productsMultipart(t *testing.T, rec *productsRecorded) (map[string]string, 
 }
 
 func TestProductsCreatePhotoMultipart(t *testing.T) {
-	c, rec := productsRecorder(t, 201, `{"url":"//cdn/x.png","position":2,"id":9}`)
-	photo, _, err := c.Products.CreatePhoto(testCtx, 5, &ProductPhotoUploadRequest{
+	// The platform stores the photo in a background job and answers only
+	// {"success": true}.
+	c, rec := productsRecorder(t, 201, `{"success":true}`)
+	resp, err := c.Products.CreatePhoto(testCtx, 5, &ProductPhotoUploadRequest{
 		Photo: strings.NewReader("PNGDATA"), Filename: "x.png", Position: productsPtr(2), ProductVariantIDs: []int64{1, 2},
 	})
 	if err != nil {
@@ -76,19 +78,19 @@ func TestProductsCreatePhotoMultipart(t *testing.T) {
 	if name != "x.png" || string(data) != "PNGDATA" {
 		t.Errorf("file = %q %q", name, data)
 	}
-	if photo.ID != 9 || photo.Position != 2 {
-		t.Errorf("photo = %+v", photo)
+	if resp == nil || string(resp.Body) != `{"success":true}` {
+		t.Errorf("resp = %+v", resp)
 	}
 
 	// Optional fields are omitted entirely.
-	if _, _, err := c.Products.CreatePhoto(testCtx, 5, &ProductPhotoUploadRequest{Photo: strings.NewReader("x")}); err != nil {
+	if _, err := c.Products.CreatePhoto(testCtx, 5, &ProductPhotoUploadRequest{Photo: strings.NewReader("x")}); err != nil {
 		t.Fatal(err)
 	}
 	fields, name, _ = productsMultipart(t, rec)
 	if len(fields) != 0 || name != "photo" {
 		t.Errorf("fields = %v name = %q", fields, name)
 	}
-	if _, _, err := c.Products.CreatePhoto(testCtx, 5, nil); err == nil {
+	if _, err := c.Products.CreatePhoto(testCtx, 5, nil); err == nil {
 		t.Error("nil request accepted")
 	}
 }

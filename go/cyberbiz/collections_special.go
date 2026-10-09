@@ -39,7 +39,8 @@ type SpecialCollectionUpdateRequest struct {
 // SpecialCollectionRuleRequest is the body of CreateSpecialRule and
 // UpdateSpecialRule: buying Quantity items costs Price (amount, discount and
 // per_discount types) or Percentage of the list price (percentage type).
-// Quantity is required on create; on update an unset field is unchanged.
+// On create the platform requires all three fields; CreateSpecialRule sends
+// 0 for an unset Price or Percentage. On update an unset field is unchanged.
 type SpecialCollectionRuleRequest struct {
 	Quantity   *int     `json:"quantity,omitzero"`
 	Price      *Money   `json:"price,omitzero"`
@@ -94,8 +95,20 @@ func (s *CollectionsService) RemoveSpecialProducts(ctx context.Context, id int64
 // CreateSpecialRule adds a quantity tier to a special collection and
 // returns the updated collection (POST /v1/special_collections/{id}/rules).
 func (s *CollectionsService) CreateSpecialRule(ctx context.Context, id int64, req *SpecialCollectionRuleRequest) (*SpecialCollection, *Response, error) {
+	body := SpecialCollectionRuleRequest{}
+	if req != nil {
+		body = *req
+	}
+	if body.Price == nil {
+		zero := Money(0)
+		body.Price = &zero
+	}
+	if body.Percentage == nil {
+		zero := 0.0
+		body.Percentage = &zero
+	}
 	return collectionsWrite[SpecialCollection](ctx, s.client, http.MethodPost,
-		fmt.Sprintf("v1/special_collections/%d/rules", id), req)
+		fmt.Sprintf("v1/special_collections/%d/rules", id), &body)
 }
 
 // UpdateSpecialRule changes a quantity tier and returns the updated

@@ -61,8 +61,9 @@ type PosProduct struct {
 	// SellWeight is in grams.
 	SellWeight float64 `json:"sell_weight"`
 	// TaxTypeID is e.g. "inclusive_tax".
-	TaxTypeID       string              `json:"tax_type_id"`
-	Tags            []string            `json:"tags"`
+	TaxTypeID string `json:"tax_type_id"`
+	// Tags are tag objects, as on a regular product.
+	Tags            []ProductTag        `json:"tags"`
 	ProductVariants []PosProductVariant `json:"product_variants"`
 	// PosShop is the shop the product belongs to.
 	PosShop   *PosShopSummary `json:"pos_shop"`

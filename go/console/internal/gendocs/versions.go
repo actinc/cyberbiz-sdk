@@ -9,7 +9,7 @@ import (
 // (both locales). It is independent of the CYBERBIZ API version. Bump it on
 // every regeneration: patch for description-only fixes, minor for added
 // endpoints/fields/events, major for removed or renamed ones.
-const DocVersion = "1.0.1"
+const DocVersion = "2.0.0"
 
 // releaseNote is one entry of the "## Release Notes" section.
 type releaseNote struct {
@@ -20,6 +20,20 @@ type releaseNote struct {
 
 // releaseNotes lists every document version, newest first.
 var releaseNotes = []releaseNote{
+	{
+		Version: "2.0.0",
+		Date:    "2026-10-09",
+		Changes: []string{
+			"Removed the /v1/limit_collections endpoints: the platform does not serve them on app-store-api.cyberbiz.io.",
+		},
+	},
+	{
+		Version: "1.1.0",
+		Date:    "2026-10-09",
+		Changes: []string{
+			"Product create and POS batch create document the sku request parameter, which the platform requires for shops with the POS feature.",
+		},
+	},
 	{
 		Version: "1.0.1",
 		Date:    "2026-10-02",

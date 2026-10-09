@@ -42,8 +42,9 @@ type Discount struct {
 }
 
 // RegisterCouponRule is the "coupon on registration" rule of the shop
-// (PUT /v1/discounts/register_coupon_rule). No Golden File exists for it; the
-// shape follows the swagger, which documents expire_day as a string.
+// (PUT /v1/discounts/register_coupon_rule). No Golden File exists for it.
+// The swagger documents expire_day as a string, but it is an integer column
+// sent as a JSON number.
 type RegisterCouponRule struct {
 	Enabled bool `json:"enabled"`
 	// Value is the coupon amount or percentage, depending on CouponType.
@@ -53,8 +54,8 @@ type RegisterCouponRule struct {
 	// OrderPriceThreshold is the minimum order total to use the coupon.
 	OrderPriceThreshold Money `json:"order_price_threshold"`
 	// ExpireDay is the number of days the coupon stays usable.
-	ExpireDay         string `json:"expire_day"`
-	ConcurrentlyApply bool   `json:"concurrently_apply"`
+	ExpireDay         int  `json:"expire_day"`
+	ConcurrentlyApply bool `json:"concurrently_apply"`
 }
 
 // CouponType is the kind of shop coupon a caller can create.

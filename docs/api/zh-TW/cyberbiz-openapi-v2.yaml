@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: CYBERBIZ API v2 and app endpoints
-  version: 1.0.1
+  version: 2.0.0
   description: |-
     # CYBERBIZ API v2 與 app 端點
 
@@ -23,6 +23,14 @@ info:
     - 本文件的**範例**皆為合成資料：結構來自實際錄製的回應，數值皆為虛構。
 
     ## Release Notes
+
+    ### 2.0.0 (2026-10-09)
+
+    - 移除 /v1/limit_collections 端點：平台並未在 app-store-api.cyberbiz.io 提供這些端點。
+
+    ### 1.1.0 (2026-10-09)
+
+    - 新增商品與 POS 批次新增商品補上 sku 請求參數；有 POS 功能的商店必須提供。
 
     ### 1.0.1 (2026-10-02)
 

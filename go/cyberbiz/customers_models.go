@@ -215,19 +215,33 @@ type CustomerMessagePost struct {
 	ID        int64                    `json:"id"`
 	Title     string                   `json:"title"`
 	Category  string                   `json:"category"`
-	Order     string                   `json:"order"` // the order the thread is about, as text
+	Order     *CustomerMessageOrder    `json:"order"` // the order the thread is about, nil if none
 	Status    CustomerMessageStatus    `json:"status"`
 	Comments  []CustomerMessageComment `json:"comments"`
 	CreatedAt Time                     `json:"created_at"`
 }
 
+// CustomerMessageOrder is the order a customer service thread refers to.
+type CustomerMessageOrder struct {
+	ID   int64  `json:"id"`
+	Type string `json:"type"` // the kind of order the thread is linked to
+	Name string `json:"name"` // the order name shown to the customer
+}
+
 // CustomerMessageComment is one message in a customer service thread.
 type CustomerMessageComment struct {
-	ID        int64  `json:"id"`
-	Role      string `json:"role"`  // who replied
-	Admin     string `json:"admin"` // admin details when Role is admin
-	Content   string `json:"content"`
-	CreatedAt Time   `json:"created_at"`
+	ID        int64                 `json:"id"`
+	Role      string                `json:"role"`  // who replied
+	Admin     *CustomerMessageAdmin `json:"admin"` // the replying admin when Role is admin, else nil
+	Content   string                `json:"content"`
+	CreatedAt Time                  `json:"created_at"`
+}
+
+// CustomerMessageAdmin is the shop admin who wrote a reply.
+type CustomerMessageAdmin struct {
+	ID    int64  `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 // CustomerCartItem is a product variant sitting unpaid in the customer's

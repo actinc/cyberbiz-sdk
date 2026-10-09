@@ -3,7 +3,9 @@ package cyberbiz
 // Invoice types accepted by PUT /v1/einvoices/{order_id} in addition to the
 // shared [InvoiceType] constants.
 const (
-	InvoiceTypeLoveCode     InvoiceType = "love_code"     // donation code carrier
+	// Deprecated: the platform does not accept "love_code" and answers 400.
+	// Use InvoiceTypeDonate with a donation code.
+	InvoiceTypeLoveCode     InvoiceType = "love_code"
 	InvoiceTypeClassDefault InvoiceType = "class_default" // 二聯式 paper invoice
 	InvoiceTypeClassCompany InvoiceType = "class_company" // 三聯式 paper invoice with company number
 )

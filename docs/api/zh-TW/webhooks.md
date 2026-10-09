@@ -1,6 +1,6 @@
 # CYBERBIZ Webhooks
 
-Version: 1.0.1
+Version: 2.0.0
 
 每當商店發生 app 訂閱的事件，CYBERBIZ 會對 app 註冊的 HTTPS 網址（app manifest 的 `webhook_url`）送出 HTTP 請求。
 本文件列出所有事件、CYBERBIZ 送出的 HTTP header、簽章驗證方式，以及每種 payload 的合成範例。
@@ -8285,6 +8285,14 @@ X-Cyberbiz-Domain-Hmac-Sha256: 97694009b6e4ade734f9f3303bfa0f544077f2cb5630856d1
 ```
 
 ## Release Notes
+
+### 2.0.0 (2026-10-09)
+
+- 移除 /v1/limit_collections 端點：平台並未在 app-store-api.cyberbiz.io 提供這些端點。
+
+### 1.1.0 (2026-10-09)
+
+- 新增商品與 POS 批次新增商品補上 sku 請求參數；有 POS 功能的商店必須提供。
 
 ### 1.0.1 (2026-10-02)
 
