@@ -295,9 +295,10 @@ func TestParseEmptyBody(t *testing.T) {
 }
 
 func TestEventTypeHelpers(t *testing.T) {
-	// CYBERBIZ documents 35 events for App webhooks.
-	if len(AllEvents) != 35 {
-		t.Fatalf("AllEvents has %d entries, want 35", len(AllEvents))
+	// 35 events from the webhook reference plus 38 from the source-derived
+	// webhook collection.
+	if len(AllEvents) != 73 {
+		t.Fatalf("AllEvents has %d entries, want 73", len(AllEvents))
 	}
 	seen := map[EventType]bool{}
 	for _, e := range AllEvents {
@@ -308,7 +309,8 @@ func TestEventTypeHelpers(t *testing.T) {
 		if !e.Known() {
 			t.Errorf("%q not Known", e)
 		}
-		if e.Resource() == "" || e.Action() == "" {
+		// The Merchant-webhook job events carry no resource prefix.
+		if e.Resource() == "" || (e.Action() == "" && !strings.HasSuffix(string(e), "_finish")) {
 			t.Errorf("%q has empty resource or action", e)
 		}
 	}
@@ -722,5 +724,57 @@ func TestHandler(t *testing.T) {
 				t.Error("response echoed the request body")
 			}
 		})
+	}
+}
+
+// TestDomainSignatureSignsBase64Domain pins the platform's algorithm: the
+// Domain Signature is hex(HMAC-SHA256(secret, base64(domain))), as built by
+// its webhook worker. The vector is shared with the PHP and Java SDKs.
+func TestDomainSignatureSignsBase64Domain(t *testing.T) {
+	const (
+		domain = "example.cyberbiz.co"
+		secret = "app-secret"
+		want   = "db34ece1aebadba93c127e010f3f913cc5541e0ec91376152efff0f224e96a40"
+		rawSig = "97e6b3fd6e226afc59eee357b9649ed557414abd6b84d69aefef43ae6fea50d5" // HMAC over the raw domain
+	)
+	if got := SignDomain(domain, secret); got != want {
+		t.Fatalf("SignDomain = %s, want %s", got, want)
+	}
+	if !VerifyDomain(domain, want, secret) {
+		t.Error("VerifyDomain rejected the platform's signature")
+	}
+	if VerifyDomain(domain, rawSig, secret) {
+		t.Error("VerifyDomain accepted an HMAC over the raw domain")
+	}
+}
+
+// TestTypedAccessorsCoverNewEvents checks that the events added from the
+// webhook collection reach the existing typed payloads by resource.
+func TestTypedAccessorsCoverNewEvents(t *testing.T) {
+	cases := []struct {
+		ev     EventType
+		decode func(e *Event) error
+	}{
+		{EventOrdersUpdate, func(e *Event) error { _, err := e.Order(); return err }},
+		{EventProductsUpdateOptions, func(e *Event) error { _, err := e.Product(); return err }},
+		{EventProductsUpdatePhotos, func(e *Event) error { _, err := e.Product(); return err }},
+		{EventVariantsOutOfStock, func(e *Event) error { _, err := e.Variant(); return err }},
+	}
+	for _, c := range cases {
+		e := &Event{Type: c.ev, Raw: []byte(`{"id":1}`)}
+		if err := c.decode(e); err != nil {
+			t.Errorf("%s: %v", c.ev, err)
+		}
+	}
+	e := &Event{Type: EventMenusCreate, Raw: []byte(`{"id":1,"title":"主選單","system_default":true}`)}
+	var menu struct {
+		ID    int64  `json:"id"`
+		Title string `json:"title"`
+	}
+	if err := e.Decode(&menu); err != nil || menu.ID != 1 {
+		t.Errorf("menus/create via Decode: %+v %v", menu, err)
+	}
+	if _, err := e.Order(); !errors.Is(err, ErrWrongEvent) {
+		t.Errorf("menus/create Order() err = %v, want ErrWrongEvent", err)
 	}
 }

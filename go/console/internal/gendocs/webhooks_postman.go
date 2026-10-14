@@ -13,6 +13,11 @@ const FileWebhookPostman = "cyberbiz-webhooks.postman_collection.json"
 var webhookResourceOrder = []string{
 	"orders", "customers", "uid_providers", "bonus_points", "comment_bonus",
 	"express_delivery_orders", "products", "variants", "coupons", "customer_vip_level", "apps",
+	"cart", "customer_tags", "affiliate_vendor_orders", "collections", "menus", "domains",
+	"bulk_operations", "line_chat_bot", "fbe_ad_accounts", "pos_wallet_transactions",
+	"stock_invoices", "stock_receipts", "stock_requisitions", "stored_orders",
+	// Merchant-webhook job events carry no resource prefix.
+	"send_edm_finish", "send_sms_finish", "send_line_oa_message_finish", "get_customer_ids_finish",
 }
 
 // webhookVariables are the collection variables with synthetic defaults.
@@ -32,7 +37,8 @@ var webhookPreRequestScript = []string{
 	"const raw = pm.request.body && pm.request.body.mode === 'raw' ? pm.request.body.raw : '';",
 	"const enc = pm.variables.get('signatureEncoding') === 'base64' ? CryptoJS.enc.Base64 : CryptoJS.enc.Hex;",
 	"pm.variables.set('cyberbizHmac', CryptoJS.HmacSHA256(raw, secret).toString(enc));",
-	"pm.variables.set('cyberbizDomainHmac', CryptoJS.HmacSHA256(pm.variables.get('shopDomain'), secret).toString(enc));",
+	"const domainB64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(pm.variables.get('shopDomain')));",
+	"pm.variables.set('cyberbizDomainHmac', CryptoJS.HmacSHA256(domainB64, secret).toString(CryptoJS.enc.Hex));",
 }
 
 // webhookTestScript checks the receiver answers like CYBERBIZ expects.
@@ -163,7 +169,7 @@ const (
 This collection replays every documented CYBERBIZ Event against your own webhook receiver, with the same headers, payloads and signatures CYBERBIZ sends.
 
 1. Create a Postman environment with your receiver's ` + "`webhookUrl`" + `, your shop's ` + "`shopDomain`" + ` / ` + "`customDomain`" + ` and the real ` + "`appSecret`" + `; never commit it.
-2. Send a request. The collection's pre-request script computes ` + "`X-Cyberbiz-Hmac-Sha256`" + ` (HMAC-SHA256 of the exact body bytes) and ` + "`X-Cyberbiz-Domain-Hmac-Sha256`" + ` (HMAC-SHA256 of ` + "`shopDomain`" + `) with ` + "`appSecret`" + `, in the encoding selected by ` + "`signatureEncoding`" + `.
+2. Send a request. The collection's pre-request script computes ` + "`X-Cyberbiz-Hmac-Sha256`" + ` (HMAC-SHA256 of the exact body bytes) and ` + "`X-Cyberbiz-Domain-Hmac-Sha256`" + ` (hex HMAC-SHA256 of the base64 of ` + "`shopDomain`" + `, as the platform computes it) with ` + "`appSecret`" + `; the body signature uses the encoding selected by ` + "`signatureEncoding`" + `.
 3. The collection's test expects a 200: your receiver should answer quickly and process the Event asynchronously.
 
 Payloads are synthetic Samples generated from the same source as webhooks.md; they contain no variables so the signature always matches the bytes sent.`

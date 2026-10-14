@@ -14,7 +14,9 @@ import cc.alphacore.cyberbiz.model.ProductVariant;
 import cc.alphacore.cyberbiz.pagination.Page;
 import cc.alphacore.cyberbiz.pagination.PageIterable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,6 +42,8 @@ public final class ProductService {
   private static final String PRODUCTS = "/v1/products";
   private static final String VARIANTS = "product_variants";
   private static final String OPTIONS = "product_options";
+  private static final String TAX_TYPE_ID = "tax_type_id";
+  private static final String TEMPERATURE_TYPES = "temperature_types";
 
   private final Calls calls;
 
@@ -103,8 +107,11 @@ public final class ProductService {
 
   /**
    * Creates a product ({@code POST /v1/products}); title, handle, published and price are required.
+   * {@code sku} sets the SKU of the first variant the platform creates with the product; shops with
+   * the POS feature must send it (the platform answers 422 otherwise).
    *
-   * @param product the fields
+   * @param product the fields, e.g. {@code title}, {@code handle}, {@code published}, {@code
+   *     price}, {@code sku}
    * @return the new product
    */
   public Product create(Map<String, ?> product) {
@@ -114,12 +121,48 @@ public final class ProductService {
   /**
    * Changes a product ({@code PUT /v1/products/{id}}).
    *
+   * <p>The platform fills {@code tax_type_id} and {@code temperature_types} with defaults
+   * (inclusive_tax, 常溫) when a request leaves them out, which would silently reset a zero-rated,
+   * tax-exempt, refrigerated or frozen product. When either is missing, null or empty in {@code
+   * changes}, this method therefore first reads the product ({@code GET /v1/products/{id}}) and
+   * sends its current values; set both to skip that request. {@code changes} is not modified.
+   *
    * @param id the product id
-   * @param changes the fields to change
+   * @param changes the fields to change, e.g. {@code title}, {@code tax_type_id}, {@code
+   *     temperature_types}
    * @return the product, with {@code id} set
    */
   public Product update(long id, Map<String, ?> changes) {
-    return calls.withId(Params.body(Request.of("PUT", path(id)), changes), Product.class, id);
+    Map<String, ?> body = withCurrentTaxAndTemperature(id, changes);
+    return calls.withId(Params.body(Request.of("PUT", path(id)), body), Product.class, id);
+  }
+
+  /**
+   * Returns a copy of {@code changes} whose tax type and temperature types are filled from the
+   * stored product when unset; {@code changes} itself when both are set.
+   */
+  private Map<String, ?> withCurrentTaxAndTemperature(long id, Map<String, ?> changes) {
+    Map<String, ?> given = changes == null ? Map.of() : changes;
+    boolean needsTax = isUnset(given.get(TAX_TYPE_ID));
+    boolean needsTemperature = isUnset(given.get(TEMPERATURE_TYPES));
+    if (!needsTax && !needsTemperature) {
+      return given;
+    }
+    Product current = get(id);
+    Map<String, Object> body = new LinkedHashMap<>(given);
+    if (needsTax && current.taxTypeId() != null && !current.taxTypeId().isEmpty()) {
+      body.put(TAX_TYPE_ID, current.taxTypeId());
+    }
+    if (needsTemperature && !current.temperatureTypes().isEmpty()) {
+      body.put(TEMPERATURE_TYPES, current.temperatureTypes());
+    }
+    return body;
+  }
+
+  private static boolean isUnset(Object value) {
+    return value == null
+        || (value instanceof CharSequence text && text.length() == 0)
+        || (value instanceof Collection<?> values && values.isEmpty());
   }
 
   /**
@@ -132,9 +175,11 @@ public final class ProductService {
   }
 
   /**
-   * Creates the same product in several POS shops ({@code POST /v1/products/pos_shop_batch}).
+   * Creates the same product in several POS shops ({@code POST /v1/products/pos_shop_batch}). The
+   * platform requires {@code sku}, the SKU of the first variant of each created product (422
+   * otherwise).
    *
-   * @param batch the fields, e.g. {@code pos_shop_ids} and the product
+   * @param batch the fields, e.g. {@code pos_shop_ids}, {@code sku} and the product
    * @return the created products
    */
   public List<Product> createForPosShops(Map<String, ?> batch) {
@@ -283,7 +328,8 @@ public final class ProductService {
   }
 
   /**
-   * Adds a variant ({@code POST /v1/products/{id}/product_variants}).
+   * Adds a variant ({@code POST /v1/products/{id}/product_variants}). Shops with the POS feature
+   * must send {@code sku} (the platform answers 422 otherwise).
    *
    * @param productId the product id
    * @param variant the fields, e.g. {@code price}, {@code sku}, {@code option1}

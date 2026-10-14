@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Actinc\Cyberbiz\Tests\Service;
 
+use Actinc\Cyberbiz\Exception\ApiException;
 use Actinc\Cyberbiz\Exception\NotFoundException;
 use Actinc\Cyberbiz\Money;
 use Actinc\Cyberbiz\Service\CustomersService;
+use Actinc\Cyberbiz\Tests\Fake\FakeHttpClient;
 use Actinc\Cyberbiz\Time;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -146,7 +148,7 @@ final class CustomersServiceTest extends TestCase
             $customers->getByUidProvider('line', 'U-synthetic');
             self::fail('expected NotFoundException');
         } catch (NotFoundException) {
-            self::assertSame('GET v2/customers/by_uid_provider?uid=U-synthetic&provider=line', $h->line(2));
+            self::assertSame('GET v2/customers/by_uid_provider?uid=U-synthetic&provider_type=line&provider=line', $h->line(2));
         }
     }
 
@@ -166,6 +168,79 @@ final class CustomersServiceTest extends TestCase
         self::assertTrue($vip->extraInfo?->differenceOfTotalSpentForUpgrade->equals(Money::of('1200')));
         self::assertSame('Shipped', $customers->listMessagePosts(1)->items[0]->comments[0]->content);
         self::assertSame(7, $customers->cartItems(1)[0]->productId);
+    }
+
+    public function testGetByUidProviderSendsProviderTypeAndProvider(): void
+    {
+        $h = Harness::json('{"id":1,"uid_providers":[{"provider_type":"line","uid":"U1"}]}');
+
+        $customer = $h->client->customers()->getByUidProvider('line', 'U1');
+
+        self::assertSame(1, $customer->id);
+        self::assertSame('GET v2/customers/by_uid_provider?uid=U1&provider_type=line&provider=line', $h->line());
+    }
+
+    public function testCreateOAuthAppSendsTheAppAndReturnsItsCredentials(): void
+    {
+        $h = new Harness(new FakeHttpClient(null, FakeHttpClient::json(201, '{"client_id":"cid","client_secret":"sec"}')));
+
+        $app = $h->client->customers()->createOAuthApp([
+            'app_name' => '會員登入',
+            'scopes_description' => '讀取會員資料',
+            'description' => 'd',
+            'redirect_uri' => 'https://example.com/cb',
+            'display_shop_name' => false,
+        ]);
+
+        self::assertSame('cid', $app->clientId);
+        self::assertSame('sec', $app->clientSecret);
+        self::assertSame('POST v2/customer_oauth', $h->line());
+        self::assertSame('{"app_name":"會員登入","scopes_description":"讀取會員資料","description":"d","redirect_uri":"https://example.com/cb","display_shop_name":false}', (string) $h->request()->getBody());
+    }
+
+    public function testCreateOAuthAppTurnsSuccessFalseIntoAnApiException(): void
+    {
+        $h = Harness::json('{"success":false,"errors":["redirect uri invalid"]}');
+
+        try {
+            $h->client->customers()->createOAuthApp(['app_name' => 'a', 'scopes_description' => 's', 'description' => 'd', 'redirect_uri' => 'x']);
+            self::fail('expected ApiException');
+        } catch (ApiException $e) {
+            self::assertSame(200, $e->statusCode);
+            self::assertSame('POST', $e->method);
+            self::assertSame('/v2/customer_oauth', $e->path);
+            self::assertSame(['redirect uri invalid'], $e->messages);
+        }
+    }
+
+    public function testVerificationTimesAreSentAsRfc3339(): void
+    {
+        $h = Harness::json('{"id":1}', '{"id":1}');
+        $at = new \DateTimeImmutable('2026-01-01 19:04:05', new \DateTimeZone('UTC'));
+        $changes = ['mobile_sms_confirmed_at' => $at, 'confirmed_at' => null];
+
+        $h->client->customers()->create(['name' => 'n', 'confirmed_at' => $at]);
+        $h->client->customers()->update(1, $changes);
+
+        self::assertSame('{"name":"n","confirmed_at":"2026-01-02T03:04:05+08:00"}', (string) $h->request()->getBody());
+        self::assertSame('{"mobile_sms_confirmed_at":"2026-01-02T03:04:05+08:00","confirmed_at":null}', (string) $h->request(1)->getBody());
+        self::assertSame($at, $changes['mobile_sms_confirmed_at'], 'the caller\'s array is untouched');
+    }
+
+    public function testMessagePostsDecodeOrderAndAdminObjects(): void
+    {
+        $h = Harness::json('[{"id":1,"order":{"id":2,"type":"Order","name":"#1001"},"comments":[{"id":3,"role":"admin","admin":{"id":4,"name":"Ops","email":"ops@example.com"}},{"id":5,"role":"customer","admin":null}]},{"id":6,"order":null}]');
+
+        $posts = $h->client->customers()->listMessagePosts(1)->items;
+
+        self::assertSame(2, $posts[0]->order?->id);
+        self::assertSame('Order', $posts[0]->order->type);
+        self::assertSame('#1001', $posts[0]->order->name);
+        self::assertSame(4, $posts[0]->comments[0]->admin?->id);
+        self::assertSame('Ops', $posts[0]->comments[0]->admin->name);
+        self::assertSame('ops@example.com', $posts[0]->comments[0]->admin->email);
+        self::assertNull($posts[0]->comments[1]->admin);
+        self::assertNull($posts[1]->order);
     }
 
     public function testUpdateKeepsTheIdAndSendsExplicitNulls(): void
@@ -208,7 +283,6 @@ final class CustomersServiceTest extends TestCase
         yield 'all orders' => [static fn(CustomersService $s) => iterator_to_array($s->allOrders(3, ['per_page' => 10])), '[]', 'GET v1/customers/3/orders?page=1&per_page=10', null];
         yield 'message posts page' => [static fn(CustomersService $s) => $s->listMessagePosts(3, ['page' => 2]), '[]', 'GET v1/customers/3/message_posts?page=2', null];
         yield 'all v2' => [static fn(CustomersService $s) => iterator_to_array($s->allV2(['include_params' => ['tags']])), '[]', 'GET v2/customers?page=1&include_params=tags&per_page=50', null];
-        yield 'oauth' => [static fn(CustomersService $s) => $s->oauth(['uid' => 'U1', 'provider' => 'line']), '{"id":1}', 'POST v2/customer_oauth', ['uid' => 'U1', 'provider' => 'line']];
         yield 'escapes provider type' => [static fn(CustomersService $s) => $s->getUidProvider(3, 'a/b'), '{}', 'GET v1/customers/3/uid_providers/a%2Fb', null];
     }
 }

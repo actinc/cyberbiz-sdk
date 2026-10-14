@@ -3,11 +3,14 @@ package cc.alphacore.cyberbiz.resource;
 import cc.alphacore.cyberbiz.CyberbizClient;
 import cc.alphacore.cyberbiz.Request;
 import cc.alphacore.cyberbiz.Response;
+import cc.alphacore.cyberbiz.exception.ApiException;
 import cc.alphacore.cyberbiz.exception.NotFoundException;
+import cc.alphacore.cyberbiz.json.Times;
 import cc.alphacore.cyberbiz.model.Customer;
 import cc.alphacore.cyberbiz.model.CustomerIdMatch;
 import cc.alphacore.cyberbiz.model.CustomerMessagePost;
 import cc.alphacore.cyberbiz.model.CustomerNameMatch;
+import cc.alphacore.cyberbiz.model.CustomerOAuthApp;
 import cc.alphacore.cyberbiz.model.CustomerSpendingOverview;
 import cc.alphacore.cyberbiz.model.CustomerUidLookup;
 import cc.alphacore.cyberbiz.model.CustomerVipInfo;
@@ -17,6 +20,9 @@ import cc.alphacore.cyberbiz.model.ProductVariant;
 import cc.alphacore.cyberbiz.model.Tag;
 import cc.alphacore.cyberbiz.pagination.Page;
 import cc.alphacore.cyberbiz.pagination.PageIterable;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,6 +44,17 @@ import java.util.Objects;
 public final class CustomerService {
   private static final String CUSTOMERS = "/v1/customers";
   private static final String CUSTOMERS_V2 = "/v2/customers";
+
+  /**
+   * The verification timestamps the platform parses as strict ISO 8601 (Ruby's Time.iso8601), which
+   * rejects the space-separated layout the SDK uses for other times.
+   */
+  private static final List<String> RFC3339_FIELDS =
+      List.of("confirmed_at", "mobile_sms_confirmed_at");
+
+  /** RFC 3339 with whole seconds, e.g. 2026-01-02T03:04:05+08:00. */
+  private static final DateTimeFormatter RFC3339 =
+      DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ssXXX");
 
   private final Calls calls;
 
@@ -102,25 +119,28 @@ public final class CustomerService {
   /**
    * Creates a customer (POST /v1/customers). birthday and other_accumulated_consumption_expired_at
    * are "YYYY-MM-DD"; tags_text is comma-separated; status is one of the {@link Customer#status()}
-   * values.
+   * values. An {@code OffsetDateTime} under confirmed_at or mobile_sms_confirmed_at is sent as RFC
+   * 3339 in Asia/Taipei (2026-01-02T03:04:05+08:00), which the platform requires for those fields.
    *
    * @param customer the new customer's fields
    * @return the created customer
    */
   public Customer create(Map<String, ?> customer) {
-    return calls.object(Params.body(Request.of("POST", CUSTOMERS), customer), Customer.class);
+    Request request = Params.body(Request.of("POST", CUSTOMERS), withRfc3339Times(customer));
+    return calls.object(request, Customer.class);
   }
 
   /**
    * Changes a customer (PUT /v1/customers/{id}). Sending confirmed_at or mobile_sms_confirmed_at as
-   * null clears that verification.
+   * null clears that verification; an {@code OffsetDateTime} there is sent as RFC 3339 in
+   * Asia/Taipei, as {@link #create} does.
    *
    * @param id the customer id
    * @param changes the fields to change; a null value is sent as JSON null
    * @return the updated customer, with the id filled in
    */
   public Customer update(long id, Map<String, ?> changes) {
-    Request request = Params.body(Request.of("PUT", path(id, "")), changes);
+    Request request = Params.body(Request.of("PUT", path(id, "")), withRfc3339Times(changes));
     return calls.object(request, Customer.class).withId(id);
   }
 
@@ -422,8 +442,10 @@ public final class CustomerService {
   }
 
   /**
-   * The customer linked to an external identity. The query parameter is "provider" (verified live;
-   * the Notion reference says "provider_type") (GET /v2/customers/by_uid_provider).
+   * The customer linked to an external identity. The platform declares and filters on
+   * "provider_type"; "provider" is sent too for compatibility with deployments the SDK was first
+   * tested against (the platform ignores undeclared parameters) (GET
+   * /v2/customers/by_uid_provider).
    *
    * @param providerType "line", "line_at" or "facebook"
    * @param uid the external UID
@@ -434,20 +456,42 @@ public final class CustomerService {
     Request request =
         Request.of("GET", CUSTOMERS_V2 + "/by_uid_provider")
             .withQuery("uid", uid)
+            .withQuery("provider_type", providerType)
             .withQuery("provider", providerType);
     return calls.one(request, Customer.class);
   }
 
   /**
-   * Authorises a customer through an external identity and returns the matching customer; shapes
-   * follow the v2 Postman collection (POST /v2/customer_oauth).
+   * Registers a customer-login OAuth application for the shop and returns its client id and secret;
+   * needs the customer_oauth scope (POST /v2/customer_oauth).
    *
-   * @param identity uid and provider
-   * @return the customer
+   * @param app app_name, scopes_description (shown to customers on the consent page), description
+   *     and redirect_uri, all required; display_shop_name (a Boolean, optional) shows the shop name
+   *     in the consent page title
+   * @return the application's credentials
+   * @throws ApiException also when the platform answers 2xx with {@code
+   *     {"success":false,"errors":[...]}}, carrying those messages
    */
-  public Customer oauth(Map<String, ?> identity) {
-    return calls.object(
-        Params.body(Request.of("POST", "/v2/customer_oauth"), identity), Customer.class);
+  public CustomerOAuthApp createOAuthApp(Map<String, ?> app) {
+    Request request = Params.body(Request.of("POST", "/v2/customer_oauth"), app);
+    return calls.unlessFailed(request, CustomerOAuthApp.class, "client_id");
+  }
+
+  /**
+   * Copies a body, writing an {@link OffsetDateTime} under {@link #RFC3339_FIELDS} as RFC 3339 in
+   * Asia/Taipei; other values, and those fields when null or text, are kept as given.
+   */
+  private static Map<String, ?> withRfc3339Times(Map<String, ?> body) {
+    if (body == null) {
+      return null;
+    }
+    Map<String, Object> copy = new LinkedHashMap<>(body);
+    for (String field : RFC3339_FIELDS) {
+      if (copy.get(field) instanceof OffsetDateTime time) {
+        copy.put(field, RFC3339.format(time.atZoneSameInstant(Times.ZONE)));
+      }
+    }
+    return copy;
   }
 
   private static String path(long customerId, String suffix) {

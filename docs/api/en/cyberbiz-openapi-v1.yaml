@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: CYBERBIZ API v1
-  version: 2.0.0
+  version: 2.1.0
   description: |-
     # CYBERBIZ API v1
 
@@ -24,6 +24,14 @@ info:
     - **Samples** in this document are synthetic: their shape comes from recorded responses, their values are fake.
 
     ## Release Notes
+
+    ### 2.1.0 (2026-10-14)
+
+    - webhooks.md and the webhook Postman collection document 38 more events from the source-derived webhook collection, including the four Merchant-webhook job events.
+
+    ### 2.0.1 (2026-10-14)
+
+    - The webhook Domain Signature is documented and computed as the HMAC-SHA256 of the base64-encoded X-Cyberbiz-Domain, which is what the platform signs.
 
     ### 2.0.0 (2026-10-09)
 

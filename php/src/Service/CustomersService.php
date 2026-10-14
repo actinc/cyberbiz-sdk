@@ -14,6 +14,7 @@ use Actinc\Cyberbiz\Model\Customer;
 use Actinc\Cyberbiz\Model\CustomerIdMatch;
 use Actinc\Cyberbiz\Model\CustomerMessagePost;
 use Actinc\Cyberbiz\Model\CustomerNameMatch;
+use Actinc\Cyberbiz\Model\CustomerOAuthApp;
 use Actinc\Cyberbiz\Model\CustomerSpendingOverview;
 use Actinc\Cyberbiz\Model\CustomerUidLookup;
 use Actinc\Cyberbiz\Model\CustomerVipInfo;
@@ -23,6 +24,7 @@ use Actinc\Cyberbiz\Model\ProductVariant;
 use Actinc\Cyberbiz\Model\Tag;
 use Actinc\Cyberbiz\Page;
 use Actinc\Cyberbiz\Request;
+use Actinc\Cyberbiz\Time;
 
 /**
  * Customers, their orders, cart, service threads, VIP state and external
@@ -41,6 +43,9 @@ use Actinc\Cyberbiz\Request;
  */
 final class CustomersService
 {
+    /** The verification timestamps the platform parses as ISO 8601 (Ruby Time.iso8601). */
+    private const RFC3339_FIELDS = ['confirmed_at', 'mobile_sms_confirmed_at'];
+
     public function __construct(
         private readonly Client $client,
         private readonly Endpoint $endpoint,
@@ -85,23 +90,27 @@ final class CustomersService
      * Creates a customer (POST /v1/customers). birthday and
      * other_accumulated_consumption_expired_at are "YYYY-MM-DD"; tags_text
      * is comma-separated; status is one of the Customer::$status values.
+     * A DateTimeInterface under confirmed_at or mobile_sms_confirmed_at is
+     * sent as RFC 3339 in Asia/Taipei ("2026-01-02T03:04:05+08:00"): the
+     * platform rejects the space-separated API layout there.
      *
      * @param array<string, mixed> $customer
      */
     public function create(array $customer): Customer
     {
-        return $this->endpoint->object(new Request('POST', 'v1/customers', body: $customer), self::customer());
+        return $this->endpoint->object(new Request('POST', 'v1/customers', body: self::verificationTimes($customer)), self::customer());
     }
 
     /**
      * Changes a customer (PUT /v1/customers/{id}). Sending confirmed_at or
-     * mobile_sms_confirmed_at as null clears that verification.
+     * mobile_sms_confirmed_at as null clears that verification; a
+     * DateTimeInterface there is sent as RFC 3339, as in create().
      *
      * @param array<string, mixed> $changes
      */
     public function update(int $id, array $changes): Customer
     {
-        return $this->endpoint->object(new Request('PUT', self::path($id), body: $changes), self::customer($id));
+        return $this->endpoint->object(new Request('PUT', self::path($id), body: self::verificationTimes($changes)), self::customer($id));
     }
 
     /**
@@ -330,8 +339,9 @@ final class CustomersService
     }
 
     /**
-     * The customer linked to an external identity. The query parameter is
-     * "provider" (verified live; the Notion reference says "provider_type")
+     * The customer linked to an external identity. The platform declares and
+     * filters on "provider_type"; "provider" is sent too for compatibility
+     * with deployments the SDK was first tested against
      * (GET /v2/customers/by_uid_provider).
      *
      * @param string $providerType "line", "line_at" or "facebook"
@@ -340,21 +350,25 @@ final class CustomersService
      */
     public function getByUidProvider(string $providerType, string $uid): Customer
     {
-        $request = new Request('GET', 'v2/customers/by_uid_provider', ['uid' => $uid, 'provider' => $providerType]);
+        $request = new Request('GET', 'v2/customers/by_uid_provider', ['uid' => $uid, 'provider_type' => $providerType, 'provider' => $providerType]);
 
         return $this->endpoint->one($request, self::customer());
     }
 
     /**
-     * Authorises a customer through an external identity and returns the
-     * matching customer; shapes follow the v2 Postman collection
+     * Registers a customer-login OAuth application for the shop and returns
+     * its client id and secret; it needs the customer_oauth scope.
+     * scopes_description is shown to customers on the consent page;
+     * display_shop_name shows the shop name in its title
      * (POST /v2/customer_oauth).
      *
-     * @param array{uid: string, provider: string} $identity
+     * @param array{app_name: string, scopes_description: string, description: string, redirect_uri: string, display_shop_name?: bool} $app
+     *
+     * @throws ApiException also for a {"success":false,"errors":[...]} reply
      */
-    public function oauth(array $identity): Customer
+    public function createOAuthApp(array $app): CustomerOAuthApp
     {
-        return $this->endpoint->object(new Request('POST', 'v2/customer_oauth', body: $identity), self::customer());
+        return $this->endpoint->objectOrFailure(new Request('POST', 'v2/customer_oauth', body: $app), CustomerOAuthApp::fromFields(...), 'client_id');
     }
 
     private static function path(int $customerId, string $suffix = ''): string
@@ -365,6 +379,26 @@ final class CustomersService
     private static function uidPath(int $customerId, string $providerType): string
     {
         return self::path($customerId, 'uid_providers/' . rawurlencode($providerType));
+    }
+
+    /**
+     * Encodes the DateTimeInterface verification timestamps of a body as
+     * RFC 3339; null (clears) and strings pass through.
+     *
+     * @param array<string, mixed> $body
+     *
+     * @return array<string, mixed>
+     */
+    private static function verificationTimes(array $body): array
+    {
+        foreach (self::RFC3339_FIELDS as $key) {
+            $value = $body[$key] ?? null;
+            if ($value instanceof \DateTimeInterface) {
+                $body[$key] = \DateTimeImmutable::createFromInterface($value)->setTimezone(new \DateTimeZone(Time::ZONE))->format(\DATE_RFC3339);
+            }
+        }
+
+        return $body;
     }
 
     /** @return \Closure(Fields): Customer */

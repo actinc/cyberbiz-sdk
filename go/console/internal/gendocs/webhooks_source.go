@@ -26,6 +26,9 @@ type webhookSource struct {
 	Sections map[string][]whField
 	Order    []string // section names in document order
 	Events   []whEvent
+	// Links maps "Section/field" to the section describing that field's
+	// object, for sections added from the webhook collection.
+	Links map[string]string
 }
 
 var (

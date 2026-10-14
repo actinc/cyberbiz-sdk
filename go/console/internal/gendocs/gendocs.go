@@ -106,6 +106,11 @@ func loadInputs(cfg Config) (*inputs, error) {
 	if err != nil {
 		return nil, fmt.Errorf("load webhook reference: %w", err)
 	}
+	whColl, err := loadWebhookCollection(filepath.Join(cfg.RefsDir, "cyberbiz-webhooks.postman_collection.json"))
+	if err != nil {
+		return nil, fmt.Errorf("load webhook collection: %w", err)
+	}
+	addCollectionSections(wh, whColl, webhookEvents)
 	return &inputs{swagger: sw, observed: obs, golden: golden, postmanV1: pm, webhooks: wh}, nil
 }
 

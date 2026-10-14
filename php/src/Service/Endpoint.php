@@ -10,6 +10,7 @@ use Actinc\Cyberbiz\Exception\DecodeException;
 use Actinc\Cyberbiz\Exception\NotFoundException;
 use Actinc\Cyberbiz\Exception\TransportException;
 use Actinc\Cyberbiz\Fields;
+use Actinc\Cyberbiz\Http\ErrorMapper;
 use Actinc\Cyberbiz\Json;
 use Actinc\Cyberbiz\Request;
 use Actinc\Cyberbiz\Response;
@@ -40,6 +41,40 @@ final class Endpoint
         $fields = Fields::of(self::decode($this->client->send($request), $request));
 
         return $build($envelope === null ? $fields : $fields->object($envelope));
+    }
+
+    /**
+     * Like object() for endpoints that report some failures as a 2xx
+     * {"success":false,"errors":[...]} body: when $resultKey is absent or
+     * empty and success is false, that becomes an ApiException carrying the
+     * messages.
+     *
+     * @template T
+     *
+     * @param callable(Fields): T $build
+     *
+     * @return T
+     *
+     * @throws ApiException when the body reports success false
+     * @throws TransportException|DecodeException|\JsonException
+     */
+    public function objectOrFailure(Request $request, callable $build, string $resultKey): mixed
+    {
+        $response = $this->client->send($request);
+        $fields = Fields::of(self::decode($response, $request));
+        $result = $fields->raw($resultKey);
+        if (($result === null || $result === '') && $fields->raw('success') === false) {
+            throw new ApiException(
+                $response->statusCode,
+                strtoupper($request->method),
+                '/' . ltrim($request->path, '/'),
+                $response->requestId(),
+                ErrorMapper::messages($response->body),
+                $response->body,
+            );
+        }
+
+        return $build($fields);
     }
 
     /**

@@ -216,6 +216,9 @@ final class WebhookTest extends TestCase
     {
         self::assertSame('orders', EventType::OrdersPartialRefunded->resource());
         self::assertSame('partial_refunded', EventType::OrdersPartialRefunded->action());
+        self::assertSame('send_sms_finish', EventType::SendSmsFinish->resource());
+        self::assertSame('', EventType::SendSmsFinish->action());
+        self::assertSame('stock_receipts', EventType::StockReceiptsDone->resource());
     }
 
     public function testKeepsUnknownEventsButReportsNoEventType(): void
@@ -232,5 +235,18 @@ final class WebhookTest extends TestCase
         self::assertSame('carts/create', $event->type);
         self::assertNull($event->eventType());
         self::assertSame(1, $event->fields()->int('id'));
+    }
+
+    /**
+     * The platform signs hex(HMAC-SHA256(secret, base64(domain))); the vector is shared with the
+     * Go and Java SDKs.
+     */
+    public function testDomainSignatureSignsTheBase64Domain(): void
+    {
+        $want = 'db34ece1aebadba93c127e010f3f913cc5541e0ec91376152efff0f224e96a40';
+        $raw = '97e6b3fd6e226afc59eee357b9649ed557414abd6b84d69aefef43ae6fea50d5';
+        self::assertSame($want, Signature::signDomain('example.cyberbiz.co', 'app-secret'));
+        self::assertTrue(Signature::verifyDomain('example.cyberbiz.co', $want, 'app-secret'));
+        self::assertFalse(Signature::verifyDomain('example.cyberbiz.co', $raw, 'app-secret'));
     }
 }

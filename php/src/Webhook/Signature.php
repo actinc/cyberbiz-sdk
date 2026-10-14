@@ -17,10 +17,13 @@ final class Signature
         return hash_hmac('sha256', $body, $secret);
     }
 
-    /** The Domain Signature for a Shop Domain. */
+    /**
+     * The Domain Signature for a Shop Domain: hex HMAC-SHA256 of the base64-encoded Shop Domain,
+     * which is what the platform signs (not the domain itself).
+     */
     public static function signDomain(string $shopDomain, string $secret): string
     {
-        return hash_hmac('sha256', $shopDomain, $secret);
+        return hash_hmac('sha256', base64_encode($shopDomain), $secret);
     }
 
     /** Whether $signature (hex, either case, or base64) is the HMAC of $body; empty never verifies. */
@@ -31,7 +34,7 @@ final class Signature
 
     public static function verifyDomain(string $shopDomain, string $signature, string $secret): bool
     {
-        return self::matches(hash_hmac('sha256', $shopDomain, $secret, true), $signature, $secret);
+        return self::matches(hash_hmac('sha256', base64_encode($shopDomain), $secret, true), $signature, $secret);
     }
 
     /** Both encodings are always compared, so timing does not reveal which matched. */

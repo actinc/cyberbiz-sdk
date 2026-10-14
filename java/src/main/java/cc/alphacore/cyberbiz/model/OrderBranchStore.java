@@ -1,5 +1,7 @@
 package cc.alphacore.cyberbiz.model;
 
+import com.google.gson.annotations.JsonAdapter;
+
 /**
  * The branch store attached to an order for pickup or express delivery.
  *
@@ -11,8 +13,8 @@ package cc.alphacore.cyberbiz.model;
  * @param address street address
  * @param zip postal code
  * @param openingHours opening hours
- * @param lat latitude, or null
- * @param lng longitude, or null
+ * @param lat latitude, or null; the platform may send it as a decimal string
+ * @param lng longitude, or null; the platform may send it as a decimal string
  * @param enabled whether the store is enabled, or null
  * @param sourceType "BranchStore" or "PosShop"
  * @param sourceId the id of the source store, or null
@@ -26,8 +28,8 @@ public record OrderBranchStore(
     String address,
     String zip,
     String openingHours,
-    Double lat,
-    Double lng,
+    @JsonAdapter(CoordinateAdapter.class) Double lat,
+    @JsonAdapter(CoordinateAdapter.class) Double lng,
     Boolean enabled,
     String sourceType,
     Long sourceId) {}

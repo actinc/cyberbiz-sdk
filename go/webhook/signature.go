@@ -17,9 +17,10 @@ func Sign(body []byte, secret string) string {
 }
 
 // SignDomain returns the Domain Signature for shopDomain: the lowercase hex
-// HMAC-SHA256 of the Shop Domain keyed by the App Secret.
+// HMAC-SHA256, keyed by the App Secret, of the standard base64 encoding of
+// the Shop Domain (what the platform signs; see domainMessage).
 func SignDomain(shopDomain, secret string) string {
-	return hex.EncodeToString(mac([]byte(shopDomain), secret))
+	return hex.EncodeToString(mac(domainMessage(shopDomain), secret))
 }
 
 // Verify reports whether signature is the HMAC-SHA256 of body keyed by
@@ -31,10 +32,18 @@ func Verify(body []byte, signature, secret string) bool {
 	return verifyMAC(mac(body, secret), signature, secret)
 }
 
-// VerifyDomain reports whether signature is the HMAC-SHA256 of shopDomain
-// keyed by secret, with the same encodings as [Verify].
+// VerifyDomain reports whether signature is the Domain Signature of
+// shopDomain keyed by secret (see [SignDomain]), with the same encodings as
+// [Verify].
 func VerifyDomain(shopDomain, signature, secret string) bool {
-	return verifyMAC(mac([]byte(shopDomain), secret), signature, secret)
+	return verifyMAC(mac(domainMessage(shopDomain), secret), signature, secret)
+}
+
+// domainMessage is what the platform signs for the Domain Signature: the
+// Shop Domain in standard base64, not the domain itself
+// (Base64.strict_encode64(shop.cyberbiz_domain) in its webhook worker).
+func domainMessage(shopDomain string) []byte {
+	return []byte(base64.StdEncoding.EncodeToString([]byte(shopDomain)))
 }
 
 func mac(msg []byte, secret string) []byte {

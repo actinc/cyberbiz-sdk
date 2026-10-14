@@ -70,7 +70,9 @@ final class ProductsService
 
     /**
      * Creates a product (POST /v1/products). title, handle, published and
-     * price are required.
+     * price are required. sku is the SKU of the first variant the platform
+     * creates with the product; shops with the POS feature require it (422
+     * otherwise).
      *
      * @param array<string, mixed> $product
      */
@@ -82,11 +84,22 @@ final class ProductsService
     /**
      * Changes a product (PUT /v1/products/{id}).
      *
+     * The platform fills tax_type_id and temperature_types with defaults
+     * (inclusive_tax, 常溫) when a request leaves them out, which would
+     * silently reset a zero-rated, tax-exempt, refrigerated or frozen
+     * product. When either is missing or empty in $changes, update()
+     * therefore first reads the product (GET /v1/products/{id}) and sends its
+     * current values; set both to skip that extra request.
+     *
      * @param array<string, mixed> $changes
+     *
+     * @throws NotFoundException when the product to read first does not exist
      */
     public function update(int $id, array $changes): Product
     {
-        return $this->endpoint->object(new Request('PUT', self::path($id), body: $changes), self::product($id));
+        $body = $this->withCurrentTaxAndTemperature($id, $changes);
+
+        return $this->endpoint->object(new Request('PUT', self::path($id), body: $body), self::product($id));
     }
 
     /** Removes a product (DELETE /v1/products/{id}). */
@@ -97,6 +110,8 @@ final class ProductsService
 
     /**
      * Creates the same product in several POS shops (POST /v1/products/pos_shop_batch).
+     * sku, the SKU of the first variant of each created product, is required
+     * by the platform (422 otherwise).
      *
      * @param array<string, mixed> $batch
      *
@@ -351,6 +366,34 @@ final class ProductsService
     public function deleteOption(int $productId, int $optionId): void
     {
         $this->endpoint->call(new Request('DELETE', self::path($productId, 'product_options/' . $optionId)));
+    }
+
+    /**
+     * Returns $changes with tax_type_id and temperature_types filled from
+     * the stored product when missing or empty; $changes is a copy, so the
+     * caller's array is untouched.
+     *
+     * @param array<string, mixed> $changes
+     *
+     * @return array<string, mixed>
+     */
+    private function withCurrentTaxAndTemperature(int $id, array $changes): array
+    {
+        $hasTax = ($changes['tax_type_id'] ?? '') !== '';
+        $hasTemperature = ($changes['temperature_types'] ?? []) !== [];
+        if ($hasTax && $hasTemperature) {
+            return $changes;
+        }
+        $current = $this->get($id);
+        // Like the Go SDK, an empty stored value is left out rather than sent.
+        if (!$hasTax && $current->taxTypeId !== '') {
+            $changes['tax_type_id'] = $current->taxTypeId;
+        }
+        if (!$hasTemperature && $current->temperatureTypes !== []) {
+            $changes['temperature_types'] = $current->temperatureTypes;
+        }
+
+        return $changes;
     }
 
     /**

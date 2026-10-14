@@ -8,9 +8,10 @@ type webhookEvent struct {
 	Payload     string // section name in webhookSource
 }
 
-// webhookEvents are the documented events in reference order. The Cart
-// payload (reference section 6) has no event name in any source under
-// docs/references/, so no cart event is listed; see whCartNote.
+// webhookEvents are the documented events: those of the webhook reference
+// in reference order, then the events the source-derived webhook collection
+// adds (their payload sections come from the collection's field tables; see
+// webhooks_collection.go). The SDKs list their event types in this order.
 var webhookEvents = []webhookEvent{
 	{"customers/create", "A customer registered.", "Customer"},
 	{"customers/update", "A customer's profile changed.", "Customer"},
@@ -47,29 +48,50 @@ var webhookEvents = []webhookEvent{
 	{"coupons/destroy", "A coupon was deleted.", "Coupon"},
 	{"customer_vip_level/update", "A customer's VIP level changed.", "Customer VIP Level"},
 	{"apps/uninstall", "The app was uninstalled from the shop.", "App Uninstall"},
+	// Added from the source-derived webhook collection.
+	{"orders/update", "An order changed.", "Order"},
+	{"products/update_options", "A product's options changed.", "Product"},
+	{"products/update_photos", "A product's photos changed.", "Product"},
+	{"variants/out_of_stock", "A product variant sold out.", "Product Variant"},
+	{"cart/add", "A customer added items to the cart.", "Cart"},
+	{"customer_tags/update", "A customer's tags changed.", "Customer Tags"},
+	{"affiliate_vendor_orders/create", "An affiliate order was created.", "Affiliate Vendor Order"},
+	{"affiliate_vendor_orders/cancelled", "An affiliate order was cancelled.", "Affiliate Vendor Order"},
+	{"affiliate_vendor_orders/closed", "An affiliate order was closed.", "Affiliate Vendor Order"},
+	{"collections/create", "A product collection was created.", "Collection"},
+	{"collections/update", "A product collection changed.", "Collection"},
+	{"collections/delete", "A product collection was deleted.", "Collection"},
+	{"menus/create", "A storefront menu was created.", "Menu"},
+	{"menus/update", "A storefront menu changed.", "Menu Update"},
+	{"menus/destroy", "A storefront menu was deleted.", "Menu Destroy"},
+	{"domains/create", "A shop domain was added.", "Domain"},
+	{"domains/update", "A shop domain changed.", "Domain"},
+	{"domains/destroy", "A shop domain was removed.", "Domain"},
+	{"bulk_operations/finish", "A bulk operation finished.", "Bulk Operation"},
+	{"line_chat_bot/update", "The shop's LINE Messaging API settings changed.", "LINE Chat Bot"},
+	{"fbe_ad_accounts/reclaim", "A Facebook ad account was reclaimed.", "FBE Ad Account"},
+	{"pos_wallet_transactions/topup", "A POS wallet was topped up.", "POS Wallet Topup"},
+	{"pos_wallet_transactions/refund", "A POS wallet top-up was refunded.", "POS Wallet Refund"},
+	{"stock_invoices/created", "A stock invoice (outbound) was created.", "Stock Invoice"},
+	{"stock_invoices/done", "A stock invoice was shipped out.", "Stock Invoice"},
+	{"stock_invoices/cancelled", "A stock invoice was cancelled.", "Stock Invoice"},
+	{"stock_receipts/created", "A stock receipt (inbound) was created.", "Stock Receipt"},
+	{"stock_receipts/done", "A stock receipt was put into stock.", "Stock Receipt"},
+	{"stock_receipts/cancelled", "A stock receipt was cancelled.", "Stock Receipt"},
+	{"stock_requisitions/created", "A stock requisition (transfer) was created.", "Stock Requisition"},
+	{"stock_requisitions/approved", "A stock requisition was approved.", "Stock Requisition"},
+	{"stock_requisitions/cancelled", "A stock requisition was cancelled.", "Stock Requisition"},
+	{"stored_orders/retrieved", "Stored goods were picked up.", "Stored Order Retrieved"},
+	{"stored_orders/refunded", "A stored order was refunded.", "Stored Order Refunded"},
+	{"send_edm_finish", "An EDM send job finished (Merchant webhooks only).", "EDM Job"},
+	{"send_sms_finish", "An SMS send job finished (Merchant webhooks only).", "SMS Job"},
+	{"send_line_oa_message_finish", "A LINE OA message send job finished (Merchant webhooks only).", "LINE OA Message Job"},
+	{"get_customer_ids_finish", "A customer-group member lookup finished (Merchant webhooks only).", "Customer IDs Job"},
 }
 
 // undocumentedEvents appear in app manifests (Golden File GET /settings)
 // but have no payload documentation.
-var undocumentedEvents = []string{
-	"customer_tags/update",
-	"affiliate_vendor_orders/create",
-	"affiliate_vendor_orders/closed",
-	"affiliate_vendor_orders/cancelled",
-	"orders/update",
-	"products/update_photos",
-	"products/update_options",
-	"domains/create",
-	"domains/update",
-	"domains/destroy",
-	"collections/create",
-	"collections/update",
-	"collections/delete",
-	"bulk_operations/finish",
-	"menus/create",
-	"menus/update",
-	"menus/destroy",
-}
+var undocumentedEvents = []string{}
 
 // webhookSectionByKey maps a payload field to the reference section that
 // describes its object. Context-specific cases are keyed "Parent/field".

@@ -12,7 +12,7 @@ import (
 // constant, and [EventType.Known] reports false for it.
 type EventType string
 
-// Every event CYBERBIZ documents for App webhooks.
+// Every event CYBERBIZ documents, in documentation order.
 const (
 	// Customers.
 	EventCustomersCreate    EventType = "customers/create"
@@ -62,6 +62,52 @@ const (
 
 	// Apps.
 	EventAppsUninstall EventType = "apps/uninstall"
+
+	// Events documented by the source-derived webhook collection. The
+	// typed accessors cover those whose resource already has a payload
+	// (orders, products, variants); decode the others with [Event.Decode].
+	EventOrdersUpdate                   EventType = "orders/update"
+	EventProductsUpdateOptions          EventType = "products/update_options"
+	EventProductsUpdatePhotos           EventType = "products/update_photos"
+	EventVariantsOutOfStock             EventType = "variants/out_of_stock"
+	EventCartAdd                        EventType = "cart/add"
+	EventCustomerTagsUpdate             EventType = "customer_tags/update"
+	EventAffiliateVendorOrdersCreate    EventType = "affiliate_vendor_orders/create"
+	EventAffiliateVendorOrdersCancelled EventType = "affiliate_vendor_orders/cancelled"
+	EventAffiliateVendorOrdersClosed    EventType = "affiliate_vendor_orders/closed"
+	EventCollectionsCreate              EventType = "collections/create"
+	EventCollectionsUpdate              EventType = "collections/update"
+	EventCollectionsDelete              EventType = "collections/delete"
+	EventMenusCreate                    EventType = "menus/create"
+	EventMenusUpdate                    EventType = "menus/update"
+	EventMenusDestroy                   EventType = "menus/destroy"
+	EventDomainsCreate                  EventType = "domains/create"
+	EventDomainsUpdate                  EventType = "domains/update"
+	EventDomainsDestroy                 EventType = "domains/destroy"
+	EventBulkOperationsFinish           EventType = "bulk_operations/finish"
+	EventLineChatBotUpdate              EventType = "line_chat_bot/update"
+	EventFBEAdAccountsReclaim           EventType = "fbe_ad_accounts/reclaim"
+	EventPOSWalletTransactionsTopup     EventType = "pos_wallet_transactions/topup"
+	EventPOSWalletTransactionsRefund    EventType = "pos_wallet_transactions/refund"
+	EventStockInvoicesCreated           EventType = "stock_invoices/created"
+	EventStockInvoicesDone              EventType = "stock_invoices/done"
+	EventStockInvoicesCancelled         EventType = "stock_invoices/cancelled"
+	EventStockReceiptsCreated           EventType = "stock_receipts/created"
+	EventStockReceiptsDone              EventType = "stock_receipts/done"
+	EventStockReceiptsCancelled         EventType = "stock_receipts/cancelled"
+	EventStockRequisitionsCreated       EventType = "stock_requisitions/created"
+	EventStockRequisitionsApproved      EventType = "stock_requisitions/approved"
+	EventStockRequisitionsCancelled     EventType = "stock_requisitions/cancelled"
+	EventStoredOrdersRetrieved          EventType = "stored_orders/retrieved"
+	EventStoredOrdersRefunded           EventType = "stored_orders/refunded"
+
+	// Merchant webhooks only (shop-configured callbacks, not App webhooks).
+	// These job events have no resource prefix: Resource returns the whole
+	// name and Action is empty.
+	EventSendEDMFinish           EventType = "send_edm_finish"
+	EventSendSMSFinish           EventType = "send_sms_finish"
+	EventSendLineOAMessageFinish EventType = "send_line_oa_message_finish"
+	EventGetCustomerIDsFinish    EventType = "get_customer_ids_finish"
 )
 
 // Resource names, the part of an [EventType] before the slash.
@@ -79,7 +125,8 @@ const (
 	ResourceApps                  = "apps"
 )
 
-// AllEvents lists every documented event, in documentation order.
+// AllEvents lists every documented event, in documentation order (the
+// order of the signed samples in docs/api/en/webhooks.md).
 var AllEvents = []EventType{
 	EventCustomersCreate, EventCustomersUpdate,
 	EventUIDProvidersCreate, EventUIDProvidersUpdate,
@@ -96,6 +143,19 @@ var AllEvents = []EventType{
 	EventCouponsCreate, EventCouponsUpdate, EventCouponsDestroy,
 	EventCustomerVIPLevelUpdate,
 	EventAppsUninstall,
+	EventOrdersUpdate, EventProductsUpdateOptions, EventProductsUpdatePhotos,
+	EventVariantsOutOfStock, EventCartAdd, EventCustomerTagsUpdate,
+	EventAffiliateVendorOrdersCreate, EventAffiliateVendorOrdersCancelled, EventAffiliateVendorOrdersClosed,
+	EventCollectionsCreate, EventCollectionsUpdate, EventCollectionsDelete,
+	EventMenusCreate, EventMenusUpdate, EventMenusDestroy,
+	EventDomainsCreate, EventDomainsUpdate, EventDomainsDestroy,
+	EventBulkOperationsFinish, EventLineChatBotUpdate, EventFBEAdAccountsReclaim,
+	EventPOSWalletTransactionsTopup, EventPOSWalletTransactionsRefund,
+	EventStockInvoicesCreated, EventStockInvoicesDone, EventStockInvoicesCancelled,
+	EventStockReceiptsCreated, EventStockReceiptsDone, EventStockReceiptsCancelled,
+	EventStockRequisitionsCreated, EventStockRequisitionsApproved, EventStockRequisitionsCancelled,
+	EventStoredOrdersRetrieved, EventStoredOrdersRefunded,
+	EventSendEDMFinish, EventSendSMSFinish, EventSendLineOAMessageFinish, EventGetCustomerIDsFinish,
 }
 
 // String returns the wire form, e.g. "orders/paid".

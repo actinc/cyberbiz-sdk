@@ -51,13 +51,13 @@ v1 與 v2 共用主機、token 與下列慣例；v2 並非 v1 的替代品（訂
 | ` + "`X-Cyberbiz-Shop-Domain`" + ` | ` + "`%s`" + ` | 商家自訂的前台網址。僅供參考，不是識別碼。 |
 | ` + "`X-Cyberbiz-Event`" + ` | ` + "`orders/paid`" + ` | 事件，命名為 ` + "`resource/action`" + `。 |
 | ` + "`X-Cyberbiz-Hmac-Sha256`" + ` | ` + "`3f2a…`" + `（64 個十六進位字元） | 簽章：以 App Secret 為金鑰對原始 request body 計算的 HMAC-SHA256。 |
-| ` + "`X-Cyberbiz-Domain-Hmac-Sha256`" + ` | ` + "`9b1c…`" + `（64 個十六進位字元） | 網域簽章：以 App Secret 為金鑰對 ` + "`X-Cyberbiz-Domain`" + ` 值計算的 HMAC-SHA256。 |`,
+| ` + "`X-Cyberbiz-Domain-Hmac-Sha256`" + ` | ` + "`9b1c…`" + `（64 個十六進位字元） | 網域簽章：以 App Secret 為金鑰，對 ` + "`X-Cyberbiz-Domain`" + ` 值的標準 base64 編碼（不是網域本身）計算 HMAC-SHA256，以小寫十六進位表示。 |`,
 	webhookVerifyText: `## 驗證簽章
 
 1. 在解析之前先讀取原始 body 位元組。
 2. 計算 ` + "`HMAC-SHA256(app_secret, body)`" + `。
 3. 以常數時間比較摘要的 **hex** 編碼與 ` + "`X-Cyberbiz-Hmac-Sha256`" + `。正式環境的 App webhook 送的是 hex（64 字元），雖然 CYBERBIZ 文件寫的是 base64 — 請同時接受 base64 作為備援，以免平台日後變更時驗證失敗。
-4. 可選擇以相同方式用 ` + "`X-Cyberbiz-Domain`" + ` 檢查 ` + "`X-Cyberbiz-Domain-Hmac-Sha256`" + `；它將請求綁定到單一商店，但不驗證 payload。
+4. 可選擇用 ` + "`X-Cyberbiz-Domain`" + ` 的 base64 檢查 ` + "`X-Cyberbiz-Domain-Hmac-Sha256`" + `（十六進位摘要）；它將請求綁定到單一商店，但不驗證 payload。
 5. 驗證失敗時回應 ` + "`401`" + `，不要處理 body。
 
 ` + "```go" + `
@@ -103,7 +103,6 @@ func verify(body []byte, header, secret string) bool {
 	whUndocumentedText:    "以下事件出現在 app manifest（`GET /settings` 的 `webhook_events`）中，但參考文件未記載其 payload：",
 	whPayloadsHeading:     "Payload 物件",
 	whPayloadsText:        "欄位類型依 CYBERBIZ 文件所載。時間為 Asia/Taipei 的 `YYYY-MM-DD HH:MM:SS`；金額欄位為浮點數；任何欄位都可能為 `null`。",
-	whCartNote:            "CYBERBIZ 記載了此 payload 但未命名對應的事件；未曾觀察到任何傳送，SDK 也未定義購物車事件。此處僅為完整性而列出。",
 	whSamplesHeading:      "範例",
 	whSamplesText:         "以下範例皆為合成資料。簽章 header 是以 App Secret `%s` 對所示的 JSON 位元組（兩空格縮排、結尾換行的美化輸出）計算，因此可用來測試驗證程式。",
 	whBase64Text:          "同一簽章的 Base64 形式（CYBERBIZ 文件所描述的格式）：",
@@ -122,7 +121,7 @@ func verify(body []byte, header, secret string) bool {
 本 collection 會以 CYBERBIZ 實際送出的 header、payload 與簽章，對你自己的 webhook 接收端重放所有文件記載的事件。
 
 1. 建立 Postman 環境，填入接收端的 ` + "`webhookUrl`" + `、商店的 ` + "`shopDomain`" + `／` + "`customDomain`" + ` 與真實的 ` + "`appSecret`" + `；絕不提交此環境檔。
-2. 送出請求。collection 的 pre-request script 會以 ` + "`appSecret`" + ` 計算 ` + "`X-Cyberbiz-Hmac-Sha256`" + `（對 body 位元組的 HMAC-SHA256）與 ` + "`X-Cyberbiz-Domain-Hmac-Sha256`" + `（對 ` + "`shopDomain`" + ` 的 HMAC-SHA256），編碼由 ` + "`signatureEncoding`" + ` 決定。
+2. 送出請求。collection 的 pre-request script 會以 ` + "`appSecret`" + ` 計算 ` + "`X-Cyberbiz-Hmac-Sha256`" + `（對 body 位元組的 HMAC-SHA256）與 ` + "`X-Cyberbiz-Domain-Hmac-Sha256`" + `（對 ` + "`shopDomain`" + ` 的 base64 計算十六進位 HMAC-SHA256，與平台算法相同）；body 簽章的編碼由 ` + "`signatureEncoding`" + ` 決定。
 3. collection 的測試預期回應 200：接收端應盡快回應，並以非同步方式處理事件。
 
 payload 為與 webhooks.md 同源產生的合成範例；不含任何變數，因此簽章一定與送出的位元組相符。`,
@@ -130,9 +129,49 @@ payload 為與 webhooks.md 同源產生的合成範例；不含任何變數，�
 	whPostmanText:    "本檔案旁的 collection `cyberbiz-webhooks.postman_collection.json` 會將下列所有事件重放到你自己的接收端：在 Postman 環境中設定 `webhookUrl`、`shopDomain`、`customDomain` 與 `appSecret`（絕不提交），其 pre-request script 會以 CYBERBIZ 相同的方式為每個請求簽章（`signatureEncoding` 選擇 hex（正式環境形式）或 base64（文件形式））。",
 
 	// --- release notes 1.0.1 ---
-	"Postman collection descriptions no longer point to repository-internal files.":                                                       "Postman collection 說明不再指向 repository 內部的檔案。",
-	"Product create and POS batch create document the sku request parameter, which the platform requires for shops with the POS feature.": "新增商品與 POS 批次新增商品補上 sku 請求參數；有 POS 功能的商店必須提供。",
-	"Removed the /v1/limit_collections endpoints: the platform does not serve them on app-store-api.cyberbiz.io.":                         "移除 /v1/limit_collections 端點：平台並未在 app-store-api.cyberbiz.io 提供這些端點。",
+	"Postman collection descriptions no longer point to repository-internal files.":                                                                         "Postman collection 說明不再指向 repository 內部的檔案。",
+	"Product create and POS batch create document the sku request parameter, which the platform requires for shops with the POS feature.":                   "新增商品與 POS 批次新增商品補上 sku 請求參數；有 POS 功能的商店必須提供。",
+	"Removed the /v1/limit_collections endpoints: the platform does not serve them on app-store-api.cyberbiz.io.":                                           "移除 /v1/limit_collections 端點：平台並未在 app-store-api.cyberbiz.io 提供這些端點。",
+	"The webhook Domain Signature is documented and computed as the HMAC-SHA256 of the base64-encoded X-Cyberbiz-Domain, which is what the platform signs.": "webhook 網域簽章改為說明並計算 X-Cyberbiz-Domain 的 base64 編碼之 HMAC-SHA256，與平台實際簽章方式一致。",
+	"An order changed.":                                                 "訂單更新。",
+	"A product's options changed.":                                      "商品規格修改。",
+	"A product's photos changed.":                                       "商品圖片修改。",
+	"A product variant sold out.":                                       "款式已售完。",
+	"A customer added items to the cart.":                               "顧客將商品加入購物車。",
+	"A customer's tags changed.":                                        "會員標籤更新。",
+	"An affiliate order was created.":                                   "建立分潤訂單。",
+	"An affiliate order was cancelled.":                                 "取消分潤訂單。",
+	"An affiliate order was closed.":                                    "分潤訂單結案。",
+	"A product collection was created.":                                 "建立商品群組。",
+	"A product collection changed.":                                     "更新商品群組。",
+	"A product collection was deleted.":                                 "刪除商品群組。",
+	"A storefront menu was created.":                                    "新增選單。",
+	"A storefront menu changed.":                                        "更新選單。",
+	"A storefront menu was deleted.":                                    "刪除選單。",
+	"A shop domain was added.":                                          "新增網域。",
+	"A shop domain changed.":                                            "更新網域。",
+	"A shop domain was removed.":                                        "刪除網域。",
+	"A bulk operation finished.":                                        "批次操作完成。",
+	"The shop's LINE Messaging API settings changed.":                   "更新 LINE Messaging API 設定。",
+	"A Facebook ad account was reclaimed.":                              "Facebook 廣告帳號收回。",
+	"A POS wallet was topped up.":                                       "儲值金儲值。",
+	"A POS wallet top-up was refunded.":                                 "儲值金退款。",
+	"A stock invoice (outbound) was created.":                           "出倉單建立。",
+	"A stock invoice was shipped out.":                                  "出倉單已出庫。",
+	"A stock invoice was cancelled.":                                    "出倉單已取消。",
+	"A stock receipt (inbound) was created.":                            "進倉單建立。",
+	"A stock receipt was put into stock.":                               "進倉單已入庫。",
+	"A stock receipt was cancelled.":                                    "進倉單已取消。",
+	"A stock requisition (transfer) was created.":                       "調倉單建立。",
+	"A stock requisition was approved.":                                 "調倉單已確認。",
+	"A stock requisition was cancelled.":                                "調倉單已取消。",
+	"Stored goods were picked up.":                                      "寄存訂單領取。",
+	"A stored order was refunded.":                                      "寄存訂單退款。",
+	"An EDM send job finished (Merchant webhooks only).":                "EDM 發送完成（僅 Merchant webhook）。",
+	"An SMS send job finished (Merchant webhooks only).":                "簡訊發送完成（僅 Merchant webhook）。",
+	"A LINE OA message send job finished (Merchant webhooks only).":     "LINE OA 訊息發送完成（僅 Merchant webhook）。",
+	"A customer-group member lookup finished (Merchant webhooks only).": "顧客群組會員查詢完成（僅 Merchant webhook）。",
+	"webhooks.md and the webhook Postman collection document 38 more events from the source-derived webhook collection, including the four Merchant-webhook job events.": "webhooks.md 與 webhook Postman collection 依據原始碼產生的 webhook collection，新增 38 個事件，包含 4 個 Merchant webhook 的工作完成事件。",
 	skuParamDescription: "商品第一個款式的 SKU。有 POS 功能的商店必填（否則回應 422）。",
 
 	// --- release notes ---

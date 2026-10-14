@@ -204,7 +204,9 @@ class CustomerServiceTest {
         "GET v2/customers?ids=23300813%2C24077804&include_params=tags%2Cvip_info", h.line(1));
     assertEquals(24077804L, selected.items().get(1).id());
     assertThrows(NotFoundException.class, () -> customers.getByUidProvider("line", "U-synthetic"));
-    assertEquals("GET v2/customers/by_uid_provider?uid=U-synthetic&provider=line", h.line(2));
+    assertEquals(
+        "GET v2/customers/by_uid_provider?uid=U-synthetic&provider_type=line&provider=line",
+        h.line(2));
   }
 
   @Test
@@ -461,14 +463,14 @@ class CustomerServiceTest {
             "by uid provider",
             s -> s.getByUidProvider("facebook", "U 1"),
             "{\"id\":1}",
-            "GET v2/customers/by_uid_provider?uid=U%201&provider=facebook",
+            "GET v2/customers/by_uid_provider?uid=U%201&provider_type=facebook&provider=facebook",
             null),
         new Shape(
-            "oauth",
-            s -> s.oauth(map("uid", "U1", "provider", "line")),
-            "{\"id\":1}",
+            "create oauth app",
+            s -> s.createOAuthApp(map("app_name", "a", "display_shop_name", false)),
+            "{\"client_id\":\"cid\",\"client_secret\":\"sec\"}",
             "POST v2/customer_oauth",
-            "{\"uid\":\"U1\",\"provider\":\"line\"}"));
+            "{\"app_name\":\"a\",\"display_shop_name\":false}"));
   }
 
   @ParameterizedTest(name = "{0}")

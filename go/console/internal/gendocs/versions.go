@@ -9,7 +9,7 @@ import (
 // (both locales). It is independent of the CYBERBIZ API version. Bump it on
 // every regeneration: patch for description-only fixes, minor for added
 // endpoints/fields/events, major for removed or renamed ones.
-const DocVersion = "2.0.0"
+const DocVersion = "2.1.0"
 
 // releaseNote is one entry of the "## Release Notes" section.
 type releaseNote struct {
@@ -20,6 +20,20 @@ type releaseNote struct {
 
 // releaseNotes lists every document version, newest first.
 var releaseNotes = []releaseNote{
+	{
+		Version: "2.1.0",
+		Date:    "2026-10-14",
+		Changes: []string{
+			"webhooks.md and the webhook Postman collection document 38 more events from the source-derived webhook collection, including the four Merchant-webhook job events.",
+		},
+	},
+	{
+		Version: "2.0.1",
+		Date:    "2026-10-14",
+		Changes: []string{
+			"The webhook Domain Signature is documented and computed as the HMAC-SHA256 of the base64-encoded X-Cyberbiz-Domain, which is what the platform signs.",
+		},
+	},
 	{
 		Version: "2.0.0",
 		Date:    "2026-10-09",

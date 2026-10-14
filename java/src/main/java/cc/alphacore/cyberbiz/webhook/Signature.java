@@ -33,14 +33,22 @@ public final class Signature {
   }
 
   /**
-   * Returns the Domain Signature for a Shop Domain.
+   * Returns the Domain Signature for a Shop Domain: hex HMAC-SHA256 of the base64-encoded domain.
    *
    * @param shopDomain the Shop Domain
    * @param secret the App Secret, not empty
    * @return 64 lowercase hex characters
    */
   public static String signDomain(String shopDomain, String secret) {
-    return sign(shopDomain.getBytes(StandardCharsets.UTF_8), secret);
+    return sign(domainMessage(shopDomain), secret);
+  }
+
+  /**
+   * What the platform signs for the Domain Signature: the Shop Domain in standard base64, not the
+   * domain itself.
+   */
+  private static byte[] domainMessage(String shopDomain) {
+    return Base64.getEncoder().encode(shopDomain.getBytes(StandardCharsets.UTF_8));
   }
 
   /**
@@ -68,7 +76,7 @@ public final class Signature {
    * @return whether it matches
    */
   public static boolean verifyDomain(String shopDomain, String signature, String secret) {
-    return verify(shopDomain.getBytes(StandardCharsets.UTF_8), signature, secret);
+    return verify(domainMessage(shopDomain), signature, secret);
   }
 
   /** Both encodings are always compared, so timing does not reveal which matched. */

@@ -3,10 +3,13 @@ package cc.alphacore.cyberbiz.resource;
 import cc.alphacore.cyberbiz.CyberbizClient;
 import cc.alphacore.cyberbiz.Request;
 import cc.alphacore.cyberbiz.Response;
+import cc.alphacore.cyberbiz.exception.ApiException;
 import cc.alphacore.cyberbiz.exception.DecodeException;
 import cc.alphacore.cyberbiz.exception.NotFoundException;
 import cc.alphacore.cyberbiz.json.Json;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -60,6 +63,62 @@ final class Calls {
   /** Like {@link #object}, setting {@code id} on the result: update replies may omit it. */
   <T> T withId(Request request, Class<T> type, long id) {
     return tree(request, client.send(request), type, null, id);
+  }
+
+  /**
+   * Like {@link #object} for endpoints that report a failure as a 2xx {@code
+   * {"success":false,"errors":[...]}} instead of an error status: such a reply, when it lacks
+   * {@code resultKey}, becomes an {@link ApiException} carrying the messages.
+   */
+  <T> T unlessFailed(Request request, Class<T> type, String resultKey) {
+    Response response = client.send(request);
+    JsonElement element = decode(request, response, JsonElement.class);
+    if (element != null && element.isJsonObject() && failed(element.getAsJsonObject(), resultKey)) {
+      throw new ApiException(
+          response.statusCode(),
+          request.method(),
+          "/" + request.path().replaceFirst("^/+", ""),
+          response.requestId(),
+          messages(element.getAsJsonObject().get("errors")),
+          response.body());
+    }
+    T value = decode(request, response, type);
+    if (value == null) {
+      throw new DecodeException(describe(request) + ": empty response body");
+    }
+    return value;
+  }
+
+  private static boolean failed(JsonObject reply, String resultKey) {
+    JsonElement success = reply.get("success");
+    JsonElement result = reply.get(resultKey);
+    boolean hasResult =
+        result != null
+            && !result.isJsonNull()
+            && !(result.isJsonPrimitive() && result.getAsString().isEmpty());
+    return !hasResult
+        && success != null
+        && success.isJsonPrimitive()
+        && success.getAsJsonPrimitive().isBoolean()
+        && !success.getAsBoolean();
+  }
+
+  /** The non-empty strings of an errors value: a string or a list of strings. */
+  private static List<String> messages(JsonElement errors) {
+    List<String> out = new ArrayList<>();
+    if (errors == null || errors.isJsonNull()) {
+      return out;
+    }
+    Iterable<JsonElement> items = errors.isJsonArray() ? errors.getAsJsonArray() : List.of(errors);
+    for (JsonElement item : items) {
+      if (item.isJsonPrimitive() && item.getAsJsonPrimitive().isString()) {
+        String text = item.getAsString();
+        if (!text.isEmpty()) {
+          out.add(text);
+        }
+      }
+    }
+    return out;
   }
 
   /** Sends a GET by id; a 200 with a null body becomes a {@link NotFoundException}. */

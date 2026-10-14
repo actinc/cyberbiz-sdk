@@ -103,11 +103,15 @@ final class Fields
         return $this->boolOrNull($key) ?? $default;
     }
 
-    /** A non-monetary number such as a weight; null or absent is $default. */
+    /**
+     * A non-monetary number such as a weight or a coordinate, as a JSON
+     * number or a numeric string ("25.0330000"); null, absent or "" is
+     * $default.
+     */
     public function float(string $key, float $default = 0.0): float
     {
         $value = $this->raw($key);
-        if ($value === null) {
+        if ($value === null || $value === '') {
             return $default;
         }
         if (\is_int($value) || (\is_string($value) && is_numeric($value))) {

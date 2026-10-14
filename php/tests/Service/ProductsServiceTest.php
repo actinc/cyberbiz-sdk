@@ -157,6 +157,49 @@ final class ProductsServiceTest extends TestCase
         self::assertSame(9, $product->id);
     }
 
+    public function testCreateSendsTheSku(): void
+    {
+        $h = Harness::json('{"id":9}');
+
+        $h->client->products()->create(['title' => 'Tea', 'handle' => 'tea', 'published' => true, 'price' => Money::of('1'), 'sku' => 'SKU-000001']);
+
+        self::assertSame('{"title":"Tea","handle":"tea","published":true,"price":1.00,"sku":"SKU-000001"}', (string) $h->request()->getBody());
+    }
+
+    public function testUpdateFillsMissingTaxAndTemperatureFromTheStoredProduct(): void
+    {
+        $h = Harness::json('{"tax_type_id":"zero_tax","temperature_types":["冷藏","冷凍"]}', '{}');
+        $changes = ['title' => 'New'];
+
+        $product = $h->client->products()->update(3, $changes);
+
+        self::assertSame(3, $product->id);
+        self::assertSame('GET v1/products/3', $h->line());
+        self::assertSame('PUT v1/products/3', $h->line(1));
+        self::assertSame(['title' => 'New', 'tax_type_id' => 'zero_tax', 'temperature_types' => ['冷藏', '冷凍']], $h->body(1));
+        self::assertSame(['title' => 'New'], $changes, 'the caller\'s array is untouched');
+    }
+
+    public function testUpdateKeepsTheGivenTaxAndReadsOnlyTheMissingTemperature(): void
+    {
+        $h = Harness::json('{"tax_type_id":"inclusive_tax","temperature_types":["冷凍"]}', '{}');
+
+        $h->client->products()->update(3, ['tax_type_id' => 'zero_tax', 'temperature_types' => []]);
+
+        self::assertSame('GET v1/products/3', $h->line());
+        self::assertSame(['tax_type_id' => 'zero_tax', 'temperature_types' => ['冷凍']], $h->body(1));
+    }
+
+    public function testUpdateWithTaxAndTemperatureSkipsTheRead(): void
+    {
+        $h = Harness::json('{}');
+
+        $h->client->products()->update(3, ['tax_type_id' => 'zero_tax', 'temperature_types' => ['常溫']]);
+
+        self::assertCount(1, $h->http->requests);
+        self::assertSame('PUT v1/products/3', $h->line());
+    }
+
     /**
      * Every write and the remaining reads: method, path and body.
      *
@@ -176,9 +219,9 @@ final class ProductsServiceTest extends TestCase
     /** @return iterable<string, array{\Closure(ProductsService): mixed, string, string, mixed}> */
     public static function requestShapes(): iterable
     {
-        yield 'update' => [static fn(ProductsService $s) => $s->update(3, ['title' => 'New']), '{}', 'PUT v1/products/3', ['title' => 'New']];
+        yield 'update' => [static fn(ProductsService $s) => $s->update(3, ['title' => 'New', 'tax_type_id' => 'zero_tax', 'temperature_types' => ['冷凍']]), '{}', 'PUT v1/products/3', ['title' => 'New', 'tax_type_id' => 'zero_tax', 'temperature_types' => ['冷凍']]];
         yield 'delete' => [static fn(ProductsService $s) => $s->delete(3), '', 'DELETE v1/products/3', null];
-        yield 'pos shop batch' => [static fn(ProductsService $s) => $s->createForPosShops(['pos_shop_ids' => [1, 2]]), '[]', 'POST v1/products/pos_shop_batch', ['pos_shop_ids' => [1, 2]]];
+        yield 'pos shop batch' => [static fn(ProductsService $s) => $s->createForPosShops(['pos_shop_ids' => [1, 2], 'sku' => 'SKU-000001']), '[]', 'POST v1/products/pos_shop_batch', ['pos_shop_ids' => [1, 2], 'sku' => 'SKU-000001']];
         yield 'seo meta tags' => [static fn(ProductsService $s) => $s->updateSeoMetaTags(3, ['title' => 'T']), '{}', 'PUT v1/products/3/seo_meta_tags', ['title' => 'T']];
         yield 'add tags' => [static fn(ProductsService $s) => $s->addTags(3, ['a', 'b']), '[]', 'PUT v1/products/3/product_tags/add', ['tags' => 'a,b']];
         yield 'remove tags' => [static fn(ProductsService $s) => $s->removeTags(3, ['a']), '[]', 'PUT v1/products/3/product_tags/remove', ['tags' => 'a']];
@@ -197,7 +240,7 @@ final class ProductsServiceTest extends TestCase
         $h = Harness::json('{}', '{}', '{}', '{}');
         $products = $h->client->products();
 
-        self::assertSame(3, $products->update(3, [])->id);
+        self::assertSame(3, $products->update(3, ['tax_type_id' => 'zero_tax', 'temperature_types' => ['常溫']])->id);
         self::assertSame(3, $products->updateSeoMetaTags(3, [])->id);
         self::assertInstanceOf(ProductVariant::class, $variant = $products->updateVariant(3, 4, []));
         self::assertSame(4, $variant->id);

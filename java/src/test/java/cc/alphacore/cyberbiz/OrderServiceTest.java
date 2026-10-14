@@ -232,7 +232,7 @@ class OrderServiceTest {
                     + "\"T-1-1\",\"used_at\":\"2026-01-02 03:04:05\"}]}]",
                 "[{\"id\":4,\"id_verification\":true,\"amount\":60,\"store_no\":\"S1\"}]",
                 "{\"request_id\":\"r-1\",\"results\":[{\"order_id\":5,\"tracking_numbers\":"
-                    + "{\"tracking_company\":\"hct\",\"tracking_number\":\"N1\"},"
+                    + "[{\"tracking_company\":\"hct\",\"tracking_number\":\"N1\"}],"
                     + "\"line_items\":\"1,2\"}]}",
                 "{\"failed_orders\":[{\"order_id\":6,\"message\":\"no stock\"}],"
                     + "\"fulfillments\":[{\"id\":7,\"order_id\":8,\"tracking_number\":\"\"}]}")
@@ -253,6 +253,7 @@ class OrderServiceTest {
             .results()
             .get(0)
             .trackingNumbers()
+            .get(0)
             .trackingCompany());
     assertEquals(6L, orders.createSupportShippings(map()).failedOrders().get(0).orderId());
   }

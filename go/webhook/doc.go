@@ -9,7 +9,7 @@
 //	X-Cyberbiz-Shop-Domain:        www.example-shop.com  (the merchant's custom storefront hostname)
 //	X-Cyberbiz-Event:              orders/paid           (the Event, resource/action)
 //	X-Cyberbiz-Hmac-Sha256:        <HMAC-SHA256(App Secret, raw body)>
-//	X-Cyberbiz-Domain-Hmac-Sha256: <HMAC-SHA256(App Secret, X-Cyberbiz-Domain)>
+//	X-Cyberbiz-Domain-Hmac-Sha256: <HMAC-SHA256(App Secret, base64(X-Cyberbiz-Domain))>
 //
 // The Shop Domain is the key for looking up the Shop's App Secret; the
 // custom domain is informational only. The body Signature is what

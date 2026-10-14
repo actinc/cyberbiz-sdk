@@ -16,17 +16,17 @@ published alongside):
 <dependency>
   <groupId>cc.alphacore</groupId>
   <artifactId>cyberbiz-sdk</artifactId>
-  <version>0.1.1</version>
+  <version>0.2.0</version>
 </dependency>
 ```
 
 ```kotlin
-implementation("cc.alphacore:cyberbiz-sdk:0.1.1")
+implementation("cc.alphacore:cyberbiz-sdk:0.2.0")
 ```
 
 > **Do not use 0.1.0.** Its default transport speaks HTTP/2, over which the
 > JDK client cannot reach the CYBERBIZ API (every call fails with a
-> `TransportException`, "EOF reached while reading"). 0.1.1 talks HTTP/1.1.
+> `TransportException`, "EOF reached while reading"). 0.1.1 and later talk HTTP/1.1.
 
 ## Usage
 

@@ -65,10 +65,10 @@ class ProductServiceTest {
             "{\"title\":\"T\"}"),
         shape(
             "update",
-            s -> s.update(3, Map.of("title", "N")),
+            s -> s.update(3, bothTaxAndTemperature("title", "N")),
             "{}",
             "PUT v1/products/3",
-            "{\"title\":\"N\"}"),
+            "{\"title\":\"N\",\"tax_type_id\":\"zero_tax\",\"temperature_types\":[\"冷凍\"]}"),
         shape("delete", s -> run(() -> s.delete(3)), "", "DELETE v1/products/3", null),
         shape(
             "pos shop batch",
@@ -291,7 +291,7 @@ class ProductServiceTest {
 
     assertEquals(4, variant.id());
     assertEquals(5, option.id());
-    assertEquals(3, s.update(3, Map.of()).id());
+    assertEquals(3, s.update(3, bothTaxAndTemperature()).id());
     assertEquals(3, s.updateSeoMetaTags(3, Map.of()).id());
     assertEquals(4, s.updateVariant(3, 4, Map.of()).id());
     assertEquals(5, s.updateOption(3, 5, Map.of()).id());
@@ -362,6 +362,14 @@ class ProductServiceTest {
     var unused = products().listVariantsBySku("x".repeat(256));
 
     assertEquals(1, transport.requests.size());
+  }
+
+  /** A product change that sets tax type and temperature, so update sends no GET first. */
+  private static Map<String, Object> bothTaxAndTemperature(Object... pairs) {
+    Map<String, Object> changes = ServiceHarness.map(pairs);
+    changes.put("tax_type_id", "zero_tax");
+    changes.put("temperature_types", List.of("冷凍"));
+    return changes;
   }
 
   private static Arguments shape(

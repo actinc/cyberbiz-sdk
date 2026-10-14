@@ -7,9 +7,9 @@ import java.time.OffsetDateTime;
  *
  * @param id the comment id, or null
  * @param role who replied
- * @param admin admin details when role is admin
+ * @param admin the replying admin when role is admin, otherwise null
  * @param content the message
  * @param createdAt when it was posted
  */
 public record CustomerMessageComment(
-    Long id, String role, String admin, String content, OffsetDateTime createdAt) {}
+    Long id, String role, CustomerMessageAdmin admin, String content, OffsetDateTime createdAt) {}

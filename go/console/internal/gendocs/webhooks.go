@@ -119,6 +119,9 @@ func (b *webhookBuilder) value(parent string, f whField, base any, depth int) an
 }
 
 func (b *webhookBuilder) section(parent, key string) string {
+	if s, ok := b.src.Links[parent+"/"+key]; ok {
+		return s
+	}
 	if s, ok := webhookSectionByKey[parent+"/"+key]; ok {
 		return s
 	}
@@ -198,6 +201,14 @@ var webhookFieldSamples = map[string]any{
 	"pos_user_email":         synthStaffEmail,
 	"pos_name":               "POS 1",
 	"filter":                 "商品價格 小於 1000",
+	"subdomain":              "example",
+	"domain":                 "www.example-shop.com",
+	"host":                   "www.example-shop.com",
+	"job_status":             "success",
+	"channel_id":             "1234567890",
+	"channel_secret":         "example-channel-secret",
+	"channel_token":          "example-channel-access-token",
+	"barcode":                "SI00000001",
 }
 
 // signatures computes the synthetic signature headers for a body.
@@ -206,7 +217,8 @@ func signatures(body []byte) (hexSig, b64Sig, domainSig string) {
 	mac.Write(body)
 	sum := mac.Sum(nil)
 	dm := hmac.New(sha256.New, []byte(webhookSecret))
-	dm.Write([]byte(synthShopDomain))
+	// The platform signs the base64 of the Shop Domain, not the domain.
+	dm.Write([]byte(base64.StdEncoding.EncodeToString([]byte(synthShopDomain))))
 	return hex.EncodeToString(sum), base64.StdEncoding.EncodeToString(sum), hex.EncodeToString(dm.Sum(nil))
 }
 
@@ -232,16 +244,15 @@ func buildWebhooksMarkdown(src *webhookSource, golden *goldenSet, loc *locale, l
 	for _, ev := range webhookEvents {
 		fmt.Fprintf(&md, "| `%s` | %s | [%s](#%s) |\n", ev.Code, t(ev.Description), ev.Payload, anchor(ev.Payload))
 	}
-	fmt.Fprintf(&md, "\n### %s\n\n%s\n\n", t(whUndocumentedHeading), t(whUndocumentedText))
-	for _, e := range undocumentedEvents {
-		fmt.Fprintf(&md, "- `%s`\n", e)
+	if len(undocumentedEvents) > 0 {
+		fmt.Fprintf(&md, "\n### %s\n\n%s\n\n", t(whUndocumentedHeading), t(whUndocumentedText))
+		for _, e := range undocumentedEvents {
+			fmt.Fprintf(&md, "- `%s`\n", e)
+		}
 	}
 	fmt.Fprintf(&md, "\n## %s\n\n%s\n", t(whPayloadsHeading), t(whPayloadsText))
 	for _, sec := range src.Order {
 		fmt.Fprintf(&md, "\n### %s\n\n", sec)
-		if sec == "Cart" {
-			fmt.Fprintf(&md, "%s\n\n", t(whCartNote))
-		}
 		fmt.Fprintf(&md, "| %s | %s | %s |\n| --- | --- | --- |\n", t(whColField), t(whColType), t(whColDescription))
 		for _, f := range src.fields(sec) {
 			desc := loc.Source(f.Desc)
@@ -286,7 +297,6 @@ const (
 	whUndocumentedText    = "These events appear in app manifests (`webhook_events` of `GET /settings`) but the reference documents no payload for them:"
 	whPayloadsHeading     = "Payload objects"
 	whPayloadsText        = "Field types are as documented by CYBERBIZ. Timestamps are `YYYY-MM-DD HH:MM:SS` in Asia/Taipei; money fields are floats; any field may be `null`."
-	whCartNote            = "CYBERBIZ documents this payload without naming an event for it; no delivery has been observed and the SDK defines no cart Event. It is listed for completeness only."
 	whSamplesHeading      = "Samples"
 	whSamplesText         = "Every sample below is synthetic. The signature headers are computed with the App Secret `%s` over the exact JSON bytes shown (pretty-printed, two-space indent, trailing newline), so the samples can be used to test a verifier."
 	whBase64Text          = "Base64 form of the same signature (as the CYBERBIZ documentation describes it):"
@@ -313,14 +323,14 @@ const webhookHeadersTemplate = `### Headers
 | ` + "`X-Cyberbiz-Shop-Domain`" + ` | ` + "`%s`" + ` | The merchant's custom storefront hostname. Informational; not an identifier. |
 | ` + "`X-Cyberbiz-Event`" + ` | ` + "`orders/paid`" + ` | The Event, named ` + "`resource/action`" + `. |
 | ` + "`X-Cyberbiz-Hmac-Sha256`" + ` | ` + "`3f2a…`" + ` (64 hex chars) | The Signature: HMAC-SHA256 of the raw request body keyed by the App Secret. |
-| ` + "`X-Cyberbiz-Domain-Hmac-Sha256`" + ` | ` + "`9b1c…`" + ` (64 hex chars) | The Domain Signature: HMAC-SHA256 of the ` + "`X-Cyberbiz-Domain`" + ` value keyed by the App Secret. |`
+| ` + "`X-Cyberbiz-Domain-Hmac-Sha256`" + ` | ` + "`9b1c…`" + ` (64 hex chars) | The Domain Signature: lowercase hex HMAC-SHA256, keyed by the App Secret, of the standard base64 encoding of the ` + "`X-Cyberbiz-Domain`" + ` value (not of the domain itself). |`
 
 const webhookVerifyText = `## Verifying the signature
 
 1. Read the raw body bytes before parsing them.
 2. Compute ` + "`HMAC-SHA256(app_secret, body)`" + `.
 3. Compare, in constant time, the **hex** encoding of the digest with ` + "`X-Cyberbiz-Hmac-Sha256`" + `. Production App webhooks send hex (64 characters), although the CYBERBIZ documentation describes base64 — accept base64 as a fallback so a future change on the platform does not break verification.
-4. Optionally check ` + "`X-Cyberbiz-Domain-Hmac-Sha256`" + ` the same way against ` + "`X-Cyberbiz-Domain`" + `; it binds the request to one shop but does not authenticate the payload.
+4. Optionally check ` + "`X-Cyberbiz-Domain-Hmac-Sha256`" + ` against the base64 of ` + "`X-Cyberbiz-Domain`" + ` (hex digest); it binds the request to one shop but does not authenticate the payload.
 5. Reject anything that fails with ` + "`401`" + ` and do not process the body.
 
 ` + "```go" + `
@@ -345,7 +355,7 @@ const webhookRetryText = `## Retries and idempotency
 var authoredConstants = []string{
 	webhookIntro, webhookHeadersTemplate, webhookVerifyText, webhookRetryText,
 	whEventsHeading, whColEvent, whColDescription, whColPayload, whColField, whColType,
-	whUndocumentedHeading, whUndocumentedText, whPayloadsHeading, whPayloadsText, whCartNote,
+	whUndocumentedHeading, whUndocumentedText, whPayloadsHeading, whPayloadsText,
 	whSamplesHeading, whSamplesText, whBase64Text,
 	v1Intro, v2Intro, conventionsTemplate,
 	recordedNote, nullNote, includeNote, scopeTemplate, serverNote, bearerNote,

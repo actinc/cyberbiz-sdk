@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: CYBERBIZ API v1
-  version: 2.0.0
+  version: 2.1.0
   description: |-
     # CYBERBIZ API v1
 
@@ -22,6 +22,14 @@ info:
     - 本文件的**範例**皆為合成資料：結構來自實際錄製的回應，數值皆為虛構。
 
     ## Release Notes
+
+    ### 2.1.0 (2026-10-14)
+
+    - webhooks.md 與 webhook Postman collection 依據原始碼產生的 webhook collection，新增 38 個事件，包含 4 個 Merchant webhook 的工作完成事件。
+
+    ### 2.0.1 (2026-10-14)
+
+    - webhook 網域簽章改為說明並計算 X-Cyberbiz-Domain 的 base64 編碼之 HMAC-SHA256，與平台實際簽章方式一致。
 
     ### 2.0.0 (2026-10-09)
 

@@ -10,7 +10,7 @@ use Actinc\Cyberbiz\Fields;
 final class CustomerMessagePost
 {
     /**
-     * @param string $order the order the thread is about, as text
+     * @param CustomerMessageOrder|null $order the order the thread is about, null if none
      * @param string $status "reply_yet" or "replied"
      * @param list<CustomerMessageComment> $comments
      */
@@ -18,7 +18,7 @@ final class CustomerMessagePost
         public readonly int $id,
         public readonly string $title,
         public readonly string $category,
-        public readonly string $order,
+        public readonly ?CustomerMessageOrder $order,
         public readonly string $status,
         public readonly array $comments,
         public readonly ?\DateTimeImmutable $createdAt,
@@ -30,7 +30,7 @@ final class CustomerMessagePost
             $f->intOr('id'),
             $f->stringOr('title'),
             $f->stringOr('category'),
-            $f->stringOr('order'),
+            Nested::object($f, 'order', CustomerMessageOrder::fromFields(...)),
             $f->stringOr('status'),
             $f->list('comments', CustomerMessageComment::fromFields(...)),
             $f->time('created_at'),

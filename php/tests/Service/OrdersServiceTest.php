@@ -170,6 +170,18 @@ final class OrdersServiceTest extends TestCase
         self::assertSame('{"cancel_reason":"other","email":false,"refund_shopdotcom":10.50}', (string) $h->request()->getBody());
     }
 
+    public function testBranchStoreCoordinatesAcceptDecimalStrings(): void
+    {
+        $h = Harness::json('{"id":1,"branch_store":{"lat":"25.0330000","lng":"121.5654000"},"express_delivery_branch_store":{"lat":null,"lng":""}}');
+
+        $order = $h->client->orders()->get(1);
+
+        self::assertSame(25.033, $order->branchStore?->lat);
+        self::assertSame(121.5654, $order->branchStore->lng);
+        self::assertSame(0.0, $order->expressDeliveryBranchStore?->lat);
+        self::assertSame(0.0, $order->expressDeliveryBranchStore->lng);
+    }
+
     public function testDecodesSyntheticSubResources(): void
     {
         $h = Harness::json(
@@ -177,7 +189,7 @@ final class OrdersServiceTest extends TestCase
             '[{"id":2,"created_at":"2026-01-02 03:04:05","tracking_company":"ezcat","line_items":[{"id":3,"price":"50"}],"return_suda5":"100"}]',
             '[{"title":"Ticket","ticket_number":"T-1","available_quantity":2,"enabled":true,"separate":true,"transactions":[{"ticket_number":"T-1-1","used_at":"2026-01-02 03:04:05"}]}]',
             '[{"id":4,"id_verification":true,"amount":60,"store_no":"S1"}]',
-            '{"request_id":"r-1","results":[{"order_id":5,"tracking_numbers":{"tracking_company":"hct","tracking_number":"N1"},"line_items":"1,2"}]}',
+            '{"request_id":"r-1","results":[{"order_id":5,"tracking_numbers":[{"tracking_company":"hct","tracking_number":"N1"},{"tracking_company":"hct","tracking_number":"N2"}],"line_items":"1,2"}]}',
             '{"failed_orders":[{"order_id":6,"message":"no stock"}],"fulfillments":[{"id":7,"order_id":8,"tracking_number":""}]}',
         );
         $orders = $h->client->orders();
@@ -186,7 +198,9 @@ final class OrdersServiceTest extends TestCase
         self::assertSame('100', $orders->listReturns(1)[0]->returnSuda5);
         self::assertSame('2026-01-02', $orders->listEtickets()->items[0]->transactions[0]->usedAt?->format('Y-m-d'));
         self::assertTrue($orders->getFulfillmentInfos([4])[0]->idVerification);
-        self::assertSame('hct', $orders->createSupportShippingBatch(['support_shippings' => [], 'email' => 'ops@example.com'])->results[0]->trackingNumbers?->trackingCompany);
+        $tracking = $orders->createSupportShippingBatch(['support_shippings' => [], 'email' => 'ops@example.com'])->results[0]->trackingNumbers;
+        self::assertSame('hct', $tracking[0]->trackingCompany);
+        self::assertSame('N2', $tracking[1]->trackingNumber);
         self::assertSame(6, $orders->createSupportShippings([])->failedOrders[0]->orderId);
     }
 

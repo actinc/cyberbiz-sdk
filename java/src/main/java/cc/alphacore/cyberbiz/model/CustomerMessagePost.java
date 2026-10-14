@@ -9,7 +9,7 @@ import java.util.List;
  * @param id the thread id, or null
  * @param title subject
  * @param category category
- * @param order the order the thread is about, as text
+ * @param order the order the thread is about, or null when there is none
  * @param status "reply_yet" or "replied"
  * @param comments the messages
  * @param createdAt when it was opened
@@ -18,7 +18,7 @@ public record CustomerMessagePost(
     Long id,
     String title,
     String category,
-    String order,
+    CustomerMessageOrder order,
     String status,
     List<CustomerMessageComment> comments,
     OffsetDateTime createdAt) {
